@@ -1,6 +1,6 @@
 package com.taki.utis;
 
-import com.taki.enums.CodeEnum;
+import com.taki.core.enums.CodeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -86,7 +86,7 @@ public class ResponseData<T> {
      * @param: codeEnum 状态码
      * @param: message  自定义错误信息
      *  @param:data
-     * @return: com.taki.utis.ResponseData<T>
+     * @return:
      * @author Long
      * @date: 2021/11/24 18:01
      */

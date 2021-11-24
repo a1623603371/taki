@@ -1,6 +1,4 @@
-package com.taki.enums;
-
-import lombok.Data;
+package com.taki.core.enums;
 
 /**
  * @ClassName CodeEnum
