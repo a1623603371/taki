@@ -1,0 +1,97 @@
+server:
+  port: 9002
+
+spring:
+  application:
+    # swagger 名称
+    name: springfox-swagger
+  datasource:
+    # 数据库连接池
+    type: com.alibaba.druid.pool.DruidDataSource
+    #数据库连接地址
+    url: jdbc://192.168.33.11:3306/aaaa?useUnicode=true&characterEncoding=utf-8
+    username: root
+    password: 123456
+    # 数据库驱动
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    druid:
+      #初始的建立的连接次数
+      initial-size: 50
+      # 最小连接池数量
+      min-idle: 50
+      # 最大的连接池数量
+      max-active: 500
+      # 最大的 连接等待时间
+      max-wait:  6000
+      # 申请连接时执行ValidationQuery 检测连接是否有效，建议关闭，开启会影响性能
+      test-on-borrow: false
+      # 归还连接时执行 ValidationQuery 检测连接是否有效 建议关闭，开启会影响性能
+      test-on-return: false
+      # 建议开启，不影响性能，并保证安全，申请连接时检测，如果空闲时间大于 timeBetweenEviction-runs-millis 的时间，执行 ValidationQuery 检测连接是否有效
+      test-while-idle: true
+      #1.Destory线程会检测连接间隔时间 2.testWhileIdle 的判断依据
+      time-between-eviction-runs-millis: 60000
+      # 配置一个连接，在池中最小生存时间 ms
+      min-evictable-idle-time-millis: 30000
+      #检测 连接是否有效 SQL 语句，SQL 必须是查询语句 如果是null 会影响testWhileIdle、testOnBorrow、testOnReturn失效，如果底层代码use-ping-method是true，默认使用ping
+      validation-query: SELECT 1 FROM DUAL
+      # 检测SQL 超时时间
+      validation-query-timeout: 500
+      #缓存preparedStatements ，就是 PS Cache ，PS Cache 对支持游标的数据库性能提升巨大，比如 ORACLE ,MYSQL 不建议开启
+      pool-prepared-statements: false
+      #要启用PSCache，必须配置大于0，当大于0时，poolPreparedStatements自动触发修改为true。在Druid中，不会存在Oracle下PSCache占用内存过多的问题，可以把这个数值配置大一些，比如说100
+      max-pool-prepared-statement-per-connection-size: -1
+
+      # max-evictable-idle-time-millis:
+      #属性类型是字符串，通过别名的方式配置扩展插件，常用的插件有：
+      #监控统计用的 stat,日志用的 log4j， 防御SQL注入的是log4j
+      filter:
+        stat:
+          log-slow-sql: true
+      # 通过 connectProperties属性来打开mergeSql功能；记录慢SQL
+      connection-init-sqls: druid.stat.mergeSql=true;druid.stat.slpwSqlMillis=5000
+
+      #类型是 List<com.alibaba.druid.Filter> 如果同时也配置了 filter  他们是组合关系 ，不是替代关系
+     # proxy-filters:
+      #当数据库抛出不可恢复的异常直接抛弃连接
+     # exception-sorter:
+      # 物理连接初始化的时候执行的SQL
+     # connection-init-sqls:
+      # 数据库类型
+     # db-type: mysql
+      #webStatFilter 监控配置
+      web-stat-filter:
+        enabled: true
+        #添加过滤规则：那些访问拦截统计
+        url-pattern: /*
+        #忽略过滤格式 那些不拦截，不统计
+        exclusions: '*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*'
+
+      # StatViewServlet 配置 （Druid 监控后台的Servlet 映射配置，因为SpringBoot 项目没有 web.xml 所在这里使用配置文件设置）
+      stat-view-servlet:
+        enabled: true
+        #配置Servlet的访问路径：访问为/druid/** 时，跳转StatViewServlet，会自动跳转到Durid 监控后台
+        url-pattern: /druid/*
+        # 是否能够重置数据
+        reset-enable: false
+        login-username: admin
+        login-password: password
+        # 白名单
+        allow: 127.0.0.1
+        # 黑名单
+        deny: 192.168.33.11
+
+
+
+# swagger 基本信息配置
+swagger:
+  enable:
+    application-name: ${spring.application.name}
+    application-version : 1.0
+    application-description: springfox swagger 3.0 整合Demo
+    try-host: http://localhost:${server.port}
+
+
+
+
+
