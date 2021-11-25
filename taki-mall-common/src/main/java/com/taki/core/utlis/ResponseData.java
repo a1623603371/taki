@@ -1,4 +1,4 @@
-package com.taki.utis;
+package com.taki.core.utlis;
 
 import com.taki.core.enums.CodeEnum;
 import lombok.AllArgsConstructor;

@@ -20,7 +20,6 @@ import springfox.documentation.spring.web.plugins.Docket;
  * @Version 1.0
  */
 @Configuration
-@EnableOpenApi
 public class SwaggerConfig {
 
      @Bean
@@ -29,7 +28,7 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.OAS_30)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
+                //.apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
                 .paths(PathSelectors.any())
                 .build();
     }

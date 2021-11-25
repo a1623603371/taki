@@ -9,9 +9,9 @@ spring:
     # 数据库连接池
     type: com.alibaba.druid.pool.DruidDataSource
     #数据库连接地址
-    url: jdbc://192.168.33.11:3306/aaaa?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://192.168.33.11:3306/taki-mall?useUnicode=true&characterEncoding=utf-8
     username: root
-    password: 123456
+    password: Pzk2020@
     # 数据库驱动
     driver-class-name: com.mysql.cj.jdbc.Driver
     druid:
@@ -49,7 +49,7 @@ spring:
         stat:
           log-slow-sql: true
       # 通过 connectProperties属性来打开mergeSql功能；记录慢SQL
-      connection-init-sqls: druid.stat.mergeSql=true;druid.stat.slpwSqlMillis=5000
+      connectionProperties: druid.stat.mergeSql=ture;druid.stat.slowSqlMillis=5000
 
       #类型是 List<com.alibaba.druid.Filter> 如果同时也配置了 filter  他们是组合关系 ，不是替代关系
      # proxy-filters:
@@ -84,12 +84,12 @@ spring:
 
 
 # swagger 基本信息配置
-swagger:
-  enable:
-    application-name: ${spring.application.name}
-    application-version : 1.0
-    application-description: springfox swagger 3.0 整合Demo
-    try-host: http://localhost:${server.port}
+#swagger:
+#  enable:
+#    application-name: ${spring.application.name}
+#    application-version : 1.0
+#    application-description: springfox swagger 3.0 整合Demo
+#    try-host: http://localhost:${server.port}
 
 
 

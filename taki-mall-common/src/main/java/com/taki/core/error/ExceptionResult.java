@@ -23,6 +23,8 @@ public class ExceptionResult {
     private Date timestamp;
     // 描述
     private String respMsg;
+    // 异常栈信息
+    private String trace;
     // 错误异常信息
     private String message;
     // 实际错误异常名称
