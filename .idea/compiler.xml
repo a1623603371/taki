@@ -11,6 +11,7 @@
         <module name="taki-mall-common" />
         <module name="taki-mall-cart" />
         <module name="taki-mall-admin" />
+        <module name="taki-mall-generator" />
         <module name="taki-mall-wms" />
         <module name="taki-mall-pay" />
         <module name="taki-mall-user" />
@@ -26,6 +27,7 @@
       <module name="taki-mall-cart" options="-parameters" />
       <module name="taki-mall-commodity" options="-parameters" />
       <module name="taki-mall-common" options="-parameters" />
+      <module name="taki-mall-generator" options="-parameters" />
       <module name="taki-mall-inventory" options="-parameters" />
       <module name="taki-mall-oauth" options="-parameters" />
       <module name="taki-mall-order" options="-parameters" />

@@ -1,16 +1,16 @@
 package com.taki.user.controller;
 
-import com.taki.core.ResponseResult;
-import com.taki.core.enums.CodeEnum;
-import com.taki.core.error.ServiceException;
+
 import com.taki.core.utlis.ResponseData;
-import com.taki.user.service.UserServiceImpl;
+import com.taki.user.domain.UserDO;
+import com.taki.user.service.UserService;
 import io.swagger.annotations.Api;
+
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @ClassName UserController
@@ -24,14 +24,24 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(tags = "用户模块API")
 public class UserController {
 
- @Autowired
- private UserServiceImpl userService;
+    private UserService userService;
 
-    @GetMapping("/test")
-    @ApiOperation("测试方法")
-    public ResponseData<String> test() throws ServiceException {
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @ApiOperation("保存用户")
+    @PostMapping("/save")
+    public ResponseData save(@RequestBody UserDO user){
+        userService.save(user);
+        return ResponseData.success("ok");
+    }
 
 
-        return ResponseData.success( userService.test());
+    @ApiOperation("获取用户集合")
+    @GetMapping("/")
+    public ResponseData<List<UserDO>> getUsers(){
+        return ResponseData.success(userService.list());
     }
 }
