@@ -93,17 +93,21 @@ spring:
 
 
 
-logging:
-  level:
-    root: info
+#logging:
+ # level:
+  #  root: info
 
-  file:
+ # file:
+    #存放天数
+   # max-history:
+    # 日志大小
+  #  max-size:
     # 配置 log 文件日志存储位置
-    path:
+   # path:
     # 配置 log 文件日志名称
-    name:
+   # name:
   # 配置日志输出格式
- pattern:
+ #pattern:
   #日志输出格式
   # %d 日期时间
   # %thread 表示线程
@@ -114,12 +118,13 @@ logging:
   #
   # %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %5level %logger{50} - %msg%n
   #指定控制台输入 的格式
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %5level %logger{50} - %msg%n"
+  #  console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %5level %logger{50} - %msg%n"
     #配置 log 文件中的 输出格式
-    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %5level %logger{50} - %msg%n"
+   # file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %5level %logger{50} - %msg%n"
   # 配置log 文件 配置位置
-  config:
+  #config:
     #日志文件存放位置
+
 
 
 
