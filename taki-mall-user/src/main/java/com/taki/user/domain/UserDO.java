@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -44,11 +45,11 @@ public class UserDO extends Model<UserDO> {
 
     @ApiModelProperty("创建时间")
     @TableField("create_time")
-    private Date createTime;
+    private LocalDateTime createTime;
 
     @ApiModelProperty("修改时间")
     @TableField("update_time")
-    private Date updateTime;
+    private LocalDateTime updateTime;
 
 
     public static final String UID = "uid";

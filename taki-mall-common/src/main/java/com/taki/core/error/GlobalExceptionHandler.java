@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
     /**
      * @description: 处理异常信息
      * @param: ex
-request
+        request
      * @return: java.lang.Object
      * @author Long
      * @date: 2021/11/24 21:42
@@ -43,6 +43,7 @@ request
             result.message("空指针异常");
         }
         ExceptionResult.builder().timestamp(new Date())
+                .message(ex.getMessage())
                 .trace(trace)
                 .exceptionName(ex.getClass().getName())
                 .path(request.getRequestURI());

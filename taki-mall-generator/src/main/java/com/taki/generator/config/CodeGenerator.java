@@ -42,15 +42,18 @@ public class CodeGenerator {
                     "root", "Pzk2020@")
                     .dbQuery(new MySqlQuery())
                     .schema("taki-mall")
-                    .typeConvert(new MySqlTypeConvert(){
-                        @Override
-                        public IColumnType processTypeConvert(GlobalConfig config, String fieldType) {
-                            if (fieldType.equals("datetime")){
-                                return DbColumnType.DATE;
-                            }
-                            return super.processTypeConvert(config, fieldType);
-                        }
-                    })
+                    .typeConvert(
+                            new MySqlTypeConvert()
+//                            {
+//                        @Override
+//                        public IColumnType processTypeConvert(GlobalConfig config, String fieldType) {
+//                            if (fieldType.equals("datetime")){
+//                                return DbColumnType.DATE;
+//                            }
+//                            return super.processTypeConvert(config, fieldType);
+//                        }
+//                    }
+                    )
                     .keyWordsHandler(new MySqlKeyWordsHandler());
 
 //    public void before(){

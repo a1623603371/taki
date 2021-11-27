@@ -35,6 +35,7 @@ public class ResponseData<T> {
     private void parserEnum(CodeEnum codeEnum){
         this.code = codeEnum.getCode();
         this.message = codeEnum.getMessage();
+
     }
 
     /**
