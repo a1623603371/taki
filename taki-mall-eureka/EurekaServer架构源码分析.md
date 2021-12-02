@@ -1,7 +1,10 @@
 # 1.Eureka源码分析
     spring cloud 默认使用的是netflix 开源的 Eureka 做为注册中心,Eureka 做为一个AP架构的分布式注册中心，
-    我们通过阅读源码去掌握eureka架构和当前架构存在问题,掌握好源码和架构就能在开发过程如何避免一些些，遇到bug能
+    我们通过阅读源码去掌握eureka架构和当前架构存在问题,掌握好源码和架构就能在开发过程如何避免一些些，遇到bug能快速定位问题，
+    同时也能
     自己做2次的开发，也能学到一下优秀的架构思想。
+    eurka集群没有主从概念每个节点都对等的，同时 eureka server 也 是 eurka client ，具备client 的所有功能，
+    在集群环境下eurka server 节点 都是要相互向对方节点进行注册的。
 
 
 ## 1.1EurekaServerBootstrap类分析
@@ -192,4 +195,161 @@
 		}).start();
 	}
 
-##Eureka Server端  
+##2.Eureka Client 初始化源码分析 DiscoveryClient 类
+
+### 2.1 DiscoveryClient 初始化
+    @Inject
+    DiscoveryClient(ApplicationInfoManager applicationInfoManager, EurekaClientConfig config, AbstractDiscoveryClientOptionalArgs args, Provider<BackupRegistry> backupRegistryProvider, EndpointRandomizer endpointRandomizer) {
+        // 创建哈希码不匹配 监听器
+        this.RECONCILE_HASH_CODES_MISMATCH = Monitors.newCounter("DiscoveryClient_ReconcileHashCodeMismatch");
+        // 创建 获取注册表定时器
+        this.FETCH_REGISTRY_TIMER = Monitors.newTimer("DiscoveryClient_FetchRegistry");
+        // 创建注册表 计数器
+        this.REREGISTER_COUNTER = Monitors.newCounter("DiscoveryClient_Reregister");
+        // 创建 本地注册信息  
+        this.localRegionApps = new AtomicReference();
+        // 创建更新注册表独占锁
+        this.fetchRegistryUpdateLock = new ReentrantLock();
+        // 健康检查处理程序
+        this.healthCheckHandlerRef = new AtomicReference();
+        // 
+        this.remoteRegionVsApps = new ConcurrentHashMap();
+        this.lastRemoteInstanceStatus = InstanceStatus.UNKNOWN;
+        this.eventListeners = new CopyOnWriteArraySet();
+        this.registrySize = 0;
+        this.lastSuccessfulRegistryFetchTimestamp = -1L;
+        this.lastSuccessfulHeartbeatTimestamp = -1L;
+        this.isShutdown = new AtomicBoolean(false);
+        this.stats = new DiscoveryClient.Stats();
+        if (args != null) {
+            this.healthCheckHandlerProvider = args.healthCheckHandlerProvider;
+            this.healthCheckCallbackProvider = args.healthCheckCallbackProvider;
+            this.eventListeners.addAll(args.getEventListeners());
+            this.preRegistrationHandler = args.preRegistrationHandler;
+        } else {
+            this.healthCheckCallbackProvider = null;
+            this.healthCheckHandlerProvider = null;
+            this.preRegistrationHandler = null;
+        }
+
+        this.applicationInfoManager = applicationInfoManager;
+        InstanceInfo myInfo = applicationInfoManager.getInfo();
+        this.clientConfig = config;
+        staticClientConfig = this.clientConfig;
+        this.transportConfig = config.getTransportConfig();
+        this.instanceInfo = myInfo;
+        if (myInfo != null) {
+            this.appPathIdentifier = this.instanceInfo.getAppName() + "/" + this.instanceInfo.getId();
+        } else {
+            logger.warn("Setting instanceInfo to a passed in null value");
+        }
+
+        this.backupRegistryProvider = backupRegistryProvider;
+        this.endpointRandomizer = endpointRandomizer;
+        this.urlRandomizer = new InstanceInfoBasedUrlRandomizer(this.instanceInfo);
+        this.localRegionApps.set(new Applications());
+        this.fetchRegistryGeneration = new AtomicLong(0L);
+        this.remoteRegionsToFetch = new AtomicReference(this.clientConfig.fetchRegistryForRemoteRegions());
+        this.remoteRegionsRef = new AtomicReference(this.remoteRegionsToFetch.get() == null ? null : ((String)this.remoteRegionsToFetch.get()).split(","));
+        if (config.shouldFetchRegistry()) {
+            this.registryStalenessMonitor = new ThresholdLevelsMetric(this, "eurekaClient.registry.lastUpdateSec_", new long[]{15L, 30L, 60L, 120L, 240L, 480L});
+        } else {
+            this.registryStalenessMonitor = ThresholdLevelsMetric.NO_OP_METRIC;
+        }
+
+        if (config.shouldRegisterWithEureka()) {
+            this.heartbeatStalenessMonitor = new ThresholdLevelsMetric(this, "eurekaClient.registration.lastHeartbeatSec_", new long[]{15L, 30L, 60L, 120L, 240L, 480L});
+        } else {
+            this.heartbeatStalenessMonitor = ThresholdLevelsMetric.NO_OP_METRIC;
+        }
+
+        logger.info("Initializing Eureka in region {}", this.clientConfig.getRegion());
+        if (!config.shouldRegisterWithEureka() && !config.shouldFetchRegistry()) {
+            logger.info("Client configured to neither register nor query for data.");
+            this.scheduler = null;
+            this.heartbeatExecutor = null;
+            this.cacheRefreshExecutor = null;
+            this.eurekaTransport = null;
+            this.instanceRegionChecker = new InstanceRegionChecker(new PropertyBasedAzToRegionMapper(config), this.clientConfig.getRegion());
+            DiscoveryManager.getInstance().setDiscoveryClient(this);
+            DiscoveryManager.getInstance().setEurekaClientConfig(config);
+            this.initTimestampMs = System.currentTimeMillis();
+            this.initRegistrySize = this.getApplications().size();
+            this.registrySize = this.initRegistrySize;
+            logger.info("Discovery Client initialized at timestamp {} with initial instances count: {}", this.initTimestampMs, this.initRegistrySize);
+        } else {
+            try {
+                this.scheduler = Executors.newScheduledThreadPool(2, (new ThreadFactoryBuilder()).setNameFormat("DiscoveryClient-%d").setDaemon(true).build());
+                this.heartbeatExecutor = new ThreadPoolExecutor(1, this.clientConfig.getHeartbeatExecutorThreadPoolSize(), 0L, TimeUnit.SECONDS, new SynchronousQueue(), (new ThreadFactoryBuilder()).setNameFormat("DiscoveryClient-HeartbeatExecutor-%d").setDaemon(true).build());
+                this.cacheRefreshExecutor = new ThreadPoolExecutor(1, this.clientConfig.getCacheRefreshExecutorThreadPoolSize(), 0L, TimeUnit.SECONDS, new SynchronousQueue(), (new ThreadFactoryBuilder()).setNameFormat("DiscoveryClient-CacheRefreshExecutor-%d").setDaemon(true).build());
+                this.eurekaTransport = new DiscoveryClient.EurekaTransport();
+                this.scheduleServerEndpointTask(this.eurekaTransport, args);
+                Object azToRegionMapper;
+                if (this.clientConfig.shouldUseDnsForFetchingServiceUrls()) {
+                    azToRegionMapper = new DNSBasedAzToRegionMapper(this.clientConfig);
+                } else {
+                    azToRegionMapper = new PropertyBasedAzToRegionMapper(this.clientConfig);
+                }
+
+                if (null != this.remoteRegionsToFetch.get()) {
+                    ((AzToRegionMapper)azToRegionMapper).setRegionsToFetch(((String)this.remoteRegionsToFetch.get()).split(","));
+                }
+
+                this.instanceRegionChecker = new InstanceRegionChecker((AzToRegionMapper)azToRegionMapper, this.clientConfig.getRegion());
+            } catch (Throwable var12) {
+                throw new RuntimeException("Failed to initialize DiscoveryClient!", var12);
+            }
+
+            if (this.clientConfig.shouldFetchRegistry()) {
+                try {
+                    boolean primaryFetchRegistryResult = this.fetchRegistry(false);
+                    if (!primaryFetchRegistryResult) {
+                        logger.info("Initial registry fetch from primary servers failed");
+                    }
+
+                    boolean backupFetchRegistryResult = true;
+                    if (!primaryFetchRegistryResult && !this.fetchRegistryFromBackup()) {
+                        backupFetchRegistryResult = false;
+                        logger.info("Initial registry fetch from backup servers failed");
+                    }
+
+                    if (!primaryFetchRegistryResult && !backupFetchRegistryResult && this.clientConfig.shouldEnforceFetchRegistryAtInit()) {
+                        throw new IllegalStateException("Fetch registry error at startup. Initial fetch failed.");
+                    }
+                } catch (Throwable var11) {
+                    logger.error("Fetch registry error at startup: {}", var11.getMessage());
+                    throw new IllegalStateException(var11);
+                }
+            }
+
+            if (this.preRegistrationHandler != null) {
+                this.preRegistrationHandler.beforeRegistration();
+            }
+
+            if (this.clientConfig.shouldRegisterWithEureka() && this.clientConfig.shouldEnforceRegistrationAtInit()) {
+                try {
+                    if (!this.register()) {
+                        throw new IllegalStateException("Registration error at startup. Invalid server response.");
+                    }
+                } catch (Throwable var10) {
+                    logger.error("Registration error at startup: {}", var10.getMessage());
+                    throw new IllegalStateException(var10);
+                }
+            }
+
+            this.initScheduledTasks();
+
+            try {
+                Monitors.registerObject(this);
+            } catch (Throwable var9) {
+                logger.warn("Cannot register timers", var9);
+            }
+
+            DiscoveryManager.getInstance().setDiscoveryClient(this);
+            DiscoveryManager.getInstance().setEurekaClientConfig(config);
+            this.initTimestampMs = System.currentTimeMillis();
+            this.initRegistrySize = this.getApplications().size();
+            this.registrySize = this.initRegistrySize;
+            logger.info("Discovery Client initialized at timestamp {} with initial instances count: {}", this.initTimestampMs, this.initRegistrySize);
+        }
+    }

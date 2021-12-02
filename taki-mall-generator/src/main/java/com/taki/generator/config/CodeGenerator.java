@@ -64,12 +64,14 @@ public class CodeGenerator {
 
 
     private static  String[] tables = new String[]{
-            "user"
+            "membership",
+            ""
     };
 
 
     public static void main(String[] args) {
-        String path = "D:/work/taki-mall";
+        String projectPath = System.getProperty("user.dir");
+        String path = projectPath+"/code";
 //        FastAutoGenerator.create(DATA_SOURCE_CONFIG)
 //                .globalConfig(builder ->
 //                    builder.fileOverride()
@@ -117,7 +119,7 @@ public class CodeGenerator {
                 })
                 .packageConfig(builder -> {
                     builder.parent("com.taki") // 设置父包名
-                            .moduleName("user")
+                            .moduleName("module")
                             .entity("domain")
                             .service("service")
                             .serviceImpl("service.impl")

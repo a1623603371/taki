@@ -1,7 +1,7 @@
 package com.taki.user.mapper;
 
-import com.taki.user.domain.UserDO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.taki.user.domain.MembershipDO;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -10,9 +10,9 @@ import org.apache.ibatis.annotations.Mapper;
  * </p>
  *
  * @author long
- * @since 2021-11-26
+ * @since 2021-12-02
  */
 @Mapper
-public interface UserMapper extends BaseMapper<UserDO> {
+public interface MembershipMapper extends BaseMapper<MembershipDO> {
 
 }
