@@ -11,7 +11,7 @@
  Target Server Version : 50734
  File Encoding         : 65001
 
- Date: 01/12/2021 18:07:32
+ Date: 02/12/2021 11:10:17
 */
 
 SET NAMES utf8mb4;
@@ -1131,6 +1131,451 @@ CREATE TABLE `schedule_goods_stock`  (
 
 -- ----------------------------
 -- Records of schedule_goods_stock
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for schedule_order_picking_item
+-- ----------------------------
+DROP TABLE IF EXISTS `schedule_order_picking_item`;
+CREATE TABLE `schedule_order_picking_item`  (
+  `id` bigint(20) NOT NULL,
+  `order_info_id` bigint(20) NOT NULL COMMENT '订单ID',
+  `order_item_id` bigint(20) NOT NULL COMMENT '订单条目ID',
+  `goods_allocation_id` bigint(20) NOT NULL COMMENT '货位ID',
+  `goods_sku_id` bigint(20) NOT NULL COMMENT '商品SKU ID',
+  `picking_count` bigint(20) NOT NULL COMMENT '拣货数量',
+  `create_time` datetime(0) NOT NULL COMMENT '创建时间',
+  `update_time` datetime(0) NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of schedule_order_picking_item
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for schedule_order_send_out_detail
+-- ----------------------------
+DROP TABLE IF EXISTS `schedule_order_send_out_detail`;
+CREATE TABLE `schedule_order_send_out_detail`  (
+  `id` bigint(20) NOT NULL,
+  `order_info_id` bigint(20) NOT NULL COMMENT '订单Id',
+  `order_item_id` bigint(20) NOT NULL COMMENT '订单条目Id',
+  `goods_allocation_stock_detail_id` bigint(20) NOT NULL COMMENT '货位库存明细ID',
+  `send_out_count` bigint(20) NOT NULL COMMENT '发货数量',
+  `create_time` datetime(0) NOT NULL COMMENT '创建时间',
+  `update_time` datetime(0) NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of schedule_order_send_out_detail
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_goods_allocation
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_goods_allocation`;
+CREATE TABLE `wms_goods_allocation`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `code` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '货位编号',
+  `remark` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '说明备注',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'WMS中心的货位表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of wms_goods_allocation
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_goods_allocation_stock
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_goods_allocation_stock`;
+CREATE TABLE `wms_goods_allocation_stock`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `goods_allocation_id` bigint(20) NOT NULL COMMENT '货位ID',
+  `goods_sku_id` bigint(20) NOT NULL COMMENT '商品sku ID',
+  `available_stock_quantity` bigint(20) NOT NULL COMMENT '可用库存数量',
+  `locked_stock_quantity` bigint(20) NOT NULL COMMENT '锁定库存数量',
+  `output_stock_quantity` bigint(20) NOT NULL COMMENT '已出库库存数量',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '仓库中的货位库存' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of wms_goods_allocation_stock
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_goods_allocation_stock_detail
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_goods_allocation_stock_detail`;
+CREATE TABLE `wms_goods_allocation_stock_detail`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `goods_sku_id` bigint(20) NOT NULL COMMENT '商品sku id',
+  `goods_allocation_id` bigint(20) NOT NULL COMMENT '货位id',
+  `put_on_time` datetime(0) NOT NULL COMMENT '上架时间',
+  `put_on_quantity` bigint(20) NOT NULL COMMENT '上架多少件商品',
+  `current_stock_quantity` bigint(20) NOT NULL COMMENT '当前这一批上架的商品还有多少件库存',
+  `locked_stock_quantity` bigint(20) NOT NULL COMMENT '当前这一批商品被锁定的库存',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NULL DEFAULT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of wms_goods_allocation_stock_detail
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_goods_stock
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_goods_stock`;
+CREATE TABLE `wms_goods_stock`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `goods_sku_id` bigint(20) NOT NULL COMMENT '商品sku ID',
+  `available_stock_quantity` bigint(20) NOT NULL COMMENT '可用库存数量',
+  `locked_stock_quantity` bigint(20) NOT NULL COMMENT '锁定库存数量',
+  `output_stock_quantity` bigint(20) NOT NULL COMMENT '已出库库存数量',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_goods_sku_id`(`goods_sku_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '调度中心的商品库存' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of wms_goods_stock
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_logistic_order
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_logistic_order`;
+CREATE TABLE `wms_logistic_order`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `sale_delivery_order_id` bigint(20) NOT NULL COMMENT '销售出库单id',
+  `logistic_code` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '物流单号',
+  `content` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '物流单内容',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_sale_delivery_order_id`(`sale_delivery_order_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of wms_logistic_order
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_purchase_input_order
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_purchase_input_order`;
+CREATE TABLE `wms_purchase_input_order`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `purchase_order_id` bigint(20) NOT NULL COMMENT '采购单id',
+  `supplier_id` bigint(20) NOT NULL COMMENT '供应商ID',
+  `expect_arrival_time` datetime(0) NOT NULL COMMENT '预计到货时间',
+  `actual_arrival_time` datetime(0) NULL DEFAULT NULL COMMENT '实际到货时间',
+  `purchase_contactor` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '采购联系人',
+  `purchase_contactor_phone_number` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '采购联系电话',
+  `purchase_contactor_email` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '采购联系邮箱',
+  `purchase_order_remark` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '采购单的说明备注',
+  `purchaser` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '采购员',
+  `status` tinyint(4) NOT NULL COMMENT '采购入库单状态，1：编辑中，2：待审核，3：已入库，4：待结算，5：已完成',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'wms中心的采购入库单' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of wms_purchase_input_order
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_purchase_input_order_item
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_purchase_input_order_item`;
+CREATE TABLE `wms_purchase_input_order_item`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `purchase_input_order_id` bigint(20) NOT NULL COMMENT '采购入库单ID',
+  `goods_sku_id` bigint(20) NOT NULL COMMENT '商品SKU ID',
+  `purchase_count` bigint(20) NOT NULL COMMENT '采购数量',
+  `purchase_price` bigint(20) NOT NULL COMMENT '采购价格',
+  `qualified_count` bigint(20) NULL DEFAULT NULL COMMENT '合格商品的数量',
+  `arrival_count` bigint(20) NULL DEFAULT NULL COMMENT '到货的商品数量',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'wms中心的采购入库单条目表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of wms_purchase_input_order_item
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_purchase_input_order_put_on_item
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_purchase_input_order_put_on_item`;
+CREATE TABLE `wms_purchase_input_order_put_on_item`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `purchase_input_order_item_id` bigint(20) NOT NULL COMMENT '采购入库单条目ID',
+  `goods_allocation_id` bigint(20) NOT NULL COMMENT '货位ID',
+  `goods_sku_id` bigint(20) NOT NULL COMMENT '商品sku id',
+  `put_on_shelves_count` bigint(20) NOT NULL COMMENT '上架数量',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '采购入库单条目关联的上架条目' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of wms_purchase_input_order_put_on_item
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_return_goods_input_order
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_return_goods_input_order`;
+CREATE TABLE `wms_return_goods_input_order`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `return_goods_worksheet_id` bigint(20) NOT NULL COMMENT '退货工单id',
+  `user_account_id` char(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '用户账号ID',
+  `order_id` bigint(20) NOT NULL COMMENT '订单ID',
+  `order_no` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '订单编号，随机生成的UUID',
+  `status` tinyint(4) NOT NULL COMMENT '退货入库单状态，1：编辑中，2：待审核：3：已完成',
+  `consignee` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '收货人',
+  `delivery_address` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '收货地址',
+  `consignee_cell_phone_number` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '收货人电话号码',
+  `freight` decimal(8, 2) NOT NULL COMMENT '运费',
+  `pay_type` tinyint(4) NOT NULL COMMENT '支付方式，1：支付宝，2：微信',
+  `total_amount` decimal(8, 2) NOT NULL COMMENT '订单总金额',
+  `discount_amount` decimal(8, 2) NOT NULL COMMENT '促销活动折扣金额',
+  `coupon_amount` decimal(8, 2) NOT NULL COMMENT '优惠券抵扣金额',
+  `payable_amount` decimal(8, 2) NOT NULL COMMENT '应付金额，订单总金额 - 促销活动折扣金额 - 优惠券抵扣金额 + 运费',
+  `invoice_title` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '发票抬头',
+  `taxpayer_id` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '纳税人识别号',
+  `order_comment` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '订单备注',
+  `return_goods_reason` tinyint(4) NOT NULL COMMENT '退货原因，1：质量不好，2：商品不满意，3：买错了，4：无理由退货',
+  `return_goods_remark` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '退货备注',
+  `arrival_time` datetime(0) NULL DEFAULT NULL COMMENT '到货时间',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'wms中心的退货入库单' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of wms_return_goods_input_order
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_return_goods_input_order_item
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_return_goods_input_order_item`;
+CREATE TABLE `wms_return_goods_input_order_item`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `return_goods_input_order_id` bigint(20) NOT NULL COMMENT '退货入库单ID',
+  `goods_sku_id` bigint(20) NOT NULL COMMENT '商品sku ID',
+  `goods_sku_code` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '商品sku编号',
+  `goods_name` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '商品名称',
+  `sale_properties` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '销售属性，机身颜色:白色,内存容量:256G',
+  `goods_gross_weight` decimal(8, 2) NOT NULL COMMENT '商品毛重',
+  `purchase_quantity` bigint(20) NOT NULL COMMENT '购买数量',
+  `purchase_price` decimal(8, 2) NOT NULL COMMENT '商品购买价格',
+  `promotion_activity_id` bigint(20) NULL DEFAULT NULL COMMENT '促销活动ID',
+  `goods_length` decimal(8, 2) NOT NULL COMMENT '商品长度',
+  `goods_width` decimal(8, 2) NOT NULL COMMENT '商品宽度',
+  `goods_height` decimal(8, 2) NOT NULL COMMENT '商品高度',
+  `qualified_count` bigint(20) NULL DEFAULT NULL COMMENT '合格商品数量',
+  `arrival_count` bigint(20) NULL DEFAULT NULL COMMENT '商品到货数量',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '退货入库单条目' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of wms_return_goods_input_order_item
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_return_goods_input_order_put_on_item
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_return_goods_input_order_put_on_item`;
+CREATE TABLE `wms_return_goods_input_order_put_on_item`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `return_goods_input_order_item_id` bigint(20) NOT NULL COMMENT '退货入库单条目ID',
+  `goods_allocation_id` bigint(20) NOT NULL COMMENT '货位ID',
+  `goods_sku_id` bigint(20) NULL DEFAULT NULL COMMENT '商品sku id',
+  `put_on_shelves_count` bigint(20) NOT NULL COMMENT '上架数量',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '退货入库单条目关联的上架条目' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of wms_return_goods_input_order_put_on_item
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_sale_delivery_order
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_sale_delivery_order`;
+CREATE TABLE `wms_sale_delivery_order`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `order_id` bigint(20) NOT NULL COMMENT '订单ID',
+  `order_no` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '订单编号，随机生成的UUID',
+  `user_account_id` char(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户账号ID',
+  `consignee` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '收货人',
+  `delivery_address` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '收货地址',
+  `consignee_cell_phone_number` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '收货人电话号码',
+  `freight` decimal(8, 2) NOT NULL COMMENT '运费',
+  `pay_type` tinyint(4) NOT NULL COMMENT '支付方式，1：支付宝，2：微信',
+  `total_amount` decimal(8, 2) NOT NULL COMMENT '订单总金额',
+  `discount_amount` decimal(8, 2) NOT NULL COMMENT '促销活动折扣金额',
+  `coupon_amount` decimal(8, 2) NOT NULL COMMENT '优惠券抵扣金额',
+  `payable_amount` decimal(8, 2) NOT NULL COMMENT '应付金额，订单总金额 - 促销活动折扣金额 - 优惠券抵扣金额 + 运费',
+  `invoice_title` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '发票抬头',
+  `taxpayer_id` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '纳税人识别号',
+  `order_comment` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '订单备注',
+  `status` tinyint(4) NOT NULL COMMENT '销售出库单的状态，1：编辑中，2：待审核，3：已完成',
+  `delivery_time` datetime(0) NULL DEFAULT NULL COMMENT '发货时间',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_order_id`(`order_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'wms中心的销售出库单' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of wms_sale_delivery_order
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_sale_delivery_order_item
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_sale_delivery_order_item`;
+CREATE TABLE `wms_sale_delivery_order_item`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `sale_delivery_order_id` bigint(20) NOT NULL COMMENT '销售出库单ID',
+  `goods_sku_id` bigint(20) NOT NULL COMMENT '商品sku ID',
+  `goods_sku_code` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '商品sku编号',
+  `goods_name` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '商品名称',
+  `sale_properties` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '销售属性，机身颜色:白色,内存容量:256G',
+  `goods_gross_weight` decimal(8, 2) NOT NULL COMMENT '商品毛重',
+  `purchase_quantity` bigint(20) NOT NULL COMMENT '购买数量',
+  `purchase_price` decimal(8, 2) NOT NULL COMMENT '商品购买价格',
+  `promotion_activity_id` bigint(20) NULL DEFAULT NULL COMMENT '促销活动ID',
+  `goods_length` decimal(8, 2) NOT NULL COMMENT '商品长度',
+  `goods_width` decimal(8, 2) NOT NULL COMMENT '商品宽度',
+  `goods_height` decimal(8, 2) NOT NULL COMMENT '商品高度',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_sale_delivery_order_id`(`sale_delivery_order_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'wms中心的销售出库单条目' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of wms_sale_delivery_order_item
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_sale_delivery_order_picking_item
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_sale_delivery_order_picking_item`;
+CREATE TABLE `wms_sale_delivery_order_picking_item`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `sale_delivery_order_item_id` bigint(20) NOT NULL COMMENT '销售出库单条目ID',
+  `goods_allocation_id` bigint(20) NOT NULL COMMENT '货位ID',
+  `goods_sku_id` bigint(20) NOT NULL COMMENT '商品sku id',
+  `picking_count` bigint(20) NOT NULL COMMENT '发多少件商品',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_sale_delivery_order_item_id`(`sale_delivery_order_item_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '销售出库单的拣货条目' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of wms_sale_delivery_order_picking_item
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_sale_delivery_order_send_out_detail
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_sale_delivery_order_send_out_detail`;
+CREATE TABLE `wms_sale_delivery_order_send_out_detail`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `sale_delivery_order_item_id` bigint(20) NOT NULL COMMENT '销售出库单条目id',
+  `goods_allocation_stock_detail_id` bigint(20) NOT NULL COMMENT '货位库存明细id',
+  `send_out_count` bigint(20) NOT NULL COMMENT '发货数量',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_sale_delivery_order_item_id`(`sale_delivery_order_item_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of wms_sale_delivery_order_send_out_detail
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_send_out_order
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_send_out_order`;
+CREATE TABLE `wms_send_out_order`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `sale_delivery_order_id` bigint(20) NOT NULL COMMENT '销售出库单id',
+  `user_account_id` bigint(20) NOT NULL COMMENT '用户账号ID',
+  `username` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '用户名',
+  `order_id` bigint(20) NOT NULL COMMENT '订单id',
+  `order_no` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '订单编号，随机生成的UUID',
+  `consignee` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '收货人',
+  `delivery_address` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '收货地址',
+  `consignee_cell_phone_number` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '收货人电话号码',
+  `freight` decimal(8, 2) NOT NULL COMMENT '运费',
+  `pay_type` tinyint(4) NOT NULL COMMENT '支付方式，1：支付宝，2：微信',
+  `total_amount` decimal(8, 2) NOT NULL COMMENT '订单总金额',
+  `discount_amount` decimal(8, 2) NOT NULL COMMENT '促销活动折扣金额',
+  `coupon_amount` decimal(8, 2) NOT NULL COMMENT '优惠券抵扣金额',
+  `payable_amount` decimal(8, 2) NOT NULL COMMENT '应付金额，订单总金额 - 促销活动折扣金额 - 优惠券抵扣金额 + 运费',
+  `invoice_title` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '发票抬头',
+  `taxpayer_id` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '纳税人识别号',
+  `order_comment` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '订单备注',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_sale_delivery_order_id`(`sale_delivery_order_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '订单信息表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of wms_send_out_order
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for wms_send_out_order_item
+-- ----------------------------
+DROP TABLE IF EXISTS `wms_send_out_order_item`;
+CREATE TABLE `wms_send_out_order_item`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `send_out_order_id` bigint(20) NOT NULL COMMENT '发货单id',
+  `goods_id` bigint(20) NOT NULL COMMENT '商品id',
+  `goods_sku_id` bigint(20) NOT NULL COMMENT '商品sku ID',
+  `goods_sku_code` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '商品sku编号',
+  `goods_name` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '商品名称',
+  `sale_properties` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '销售属性，机身颜色:白色,内存容量:256G',
+  `goods_gross_weight` decimal(8, 2) NOT NULL COMMENT '商品毛重',
+  `purchase_quantity` bigint(20) NOT NULL COMMENT '购买数量',
+  `purchase_price` decimal(8, 2) NOT NULL COMMENT '商品购买价格',
+  `goods_length` decimal(8, 2) NOT NULL COMMENT '商品长度',
+  `goods_width` decimal(8, 2) NOT NULL COMMENT '商品宽度',
+  `goods_height` decimal(8, 2) NOT NULL COMMENT '商品高度',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_send_out_order_id`(`send_out_order_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '订单商品条目' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of wms_send_out_order_item
 -- ----------------------------
 
 SET FOREIGN_KEY_CHECKS = 1;

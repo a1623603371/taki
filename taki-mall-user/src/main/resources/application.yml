@@ -1,5 +1,7 @@
 server:
   port: 9002
+  servlet:
+    context-path: /user
 
 spring:
   application:
@@ -81,9 +83,58 @@ spring:
         # 黑名单
         deny: 192.168.33.11
 
+eureka:
+  client:
+    # 是否启动eureka 客户端 默认是true
+    enabled: true # 如果测试可以改为false，就不用注释注解了
+    register-with-eureka: true
+    fetch-registry: true
+    # 客户端拉取 服务端 注册表信息间隔时间 默认 30s
+    registry-fetch-interval-seconds: 30
+    serviceUrl:
+    # eureka 集群 多个 sever 用,隔开
+      defaultZone: http://prre1:9000/eureka
+    #作用是修改eureka的健康检查方式（心跳），改为用actuator，详见HealthCheckHandler HealthIndicator。
+    healthcheck:
+      enabled: true
+
+  instance:
+    #是否以IP注册到Eureka Server上，如果false则不是IP而是服务器名称
+    secure-port-enabled: false
+    instance-id: user
+    # 心跳间隔时间
+    lease-renewal-interval-in-seconds: 30
+    #服务失效时间。90秒服务端接收不到客户端的心跳，则剔除该客户端服务实例。
+    lease-expiration-duration-in-seconds: 90
+    #端口配置，若配置了 context-path actuator的监控端点会增加前缀，此时eureka也需要相应增加
+    status-page-url: ${server.context-path}/info
+    health-check-url-path: ${server.context-path}/health
 
 
-# swagger 基本信息配置
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # swagger 基本信息配置
 #swagger:
 #  enable:
 #    application-name: ${spring.application.name}
@@ -124,6 +175,14 @@ spring:
   # 配置log 文件 配置位置
   #config:
     #日志文件存放位置
+
+
+
+
+
+
+
+
 
 
 

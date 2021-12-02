@@ -1,0 +1,50 @@
+server:
+  port: 9000
+
+
+eureka:
+  server:
+    # 开启自动保护机制默认true。打开后，心跳失败在15分钟内低于85%(renewalPercentThreshold)的服务，也不进行剔除。
+    # 关闭后，主页提示：RENEWALS ARE LESSER THAN THE THRESHOLD. THE SELF PRESERVATION MODE IS TURNED OFF.
+    enable-self-preservation: true
+    #设置百分比多少服务实例没有更新触发 自我保护 默认 0.85
+    renewal-percent-threshold: 0.85 # 本地调试时可false关闭。但生产建议打开，可防止因网络不稳定等原因导致误剔除服务。
+    #服务接受请求的等待时间 默认为 5 min
+    #wait-time-in-ms-when-sync-empty: 5
+    #配置读写缓存的过期时间，过期前缓存不会更新，过期后如果有新的请求来会重注册表拉取最新的注册数据
+    response-cache-auto-expiration-in-seconds: 180
+    #检测 服务实例失效间隔时间 默认 60s
+    eviction-interval-timer-in-ms: 3000
+  client:
+    # 是否向注册中心发起注册 单机 false 集群 true
+    register-with-eureka: false
+    # 拉取其他eureka集群服务实例注册信息  服务端 false
+    fetch-registry: false
+    # 拉取服务实例信息间隔时间 单位
+    registry-fetch-interval-seconds: 30
+    #serviceUrl:
+      # eureka 集群
+    #  defaultZone: http://prre1:8761/eureka,http://prre1:8762/eureka
+
+  instance:
+    # 服务名称
+    hostname: prre1
+    #服务实例心跳摘除时间 默认 90s
+    lease-expiration-duration-in-seconds: 30
+    #服务实例心跳间隔时间 默认 30s
+    #lease-renewal-interval-in-seconds: 5s
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

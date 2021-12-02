@@ -19,12 +19,14 @@
         <module>taki-mall-commodity</module>
         <module>taki-mall-oauth</module>
         <module>taki-mall-generator</module>
+        <module>taki-mall-eureka</module>
     </modules>
     <packaging>pom</packaging>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+        <spring.cloud-version>Hoxton.SR8</spring.cloud-version>
     </properties>
 
     <parent>
@@ -34,6 +36,21 @@
         <version>2.3.0.RELEASE</version>
         <relativePath />
     </parent>
+
+
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring.cloud-version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
 
     <dependencies>
 

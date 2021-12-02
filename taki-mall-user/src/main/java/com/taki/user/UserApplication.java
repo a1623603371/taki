@@ -4,6 +4,8 @@ import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import springfox.documentation.oas.annotations.EnableOpenApi;
 
 /**
@@ -16,6 +18,8 @@ import springfox.documentation.oas.annotations.EnableOpenApi;
 
 @SpringBootApplication(scanBasePackages = {"com.taki.core.*","com.taki.user"})
 @EnableOpenApi
+@EnableEurekaClient
+//@EnableDiscoveryClient
 public class UserApplication {
 
     public static void main(String[] args) {
