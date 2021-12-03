@@ -86,7 +86,7 @@ spring:
 eureka:
   client:
     # 是否启动eureka 客户端 默认是true
-    enabled: true # 如果测试可以改为false，就不用注释注解了
+    enabled: false # 如果测试可以改为false，就不用注释注解了
     register-with-eureka: true
     fetch-registry: true
     # 客户端拉取 服务端 注册表信息间隔时间 默认 30s

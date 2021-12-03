@@ -1,9 +1,6 @@
 package com.taki.user.domain;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -12,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.springframework.boot.actuate.endpoint.annotation.FilteredEndpoint;
 
 /**
  * <p>
@@ -50,12 +48,17 @@ public class MembershipDO extends Model<MembershipDO> {
     @TableField("phone")
     private String phone;
 
+    @ApiModelProperty("状态")
+    @TableField("status")
+    private Integer status;
+
     @ApiModelProperty("邮箱")
     @TableField("email")
     private String email;
 
     @ApiModelProperty("QQ")
     @TableField("qq")
+
     private String qq;
 
     @ApiModelProperty("微信")
@@ -63,11 +66,11 @@ public class MembershipDO extends Model<MembershipDO> {
     private String wx;
 
     @ApiModelProperty("创建时间")
-    @TableField("create_time")
+    @TableField(value = "create_time",fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
     @ApiModelProperty("修改时间")
-    @TableField("update_time")
+    @TableField(value = "update_time",fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 
 
@@ -78,6 +81,8 @@ public class MembershipDO extends Model<MembershipDO> {
     public static final String ACCOUNT = "account";
 
     public static final String PASSWORD = "password";
+
+    public static  final  String STATUS = "status";
 
     public static final String PHONE = "phone";
 

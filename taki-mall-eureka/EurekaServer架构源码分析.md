@@ -197,7 +197,25 @@
 
 ##2.Eureka Client 初始化源码分析 DiscoveryClient 类
 
-### 2.1 DiscoveryClient 初始化
+###  2.1 创建ApplicationInfo 实例对象
+在 EurekaClientAutoConfiguration 类中找对下面方法该方法创建了eureka服务实例信息
+
+        @Bean
+        @ConditionalOnMissingBean(
+        value = {ApplicationInfoManager.class},
+        search = SearchStrategy.CURRENT
+        )
+        public ApplicationInfoManager eurekaApplicationInfoManager(EurekaInstanceConfig config) {
+        // 创建服务实例信息
+        InstanceInfo instanceInfo = (new InstanceInfoFactory()).create(config);
+        // 将服务实例信息放入到 应用信息管理器中
+        return new ApplicationInfoManager(config, instanceInfo);
+        }
+
+
+
+
+### 2.2 DiscoveryClient 初始化
     @Inject
     DiscoveryClient(ApplicationInfoManager applicationInfoManager, EurekaClientConfig config, AbstractDiscoveryClientOptionalArgs args, Provider<BackupRegistry> backupRegistryProvider, EndpointRandomizer endpointRandomizer) {
         // 创建哈希码不匹配 监听器
@@ -214,13 +232,21 @@
         this.healthCheckHandlerRef = new AtomicReference();
         // 
         this.remoteRegionVsApps = new ConcurrentHashMap();
+        // 设置实例状态 为未知状态
         this.lastRemoteInstanceStatus = InstanceStatus.UNKNOWN;
+        // 创建事件监听器集合
         this.eventListeners = new CopyOnWriteArraySet();
+        // 注册表大小设置为0
         this.registrySize = 0;
+        //最后一次成功获取注册表的时间戳
         this.lastSuccessfulRegistryFetchTimestamp = -1L;
+        //最后一次心跳时间戳
         this.lastSuccessfulHeartbeatTimestamp = -1L;
+        是否关闭
         this.isShutdown = new AtomicBoolean(false);
+        
         this.stats = new DiscoveryClient.Stats();
+
         if (args != null) {
             this.healthCheckHandlerProvider = args.healthCheckHandlerProvider;
             this.healthCheckCallbackProvider = args.healthCheckCallbackProvider;
@@ -231,89 +257,124 @@
             this.healthCheckHandlerProvider = null;
             this.preRegistrationHandler = null;
         }
-
+        // 实例管理器
         this.applicationInfoManager = applicationInfoManager;
+        // 实例信息
         InstanceInfo myInfo = applicationInfoManager.getInfo();
+        // 客户端配置
         this.clientConfig = config;
         staticClientConfig = this.clientConfig;
+        //传输配置
         this.transportConfig = config.getTransportConfig();
+        //设置实例信息
         this.instanceInfo = myInfo;
         if (myInfo != null) {
+            // 设置应用；路径标识
             this.appPathIdentifier = this.instanceInfo.getAppName() + "/" + this.instanceInfo.getId();
         } else {
+            
             logger.warn("Setting instanceInfo to a passed in null value");
         }
-
+        // 备份注册表组件
         this.backupRegistryProvider = backupRegistryProvider;
+        // 
         this.endpointRandomizer = endpointRandomizer;
+        // 实例信息 url 随机
         this.urlRandomizer = new InstanceInfoBasedUrlRandomizer(this.instanceInfo);
         this.localRegionApps.set(new Applications());
+        // 注册表生成 
         this.fetchRegistryGeneration = new AtomicLong(0L);
+        //其他节点注册表信息
         this.remoteRegionsToFetch = new AtomicReference(this.clientConfig.fetchRegistryForRemoteRegions());
+       // 判断 是否有远程节点 ，如果有已,逗号分割
         this.remoteRegionsRef = new AtomicReference(this.remoteRegionsToFetch.get() == null ? null : ((String)this.remoteRegionsToFetch.get()).split(","));
+        // 是否向server 拉取注册表
         if (config.shouldFetchRegistry()) {
+            // 创建注册失效监听器
             this.registryStalenessMonitor = new ThresholdLevelsMetric(this, "eurekaClient.registry.lastUpdateSec_", new long[]{15L, 30L, 60L, 120L, 240L, 480L});
         } else {
             this.registryStalenessMonitor = ThresholdLevelsMetric.NO_OP_METRIC;
         }
-
+        // 判断是否向server 进行注册
         if (config.shouldRegisterWithEureka()) {
+            //创建心跳 监听器
             this.heartbeatStalenessMonitor = new ThresholdLevelsMetric(this, "eurekaClient.registration.lastHeartbeatSec_", new long[]{15L, 30L, 60L, 120L, 240L, 480L});
         } else {
             this.heartbeatStalenessMonitor = ThresholdLevelsMetric.NO_OP_METRIC;
         }
 
         logger.info("Initializing Eureka in region {}", this.clientConfig.getRegion());
+        
         if (!config.shouldRegisterWithEureka() && !config.shouldFetchRegistry()) {
+            // 单节点 server 进入这里
             logger.info("Client configured to neither register nor query for data.");
+            // 释放不需要的组件
             this.scheduler = null;
             this.heartbeatExecutor = null;
             this.cacheRefreshExecutor = null;
             this.eurekaTransport = null;
+            // 实例注册检测组件
             this.instanceRegionChecker = new InstanceRegionChecker(new PropertyBasedAzToRegionMapper(config), this.clientConfig.getRegion());
+           // 给 clent 管理器组件设置 client 
             DiscoveryManager.getInstance().setDiscoveryClient(this);
+            // 设置 client 配置信息
             DiscoveryManager.getInstance().setEurekaClientConfig(config);
+            //初始化时间
             this.initTimestampMs = System.currentTimeMillis();
+            // 初始化注册表大小
             this.initRegistrySize = this.getApplications().size();
+            // 注册的cleint 数量
             this.registrySize = this.initRegistrySize;
             logger.info("Discovery Client initialized at timestamp {} with initial instances count: {}", this.initTimestampMs, this.initRegistrySize);
         } else {
             try {
+                //进入这里一般都是 多节点server 或者 是client 端
+                // 创建调度线程池
                 this.scheduler = Executors.newScheduledThreadPool(2, (new ThreadFactoryBuilder()).setNameFormat("DiscoveryClient-%d").setDaemon(true).build());
+                // 创建心跳线程池 执行心跳任务
                 this.heartbeatExecutor = new ThreadPoolExecutor(1, this.clientConfig.getHeartbeatExecutorThreadPoolSize(), 0L, TimeUnit.SECONDS, new SynchronousQueue(), (new ThreadFactoryBuilder()).setNameFormat("DiscoveryClient-HeartbeatExecutor-%d").setDaemon(true).build());
+                // 创建缓存刷新 线程池 执行缓存刷新任务
                 this.cacheRefreshExecutor = new ThreadPoolExecutor(1, this.clientConfig.getCacheRefreshExecutorThreadPoolSize(), 0L, TimeUnit.SECONDS, new SynchronousQueue(), (new ThreadFactoryBuilder()).setNameFormat("DiscoveryClient-CacheRefreshExecutor-%d").setDaemon(true).build());
+                // 设置 网络通信组件
                 this.eurekaTransport = new DiscoveryClient.EurekaTransport();
+                // 
                 this.scheduleServerEndpointTask(this.eurekaTransport, args);
                 Object azToRegionMapper;
+                // 是否启动DNS 获取服务 URL
                 if (this.clientConfig.shouldUseDnsForFetchingServiceUrls()) {
                     azToRegionMapper = new DNSBasedAzToRegionMapper(this.clientConfig);
                 } else {
                     azToRegionMapper = new PropertyBasedAzToRegionMapper(this.clientConfig);
                 }
-
+                // 获取远程节点
                 if (null != this.remoteRegionsToFetch.get()) {
+                    //不为空 设置 远程的节点 
                     ((AzToRegionMapper)azToRegionMapper).setRegionsToFetch(((String)this.remoteRegionsToFetch.get()).split(","));
                 }
-
+                // 创建实例检测组件
                 this.instanceRegionChecker = new InstanceRegionChecker((AzToRegionMapper)azToRegionMapper, this.clientConfig.getRegion());
             } catch (Throwable var12) {
                 throw new RuntimeException("Failed to initialize DiscoveryClient!", var12);
             }
-
+            // 是否获取注册表
             if (this.clientConfig.shouldFetchRegistry()) {
                 try {
+                    // 获取注册表结果
                     boolean primaryFetchRegistryResult = this.fetchRegistry(false);
                     if (!primaryFetchRegistryResult) {
                         logger.info("Initial registry fetch from primary servers failed");
                     }
-
+                    // 从备份节点获取注册表
                     boolean backupFetchRegistryResult = true;
+                    // fetchRegistryFromBackup()方法进行备份 操作
                     if (!primaryFetchRegistryResult && !this.fetchRegistryFromBackup()) {
                         backupFetchRegistryResult = false;
+                        // 备用 server 节点获取注册表失败
                         logger.info("Initial registry fetch from backup servers failed");
                     }
-
+                        //这里如果 获取注册表，备份注册表，强制获取注册表 失败直接 抛异常
                     if (!primaryFetchRegistryResult && !backupFetchRegistryResult && this.clientConfig.shouldEnforceFetchRegistryAtInit()) {
+                        //启动 时获取注册表失败
                         throw new IllegalStateException("Fetch registry error at startup. Initial fetch failed.");
                     }
                 } catch (Throwable var11) {
@@ -321,13 +382,15 @@
                     throw new IllegalStateException(var11);
                 }
             }
-
+            // 判断是否进行预处理
             if (this.preRegistrationHandler != null) {
+                    // 进行前置预处理
                 this.preRegistrationHandler.beforeRegistration();
             }
-
+                // 是否向eureka 注册 并 强制进行注册
             if (this.clientConfig.shouldRegisterWithEureka() && this.clientConfig.shouldEnforceRegistrationAtInit()) {
                 try {
+                    // 进行发送注册请求
                     if (!this.register()) {
                         throw new IllegalStateException("Registration error at startup. Invalid server response.");
                     }
@@ -336,18 +399,22 @@
                     throw new IllegalStateException(var10);
                 }
             }
-
+            // 初始化调度任务
             this.initScheduledTasks();
 
             try {
+                // 统计注册
                 Monitors.registerObject(this);
             } catch (Throwable var9) {
                 logger.warn("Cannot register timers", var9);
             }
-
+            // 设置 client 
             DiscoveryManager.getInstance().setDiscoveryClient(this);
+            // 给服务实例信息设置 client 配置信息
             DiscoveryManager.getInstance().setEurekaClientConfig(config);
+            // 更新 初始化时间戳
             this.initTimestampMs = System.currentTimeMillis();
+            //跟新注册数量
             this.initRegistrySize = this.getApplications().size();
             this.registrySize = this.initRegistrySize;
             logger.info("Discovery Client initialized at timestamp {} with initial instances count: {}", this.initTimestampMs, this.initRegistrySize);
