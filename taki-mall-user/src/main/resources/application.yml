@@ -133,7 +133,6 @@ eureka:
 
 
 
-
     # swagger 基本信息配置
 #swagger:
 #  enable:
@@ -175,7 +174,6 @@ eureka:
   # 配置log 文件 配置位置
   #config:
     #日志文件存放位置
-
 
 
 
