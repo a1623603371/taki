@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
  * @Version 1.0
  */
 @Slf4j
-@Component
+//@Component
 public class MybatisPlusConfig {
 
 
@@ -43,8 +43,8 @@ public class MybatisPlusConfig {
         return new H2KeyGenerator();
     } */
 
-    @Bean
-    public IdentifierGenerator idGenerator() {
-        return new CustomIdGenerator();
-    }
+//    @Bean
+//    public IdentifierGenerator idGenerator() {
+//        return new CustomIdGenerator();
+//    }
 }

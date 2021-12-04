@@ -1,0 +1,193 @@
+server:
+  port: 8100
+  servlet:
+    context-path: /shortMessage
+
+
+spring:
+  application:
+    # swagger 名称
+    name: springfox-swagger
+  datasource:
+    # 数据库连接池
+    type: com.alibaba.druid.pool.DruidDataSource
+    #数据库连接地址
+    url: jdbc:mysql://192.168.33.11:3306/taki-mall?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull
+    username: root
+    password: Pzk2020@
+    # 数据库驱动
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    druid:
+      #初始的建立的连接次数
+      initial-size: 50
+      # 最小连接池数量
+      min-idle: 50
+      # 最大的连接池数量
+      max-active: 500
+      # 最大的 连接等待时间
+      max-wait:  6000
+      # 申请连接时执行ValidationQuery 检测连接是否有效，建议关闭，开启会影响性能
+      test-on-borrow: false
+      # 归还连接时执行 ValidationQuery 检测连接是否有效 建议关闭，开启会影响性能
+      test-on-return: false
+      # 建议开启，不影响性能，并保证安全，申请连接时检测，如果空闲时间大于 timeBetweenEviction-runs-millis 的时间，执行 ValidationQuery 检测连接是否有效
+      test-while-idle: true
+      #1.Destory线程会检测连接间隔时间 2.testWhileIdle 的判断依据
+      time-between-eviction-runs-millis: 60000
+      # 配置一个连接，在池中最小生存时间 ms
+      min-evictable-idle-time-millis: 30000
+      #检测 连接是否有效 SQL 语句，SQL 必须是查询语句 如果是null 会影响testWhileIdle、testOnBorrow、testOnReturn失效，如果底层代码use-ping-method是true，默认使用ping
+      validation-query: SELECT 1 FROM DUAL
+      # 检测SQL 超时时间
+      validation-query-timeout: 500
+      #缓存preparedStatements ，就是 PS Cache ，PS Cache 对支持游标的数据库性能提升巨大，比如 ORACLE ,MYSQL 不建议开启
+      pool-prepared-statements: false
+      #要启用PSCache，必须配置大于0，当大于0时，poolPreparedStatements自动触发修改为true。在Druid中，不会存在Oracle下PSCache占用内存过多的问题，可以把这个数值配置大一些，比如说100
+      max-pool-prepared-statement-per-connection-size: -1
+
+      # max-evictable-idle-time-millis:
+      #属性类型是字符串，通过别名的方式配置扩展插件，常用的插件有：
+      #监控统计用的 stat,日志用的 log4j， 防御SQL注入的是log4j
+      filter:
+        stat:
+          log-slow-sql: true
+      # 通过 connectProperties属性来打开mergeSql功能；记录慢SQL
+      connectionProperties: druid.stat.mergeSql=ture;druid.stat.slowSqlMillis=5000
+
+      #类型是 List<com.alibaba.druid.Filter> 如果同时也配置了 filter  他们是组合关系 ，不是替代关系
+     # proxy-filters:
+      #当数据库抛出不可恢复的异常直接抛弃连接
+     # exception-sorter:
+      # 物理连接初始化的时候执行的SQL
+     # connection-init-sqls:
+      # 数据库类型
+     # db-type: mysql
+      #webStatFilter 监控配置
+      web-stat-filter:
+        enabled: true
+        #添加过滤规则：那些访问拦截统计
+        url-pattern: /*
+        #忽略过滤格式 那些不拦截，不统计
+        exclusions: '*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*'
+
+      # StatViewServlet 配置 （Druid 监控后台的Servlet 映射配置，因为SpringBoot 项目没有 web.xml 所在这里使用配置文件设置）
+      stat-view-servlet:
+        enabled: true
+        #配置Servlet的访问路径：访问为/druid/** 时，跳转StatViewServlet，会自动跳转到Durid 监控后台
+        url-pattern: /druid/*
+        # 是否能够重置数据
+        reset-enable: false
+        login-username: admin
+        login-password: password
+        # 白名单
+        allow: 127.0.0.1
+        # 黑名单
+        deny: 192.168.33.11
+
+eureka:
+  client:
+    # 是否启动eureka 客户端 默认是true
+    enabled: false # 如果测试可以改为false，就不用注释注解了
+    register-with-eureka: true
+    fetch-registry: true
+    # 客户端拉取 服务端 注册表信息间隔时间 默认 30s
+    registry-fetch-interval-seconds: 30
+    serviceUrl:
+    # eureka 集群 多个 sever 用,隔开
+      defaultZone: http://prre1:9000/eureka
+    #作用是修改eureka的健康检查方式（心跳），改为用actuator，详见HealthCheckHandler HealthIndicator。
+    healthcheck:
+      enabled: true
+
+  instance:
+    #是否以IP注册到Eureka Server上，如果false则不是IP而是服务器名称
+    secure-port-enabled: false
+    instance-id: shortMessage
+    # 心跳间隔时间
+    lease-renewal-interval-in-seconds: 30
+    #服务失效时间。90秒服务端接收不到客户端的心跳，则剔除该客户端服务实例。
+    lease-expiration-duration-in-seconds: 90
+    #端口配置，若配置了 context-path actuator的监控端点会增加前缀，此时eureka也需要相应增加
+    status-page-url: ${server.servlet.context-path}/info
+    health-check-url-path: ${server.servlet.context-path}/health
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # swagger 基本信息配置
+#swagger:
+#  enable:
+#    application-name: ${spring.application.name}
+#    application-version : 1.0
+#    application-description: springfox swagger 3.0 整合Demo
+#    try-host: http://localhost:${server.port}
+
+
+
+#logging:
+ # level:
+  #  root: info
+
+ # file:
+    #存放天数
+   # max-history:
+    # 日志大小
+  #  max-size:
+    # 配置 log 文件日志存储位置
+   # path:
+    # 配置 log 文件日志名称
+   # name:
+  # 配置日志输出格式
+ #pattern:
+  #日志输出格式
+  # %d 日期时间
+  # %thread 表示线程
+  # %-5level: 级别从左显示5个字符宽度
+  # %logger{50} 表示logger 名字最长 50 个字符，否则按照句点分割
+  # %msg: 日志信息
+  #%n 换行
+  #
+  # %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %5level %logger{50} - %msg%n
+  #指定控制台输入 的格式
+  #  console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %5level %logger{50} - %msg%n"
+    #配置 log 文件中的 输出格式
+   # file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %5level %logger{50} - %msg%n"
+  # 配置log 文件 配置位置
+  #config:
+    #日志文件存放位置
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

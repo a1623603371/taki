@@ -15,7 +15,12 @@ public enum CodeEnum {
 
     PARAMETER_ERROR(550,"参数异常,认证失败"),
 
+
+    BUSINESS_ERROR(540,"业务报错"),
+
     USER_HAS_ERROR(530,"用户名已存在");
+
+
 
 
     private int code;

@@ -64,8 +64,8 @@ public class CodeGenerator {
 
 
     private static  String[] tables = new String[]{
-            "membership",
-            ""
+            //"membership",
+            "short_message_platform"
     };
 
 

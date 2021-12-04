@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
         if (ex instanceof NullPointerException){
             result.message("空指针异常");
         }
-        ExceptionResult.builder().timestamp(new Date())
+       result =  ExceptionResult.builder().timestamp(new Date())
                 .message(ex.getMessage())
                 .trace(trace)
                 .exceptionName(ex.getClass().getName())
@@ -64,7 +64,7 @@ public class GlobalExceptionHandler {
                 .trace(trace)
                 .exceptionName(ex.getClass().getName())
                 .path(request.getRequestURI()).build();
-        return  ResponseData.error(CodeEnum.SYSTEM_ERROR,result);
+        return  ResponseData.error(CodeEnum.BUSINESS_ERROR,result);
     }
 
 }
