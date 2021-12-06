@@ -1,28 +1,26 @@
 package com.taki.message.domian;
 
-
-import java.io.Serializable;
-import java.time.LocalDateTime;
-
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import jdk.nashorn.internal.objects.annotations.Getter;
-import jdk.nashorn.internal.objects.annotations.Setter;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
-
 
 /**
  * <p>
- *  短信平台实体类
+ * 
  * </p>
  *
  * @author long
- * @since 2021-12-04
+ * @since 2021-12-06
  */
-@Data
+@Getter
+@Setter
 @Accessors(chain = true)
 @TableName("short_message_platform")
 @ApiModel(value = "ShortMessagePlatformDO对象", description = "")
@@ -53,13 +51,37 @@ public class ShortMessagePlatformDO extends Model<ShortMessagePlatformDO> {
     @TableField("api_key")
     private String apiKey;
 
+    @ApiModelProperty("SDK应用ID")
+    @TableField("sdk_app_id")
+    private String sdkAppId;
+
+    @ApiModelProperty("签名")
+    @TableField("sign")
+    private String sign;
+
+    @ApiModelProperty("模板id")
+    @TableField("template_id")
+    private String templateId;
+
+    @ApiModelProperty("请求URL")
+    @TableField("request_url")
+    private String requestUrl;
+
     @ApiModelProperty("SDK 或API")
-    @TableField("sned_type")
-    private String snedType;
+    @TableField("send_type")
+    private String sendType;
 
     @ApiModelProperty("SECRET或APIKEY")
     @TableField("auth_type")
     private String authType;
+
+    @ApiModelProperty("短信类型 REGISTER  注册, LOGIN 登录 ,MODIFY_PASS 修改密码 ，NOTICE 通知 OTHER 其他")
+    @TableField("type")
+    private String type;
+
+    @ApiModelProperty("短信模板内容 和 短信平台模板对应")
+    @TableField("type")
+    private String text;
 
     @ApiModelProperty("是否开启 0 关闭， 1开启")
     @TableField("is_open")
@@ -86,9 +108,19 @@ public class ShortMessagePlatformDO extends Model<ShortMessagePlatformDO> {
 
     public static final String API_KEY = "api_key";
 
+    public static final String SDK_APP_ID = "sdk_app_id";
+
+    public static final String SIGN = "sign";
+
+    public static final String TEMPLATE_ID = "template_id";
+
+    public static final String REQUEST_URL = "request_url";
+
     public static final String SNED_TYPE = "sned_type";
 
     public static final String AUTH_TYPE = "auth_type";
+
+    public static final  String TYPE = "type";
 
     public static final String IS_OPEN = "is_open";
 

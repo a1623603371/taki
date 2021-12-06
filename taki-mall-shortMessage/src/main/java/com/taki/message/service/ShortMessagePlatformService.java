@@ -2,6 +2,7 @@ package com.taki.message.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.taki.core.error.ServiceException;
 import com.taki.message.domian.ShortMessagePlatformDO;
 import com.taki.message.domian.dto.ShortMessagePlatformDTO;
 
@@ -31,14 +32,6 @@ public interface ShortMessagePlatformService {
      */
     void update(ShortMessagePlatformDTO shortMessagePlatformDTO);
     /**
-     * @description:  开启短信平台
-     * @param: id 短信平台信息Id
-     * @param:  open 开关
-     * @return:
-     * @author Long
-     * @date: 2021/12/4 18:20
-     */
-    void open(Long id, Boolean open);
 
     /**
      * @description: 查询开启的短信平台
@@ -47,7 +40,7 @@ public interface ShortMessagePlatformService {
      * @author Long
      * @date: 2021/12/4 18:25
      */
-    ShortMessagePlatformDTO findOpen();
+    ShortMessagePlatformDTO findTypeByOpen(String type);
 
     /**
      * @description: 根据Id 查询短信信息平台
@@ -57,4 +50,15 @@ public interface ShortMessagePlatformService {
      * @date: 2021/12/4 18:35
      */
     ShortMessagePlatformDTO findById(Long id);
+
+    /***
+     * @description: 发送短信
+     * @param: phone 手机
+     * @param:code 短信验证码
+     * @param:type 类型
+     * @return: 发送结果
+     * @author Long
+     * @date: 2021/12/6 17:13
+     */
+    Boolean sendMessage(String phone, String code, String type) throws ServiceException;
 }

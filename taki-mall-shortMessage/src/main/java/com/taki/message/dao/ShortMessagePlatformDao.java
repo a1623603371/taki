@@ -27,9 +27,12 @@ public class ShortMessagePlatformDao {
         myShortMessagePlatformService.updateById(shortMessagePlatformDO);
     }
 
-    public ShortMessagePlatformDO findOpen() {
+    public ShortMessagePlatformDO findTypeByOpen(String type) {
 
-        return myShortMessagePlatformService.getOne(new QueryWrapper<ShortMessagePlatformDO>().eq(ShortMessagePlatformDO.IS_OPEN,true));
+        return myShortMessagePlatformService.getOne(
+                new QueryWrapper<ShortMessagePlatformDO>()
+                        .eq(ShortMessagePlatformDO.TYPE,type)
+                        .eq(ShortMessagePlatformDO.IS_OPEN,true).last("limit 1"));
     }
 
     public ShortMessagePlatformDO findById(Long id) {

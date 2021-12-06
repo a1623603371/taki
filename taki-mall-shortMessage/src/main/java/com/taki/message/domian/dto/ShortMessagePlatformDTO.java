@@ -44,15 +44,29 @@ public class ShortMessagePlatformDTO  {
 
     private String secretKey;
 
-
     private String apiKey;
 
+    private String sdkAppId;
 
-    private String snedType;
+
+    private String sign;
+
+
+    private String templateId;
+
+
+    private String requestUrl;
+
+
+    private String sendType;
 
 
     private String authType;
 
+
+    private String type;
+
+    private String text;
 
     private Boolean open;
 

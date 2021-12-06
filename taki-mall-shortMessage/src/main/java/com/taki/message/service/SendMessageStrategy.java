@@ -1,5 +1,8 @@
 package com.taki.message.service;
 
+import com.taki.core.error.ServiceException;
+import com.taki.message.domian.dto.ShortMessagePlatformDTO;
+
 /**
  * @ClassName SendMessageStrategy
  * @Description 发送短信策略 接口
@@ -13,11 +16,11 @@ public interface SendMessageStrategy {
      * @description:  发送短信
      * @param: phone 手机
      * @param: code 验证码
-     * @return: java.lang.Boolean
+     *  @param: shortMessagePlatform 短信配置信息
+     * @return: 是否发送成功
      * @author Long
      * @date: 2021/12/4 18:48
      */
-    Boolean sendMessage(String phone,String code);
-
+    Boolean sendMessage(String phone, String code , ShortMessagePlatformDTO shortMessagePlatform) throws ServiceException;
 
 }

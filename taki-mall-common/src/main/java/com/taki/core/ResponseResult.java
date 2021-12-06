@@ -21,7 +21,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * @Date 2021/11/24 22:00
  * @Version 1.0
  */
-@ControllerAdvice(basePackages = "")
+//@ControllerAdvice(basePackages = "")
 public class ResponseResult<T> implements ResponseBodyAdvice<Object> {
     /**
      * @description: 是否开启结果响应拦截

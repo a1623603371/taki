@@ -3,11 +3,13 @@ package com.taki.message.controller;
 
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.lang.TypeReference;
+import com.taki.core.error.ServiceException;
 import com.taki.core.utlis.ResponseData;
 import com.taki.message.domian.dto.ShortMessagePlatformDTO;
 import com.taki.message.domian.vo.ShortMessagePlatformVO;
 import com.taki.message.service.ShortMessagePlatformService;
 import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -65,18 +67,23 @@ public class ShortMessagePlatformController {
         return ResponseData.success("ok",true);
     }
 
+
     /**
-     * @description:  开启短信平台
-     * @param: id 短信平台信息Id
-     * @param:  open 开关
+     * @description: 发送短信接口
+     * @param: phone 手机号
+     * @param:  code 短信
+     * @param:  type 类型
      * @return:
      * @author Long
-     * @date: 2021/12/4 18:20
+     * @date: 2021/12/6 10:55
      */
-    @ApiModelProperty("开启短信平台")
-    @PutMapping("/open")
-    public  ResponseData<Boolean> open(Long id,Boolean open){
-        shortMessagePlatformService.open(id,open);
-        return ResponseData.success("ok",true);
+    @ApiModelProperty("发送短信接口")
+    @PostMapping("/sendMessage")
+    public ResponseData<Boolean> sendMessage(@ApiParam("手机号") @RequestParam("phone") String phone, @ApiParam("验证码")@RequestParam("code")String code, @ApiParam("短信类型")@RequestParam("type") String type) throws Exception {
+
+
+       Boolean result =   shortMessagePlatformService.sendMessage(phone,code,type);
+
+        return ResponseData.success("ok",result);
     }
 }

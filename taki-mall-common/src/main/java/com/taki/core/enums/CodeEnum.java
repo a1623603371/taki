@@ -15,6 +15,7 @@ public enum CodeEnum {
 
     PARAMETER_ERROR(550,"参数异常,认证失败"),
 
+    ERROR_REMOTE_SERVER(501,"远程API调用失败"),
 
     BUSINESS_ERROR(540,"业务报错"),
 
