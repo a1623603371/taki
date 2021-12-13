@@ -1,4 +1,4 @@
-package com.taki.core.config;
+package com.taki.common.config;
 
 /**
  * @ClassName DruidConfig

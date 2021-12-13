@@ -1579,3 +1579,31 @@ CREATE TABLE `wms_send_out_order_item`  (
 -- ----------------------------
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+
+-- ----------------------------
+-- Table structure for short_message_platform
+-- ----------------------------
+DROP TABLE IF EXISTS `short_message_platform`;
+CREATE TABLE `short_message_platform`  (
+                                           `id` bigint(20) NOT NULL AUTO_INCREMENT,
+                                           `platform_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '平台名称',
+                                           `platform_code` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '平台编号（自定义代码区别）',
+                                           `secret_id` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '密钥ID',
+                                           `secret_key` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '密钥KEY',
+                                           `api_key` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'appKey',
+                                           `sdk_app_id` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'SDK应用ID',
+                                           `sign` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '签名',
+                                           `template_id` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '模板id',
+                                           `request_url` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '请求URL',
+                                           `send_type` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'SDK 或API',
+                                           `auth_type` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'SECRET或APIKEY',
+                                           `type` varchar(520) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '短信类型 REGISTER  注册, LOGIN 登录 ,MODIFY_PASS 修改密码 ，NOTICE 通知，\r\nOTHER 其他',
+                                           `text` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '短信模板内容 和 短信平台模板对应',
+                                           `is_open` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否开启 0 关闭， 1开启',
+                                           `create_time` datetime(0) NOT NULL COMMENT '创建时间',
+                                           `update_time` datetime(0) NOT NULL COMMENT '修改时间',
+                                           PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+SET FOREIGN_KEY_CHECKS = 1;

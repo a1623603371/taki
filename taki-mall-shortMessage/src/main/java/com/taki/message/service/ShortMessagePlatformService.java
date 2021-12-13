@@ -1,9 +1,7 @@
 package com.taki.message.service;
 
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import com.taki.core.error.ServiceException;
-import com.taki.message.domian.ShortMessagePlatformDO;
+import com.taki.common.exception.ServiceException;
 import com.taki.message.domian.dto.ShortMessagePlatformDTO;
 
 /**
@@ -22,7 +20,7 @@ public interface ShortMessagePlatformService {
      * @return:
      * @date: 2021/12/4 18:02
      */
-    void  save(ShortMessagePlatformDTO shortMessagePlatformDTO);
+    Boolean  save(ShortMessagePlatformDTO shortMessagePlatformDTO);
     /**
      * @description: 修改短信平台信息
      * @param: ShortMessagePlatformDTO 短信平台信息实体类
@@ -30,7 +28,7 @@ public interface ShortMessagePlatformService {
      * @author Long
      * @date: 2021/12/4 18:09
      */
-    void update(ShortMessagePlatformDTO shortMessagePlatformDTO);
+    Boolean update(ShortMessagePlatformDTO shortMessagePlatformDTO);
     /**
 
     /**
@@ -60,5 +58,5 @@ public interface ShortMessagePlatformService {
      * @author Long
      * @date: 2021/12/6 17:13
      */
-    Boolean sendMessage(String phone, String code, String type) throws ServiceException;
+    Boolean sendMessage(String areaCode,String phone, String code, String type) throws ServiceException;
 }

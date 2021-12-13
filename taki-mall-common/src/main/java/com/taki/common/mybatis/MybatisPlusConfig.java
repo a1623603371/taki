@@ -1,12 +1,10 @@
-package com.taki.core.mybatis;
+package com.taki.common.mybatis;
 
 import com.baomidou.mybatisplus.autoconfigure.MybatisPlusPropertiesCustomizer;
 import com.baomidou.mybatisplus.core.incrementer.IKeyGenerator;
 import com.baomidou.mybatisplus.core.incrementer.IdentifierGenerator;
 import com.baomidou.mybatisplus.extension.incrementer.H2KeyGenerator;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
 
 /**
  * @ClassName MybatisPlusConfig

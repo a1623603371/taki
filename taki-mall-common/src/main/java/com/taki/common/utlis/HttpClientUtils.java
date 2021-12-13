@@ -1,9 +1,9 @@
-package com.taki.core.utlis;
+package com.taki.common.utlis;
 
 import cn.hutool.http.HttpUtil;
-import com.baomidou.mybatisplus.generator.IFill;
-import com.taki.core.enums.CodeEnum;
-import com.taki.core.error.ServiceException;
+
+import com.taki.common.exception.ErrorCodeEnum;
+import com.taki.common.exception.ServiceException;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.util.ObjectUtils;
@@ -12,7 +12,6 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -94,11 +93,11 @@ public class HttpClientUtils {
         Long endTime = System.currentTimeMillis();
 
         if (!response.isSuccessful()){
-            log.warn("HTTP POST 连接失败;url = {}",response.code(),url);
-            throw new ServiceException(CodeEnum.ERROR_REMOTE_SERVER,response.body().toString(),null);
+            log.error("HTTP POST 连接失败;url = {}",response.code(),url);
+            throw new ServiceException(ErrorCodeEnum.ERROR_REMOTE_SERVER,response.body().toString(),null);
         }
         if (response.code() != 200){
-            log.warn("HTTP POST 请求失败;[errorCode ={}],url = {}",response.code(),url);
+            log.error("HTTP POST 请求失败;[errorCode ={}],url = {}",response.code(),url);
         }
 
         log.info("HTTP 请求耗时{}",(endTime - startTime));
@@ -132,11 +131,11 @@ public class HttpClientUtils {
                 Long endTime = System.currentTimeMillis();
 
                 if (!response.isSuccessful()){
-                    log.warn("HTTP POST 连接失败;url = {}",response.code(),url);
-                    throw new ServiceException(CodeEnum.ERROR_REMOTE_SERVER,response.body().toString(),null);
+                    log.error("HTTP POST 连接失败;url = {}",response.code(),url);
+                    throw new ServiceException(ErrorCodeEnum.ERROR_REMOTE_SERVER,response.body().toString(),null);
                 }
                 if (response.code() != 200){
-                    log.warn("HTTP POST 请求失败;[errorCode ={}],url = {}",response.code(),url);
+                    log.error("HTTP POST 请求失败;[errorCode ={}],url = {}",response.code(),url);
                 }
 
                 log.info("HTTP 请求耗时{}",(endTime - startTime));
@@ -189,7 +188,7 @@ public class HttpClientUtils {
 
             } catch (IOException e) {
                 log.error("请求调用失败 url = {}",url);
-                throw new  ServiceException(CodeEnum.ERROR_REMOTE_SERVER,"调用 URL = "+ url +"失败",null);
+                throw new  ServiceException(ErrorCodeEnum.ERROR_REMOTE_SERVER,"调用 URL = "+ url +"失败",null);
             }
             return null;
 

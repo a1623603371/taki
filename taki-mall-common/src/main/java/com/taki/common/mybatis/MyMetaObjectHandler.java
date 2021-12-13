@@ -1,4 +1,4 @@
-package com.taki.core.mybatis;
+package com.taki.common.mybatis;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import lombok.extern.slf4j.Slf4j;

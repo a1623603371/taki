@@ -19,12 +19,12 @@ public class ShortMessagePlatformDao {
     @Autowired
     private MyShortMessagePlatformService myShortMessagePlatformService;
 
-    public void save(ShortMessagePlatformDO shortMessagePlatformDO) {
-        myShortMessagePlatformService.save(shortMessagePlatformDO);
+    public Boolean save(ShortMessagePlatformDO shortMessagePlatformDO) {
+     return    myShortMessagePlatformService.save(shortMessagePlatformDO);
     }
 
-    public void update(ShortMessagePlatformDO shortMessagePlatformDO) {
-        myShortMessagePlatformService.updateById(shortMessagePlatformDO);
+    public Boolean update(ShortMessagePlatformDO shortMessagePlatformDO) {
+     return   myShortMessagePlatformService.updateById(shortMessagePlatformDO);
     }
 
     public ShortMessagePlatformDO findTypeByOpen(String type) {
@@ -32,7 +32,8 @@ public class ShortMessagePlatformDao {
         return myShortMessagePlatformService.getOne(
                 new QueryWrapper<ShortMessagePlatformDO>()
                         .eq(ShortMessagePlatformDO.TYPE,type)
-                        .eq(ShortMessagePlatformDO.IS_OPEN,true).last("limit 1"));
+                        .eq(ShortMessagePlatformDO.IS_OPEN,true)
+                        .last("limit 1"));
     }
 
     public ShortMessagePlatformDO findById(Long id) {

@@ -2,8 +2,8 @@ package com.taki.message.service.impl;
 
 
 import cn.hutool.core.convert.Convert;
-import com.taki.core.enums.CodeEnum;
-import com.taki.core.error.ServiceException;
+import com.taki.common.exception.ErrorCodeEnum;
+import com.taki.common.exception.ServiceException;
 import com.taki.message.dao.ShortMessagePlatformDao;
 import com.taki.message.domian.ShortMessagePlatformDO;
 import com.taki.message.domian.dto.ShortMessagePlatformDTO;
@@ -12,8 +12,6 @@ import com.taki.message.service.ShortMessagePlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
-
-import java.util.List;
 
 /**
  * <p>
@@ -41,15 +39,15 @@ public class ShortMessagePlatformServiceImpl implements ShortMessagePlatformServ
     }
 
     @Override
-    public void save(ShortMessagePlatformDTO shortMessagePlatformDTO) {
+    public Boolean save(ShortMessagePlatformDTO shortMessagePlatformDTO) {
         ShortMessagePlatformDO shortMessagePlatformDO = Convert.convert(ShortMessagePlatformDO.class,shortMessagePlatformDTO);
-        shortMessagePlatformDao.save(shortMessagePlatformDO);
+       return  shortMessagePlatformDao.save(shortMessagePlatformDO);
     }
 
     @Override
-    public void update(ShortMessagePlatformDTO shortMessagePlatformDTO) {
+    public Boolean update(ShortMessagePlatformDTO shortMessagePlatformDTO) {
         ShortMessagePlatformDO shortMessagePlatformDO = Convert.convert(ShortMessagePlatformDO.class,shortMessagePlatformDTO);
-        shortMessagePlatformDao.update(shortMessagePlatformDO);
+       return shortMessagePlatformDao.update(shortMessagePlatformDO);
     }
 
 
@@ -68,17 +66,17 @@ public class ShortMessagePlatformServiceImpl implements ShortMessagePlatformServ
     }
 
     @Override
-    public Boolean sendMessage(String phone, String code, String type) throws ServiceException {
+    public Boolean sendMessage(String areaCode,String phone, String code, String type) throws ServiceException {
 
         ShortMessagePlatformDTO shortMessagePlatform = findTypeByOpen(type);
 
         if (ObjectUtils.isEmpty(shortMessagePlatform)){
-            throw new ServiceException(CodeEnum.BUSINESS_ERROR,"未查到短信平台信息",null);
+            throw new ServiceException(ErrorCodeEnum.BUSINESS_ERROR,"未查到短信平台信息",null);
         }
 
         SendMessageStrategy sendMessageStrategy = shortMessageManage.getSendMessageStrategy(shortMessagePlatform.getPlatformCode(),shortMessagePlatform.getSendType());
 
 
-        return sendMessageStrategy.sendMessage(phone,code,shortMessagePlatform);
+        return sendMessageStrategy.sendMessage(areaCode,phone,code,shortMessagePlatform);
     }
 }

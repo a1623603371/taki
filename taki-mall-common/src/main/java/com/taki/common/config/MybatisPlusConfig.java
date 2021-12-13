@@ -1,4 +1,4 @@
-package com.taki.core.config;
+package com.taki.common.config;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.autoconfigure.ConfigurationCustomizer;

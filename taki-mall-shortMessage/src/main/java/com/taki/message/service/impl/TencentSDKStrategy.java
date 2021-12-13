@@ -29,7 +29,7 @@ public class TencentSDKStrategy implements SendMessageStrategy {
 
 
     @Override
-    public Boolean sendMessage(String phone, String code,ShortMessagePlatformDTO shortMessagePlatform) {
+    public Boolean sendMessage(String areaCode,String phone, String code,ShortMessagePlatformDTO shortMessagePlatform) {
 
         try {
             /* 必要步骤：

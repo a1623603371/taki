@@ -1,6 +1,6 @@
 package com.taki.message.service;
 
-import com.taki.core.error.ServiceException;
+import com.taki.common.exception.ServiceException;
 import com.taki.message.domian.dto.ShortMessagePlatformDTO;
 
 /**
@@ -21,6 +21,6 @@ public interface SendMessageStrategy {
      * @author Long
      * @date: 2021/12/4 18:48
      */
-    Boolean sendMessage(String phone, String code , ShortMessagePlatformDTO shortMessagePlatform) throws ServiceException;
+    Boolean sendMessage(String areaCode,String phone, String code , ShortMessagePlatformDTO shortMessagePlatform) throws ServiceException;
 
 }

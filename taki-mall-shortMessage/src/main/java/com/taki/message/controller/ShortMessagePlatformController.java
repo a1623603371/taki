@@ -3,8 +3,7 @@ package com.taki.message.controller;
 
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.lang.TypeReference;
-import com.taki.core.error.ServiceException;
-import com.taki.core.utlis.ResponseData;
+import com.taki.common.utlis.ResponseData;
 import com.taki.message.domian.dto.ShortMessagePlatformDTO;
 import com.taki.message.domian.vo.ShortMessagePlatformVO;
 import com.taki.message.service.ShortMessagePlatformService;
@@ -45,11 +44,11 @@ public class ShortMessagePlatformController {
      */
     @ApiModelProperty("保存短信平台信息")
     @PostMapping("/save")
-    public ResponseData<String> save(@RequestBody ShortMessagePlatformVO shortMessagePlatformVO){
+    public ResponseData save(@RequestBody ShortMessagePlatformVO shortMessagePlatformVO){
 
            ShortMessagePlatformDTO shortMessagePlatformDTO = Convert.convert(new TypeReference<ShortMessagePlatformDTO>() {},shortMessagePlatformVO);
            shortMessagePlatformService.save(shortMessagePlatformDTO);
-        return ResponseData.success("ok",null);
+        return ResponseData.success();
     }
 
     /**
@@ -63,13 +62,14 @@ public class ShortMessagePlatformController {
     @PutMapping("/update")
     public ResponseData<Boolean> update(@RequestBody ShortMessagePlatformVO shortMessagePlatformVO){
         ShortMessagePlatformDTO shortMessagePlatformDTO = Convert.convert(new TypeReference<ShortMessagePlatformDTO>() {},shortMessagePlatformVO);
-        shortMessagePlatformService.update(shortMessagePlatformDTO);
-        return ResponseData.success("ok",true);
+        Boolean result =  shortMessagePlatformService.update(shortMessagePlatformDTO);
+        return ResponseData.success();
     }
 
 
     /**
      * @description: 发送短信接口
+     * * @param: areaCode 区号
      * @param: phone 手机号
      * @param:  code 短信
      * @param:  type 类型
@@ -79,11 +79,11 @@ public class ShortMessagePlatformController {
      */
     @ApiModelProperty("发送短信接口")
     @PostMapping("/sendMessage")
-    public ResponseData<Boolean> sendMessage(@ApiParam("手机号") @RequestParam("phone") String phone, @ApiParam("验证码")@RequestParam("code")String code, @ApiParam("短信类型")@RequestParam("type") String type) throws Exception {
+    public ResponseData<Boolean> sendMessage(@ApiParam("区号") @RequestParam("areaCode")String areaCode,@ApiParam("手机号") @RequestParam("phone") String phone, @ApiParam("验证码")@RequestParam("code")String code, @ApiParam("短信类型")@RequestParam("type") String type) throws Exception {
 
 
-       Boolean result =   shortMessagePlatformService.sendMessage(phone,code,type);
+       Boolean result =   shortMessagePlatformService.sendMessage(areaCode,phone,code,type);
 
-        return ResponseData.success("ok",result);
+        return ResponseData.success(result);
     }
 }

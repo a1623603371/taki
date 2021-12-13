@@ -1,4 +1,4 @@
-package com.taki.core.config;
+package com.taki.common.config;
 
 import io.swagger.annotations.ApiOperation;
 import org.springframework.context.annotation.Bean;

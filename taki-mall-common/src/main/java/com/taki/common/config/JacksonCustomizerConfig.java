@@ -1,4 +1,4 @@
-package com.taki.core.config;
+package com.taki.common.config;
 
 ;
 import cn.hutool.core.date.LocalDateTimeUtil;

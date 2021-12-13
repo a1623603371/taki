@@ -1,4 +1,4 @@
-package com.taki.core.error;
+package com.taki.common.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

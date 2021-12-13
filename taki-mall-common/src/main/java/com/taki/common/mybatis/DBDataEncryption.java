@@ -1,4 +1,4 @@
-package com.taki.core.mybatis;
+package com.taki.common.mybatis;
 
 
 import com.baomidou.mybatisplus.annotation.Version;

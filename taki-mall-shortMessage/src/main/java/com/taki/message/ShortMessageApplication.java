@@ -1,5 +1,6 @@
 package com.taki.message;
 
+import cn.hutool.extra.mail.Mail;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
@@ -16,6 +17,8 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 public class ShortMessageApplication {
 
     public static void main(String[] args) {
+
+
         SpringApplication.run(ShortMessageApplication.class,args);
     }
 }

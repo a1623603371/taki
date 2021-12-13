@@ -1,17 +1,16 @@
-package com.taki.core;
+package com.taki.common.web;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.taki.core.error.ExceptionResult;
-import com.taki.core.enums.CodeEnum;
-import com.taki.core.utlis.ResponseData;
+import com.taki.common.exception.ExceptionResult;
+import com.taki.common.exception.ErrorCodeEnum;
+import com.taki.common.utlis.ResponseData;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 /**
@@ -62,7 +61,7 @@ public class ResponseResult<T> implements ResponseBodyAdvice<Object> {
                 e.printStackTrace();
             }
         }else if (body instanceof ExceptionResult){ // 判断是否是异常对象类型
-           ResponseData.error(CodeEnum.SYSTEM_ERROR,body);
+           ResponseData.error(ErrorCodeEnum.SYSTEM_ERROR);
         }
 
         return ResponseData.success(body);

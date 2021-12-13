@@ -2,6 +2,7 @@ package com.taki.message.service.impl;
 
 import com.taki.message.domian.dto.ShortMessagePlatformDTO;
 import com.taki.message.service.SendMessageStrategy;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +23,7 @@ public class TencentAPIStrategy implements SendMessageStrategy {
 
 
     @Override
-    public Boolean sendMessage(String phone, String code, ShortMessagePlatformDTO shortMessagePlatform) {
+    public Boolean sendMessage(String areaCode,String phone, String code, ShortMessagePlatformDTO shortMessagePlatform) {
 
         try {
 
