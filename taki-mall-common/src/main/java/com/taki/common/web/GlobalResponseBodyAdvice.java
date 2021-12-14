@@ -6,12 +6,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.taki.common.exception.ExceptionResult;
 import com.taki.common.exception.ErrorCodeEnum;
 import com.taki.common.utlis.ResponseData;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+import springfox.documentation.swagger.web.ApiResourceController;
 
 /**
  * @ClassName ResponseResult
@@ -20,8 +23,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * @Date 2021/11/24 22:00
  * @Version 1.0
  */
-//@ControllerAdvice(basePackages = "")
-public class ResponseResult<T> implements ResponseBodyAdvice<Object> {
+@Slf4j
+@ControllerAdvice
+public class GlobalResponseBodyAdvice<T> implements ResponseBodyAdvice<Object> {
     /**
      * @description: 是否开启结果响应拦截
      * @param: methodParameter 方法参数
@@ -32,6 +36,10 @@ public class ResponseResult<T> implements ResponseBodyAdvice<Object> {
      */
     @Override
     public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> aClass) {
+        Class<?> declaringClass = aClass.getDeclaringClass();
+        if (declaringClass.equals(ApiResourceController.class)){
+            return false;
+        }
         return true;
     }
     /**
@@ -49,7 +57,6 @@ public class ResponseResult<T> implements ResponseBodyAdvice<Object> {
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
 
-        System.out.println("进来了");
         if (returnType.getGenericParameterType().equals(String.class)){
             ObjectMapper objectMapper = new ObjectMapper();
             //这里 将数据封装成VO 对象放回
