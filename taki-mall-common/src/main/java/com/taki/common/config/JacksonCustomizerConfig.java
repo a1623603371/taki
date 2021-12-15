@@ -1,15 +1,18 @@
 package com.taki.common.config;
 
 ;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.LocalDateTimeUtil;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import com.taki.common.constants.DateFormatConstants;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +24,9 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * @ClassName JacksonCustomizerConfig
@@ -44,61 +49,25 @@ public class JacksonCustomizerConfig {
     public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer(){
 
         return builder -> {
+            //设置 LocalDateTime 序列化
             builder.serializerByType(LocalDateTime.class, new LocalDateTimeSerializer());
+            // 设置LocalDateTime 反序列化
             builder.deserializerByType(LocalDateTime.class, new LocalDateTimeDeserializer());
-
+            // 设置序列化时字段为null也展示
+            builder.serializationInclusion(JsonInclude.Include.ALWAYS);
+            //默认开启，若map的value为null，则不对map条目进行序列化。。
+            //(已废弃)
+           // builder.featuresToDisable(SerializationFeature.WRITE_NULL_MAP_VALUES);
+           builder.timeZone(TimeZone.getTimeZone(DateFormatConstants.DEFAULT_TIME_ZONE));
         };
     }
-
-    /**
-     * @description:  接受前端时间戳转为 LocalDateTime
-     * @param:
-     * @return: 序列化组件
-     * @author Long
-     * @date: 2021/11/27 14:06
-     */
-    @Bean
-    public Converter<String,LocalDateTime> localDateTimeConverter(){
-
-        return new Converter<String, LocalDateTime>() {
-            @Override
-            public LocalDateTime convert(String value) {
-                return LocalDateTimeUtil.of(Long.valueOf(value), ZoneId.of("+8"));
-            }
-
-        };
-    }
-
-    /** 
-     * @description:  date 转换 接受前端时间戳转为 date
-     * @param: 
-     * @return: 转换器
-     * @author Long
-     * @date: 2021/11/27 14:23
-     */
-    @Bean
-    public  Converter<String, Date> dateConverter(){
-
-        return new Converter<String, Date>() {
-            @Override
-            public Date convert(String source) {
-                Long timeStamp = Long.valueOf(source);
-
-                if (timeStamp > 0){
-                    return new Date(timeStamp);
-                }
-                return null;
-            }
-        };
-    }
-
 
     /** 
      * @description: 序列化
      *    序列化为毫秒级别
      * @author Long
      * @date: 2021/11/27 14:12
-     */ 
+     */
     public static  class LocalDateTimeSerializer extends JsonSerializer<LocalDateTime> {
 
         @Override
@@ -122,11 +91,13 @@ public class JacksonCustomizerConfig {
 
             long timestamp = p.getValueAsLong();
 
-            if (timestamp > 0){
+            String text = p.getText();
+            // 时间戳转换
+            if (StringUtils.isNumeric(text) && timestamp > 0){
                 return LocalDateTimeUtil.of(timestamp, ZoneOffset.of("+8"));
             }
-
-            return null;
+            // yyyy-MM-dd HH:mm:ss 日期格式转换
+            return LocalDateTimeUtil.parse(p.getText(),DateTimeFormatter.ofPattern(DateFormatConstants.DATE_TIME_FORMAT_PATTERN));
         }
     }
 }

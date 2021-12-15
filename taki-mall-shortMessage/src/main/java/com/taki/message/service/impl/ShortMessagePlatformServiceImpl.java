@@ -4,6 +4,7 @@ package com.taki.message.service.impl;
 import cn.hutool.core.convert.Convert;
 import com.taki.common.exception.ErrorCodeEnum;
 import com.taki.common.exception.ServiceException;
+import com.taki.common.utlis.ResponseData;
 import com.taki.message.dao.ShortMessagePlatformDao;
 import com.taki.message.domian.ShortMessagePlatformDO;
 import com.taki.message.domian.dto.ShortMessagePlatformDTO;
@@ -12,6 +13,8 @@ import com.taki.message.service.ShortMessagePlatformService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+
+import java.util.List;
 
 /**
  * <p>
@@ -47,7 +50,7 @@ public class ShortMessagePlatformServiceImpl implements ShortMessagePlatformServ
     @Override
     public Boolean update(ShortMessagePlatformDTO shortMessagePlatformDTO) {
         ShortMessagePlatformDO shortMessagePlatformDO = Convert.convert(ShortMessagePlatformDO.class,shortMessagePlatformDTO);
-       return shortMessagePlatformDao.update(shortMessagePlatformDO);
+       return shortMessagePlatformDao.updateById(shortMessagePlatformDO);
     }
 
 
@@ -61,7 +64,7 @@ public class ShortMessagePlatformServiceImpl implements ShortMessagePlatformServ
     @Override
     public ShortMessagePlatformDTO findById(Long id) {
 
-        ShortMessagePlatformDO shortMessagePlatformDO = shortMessagePlatformDao.findById(id);
+        ShortMessagePlatformDO shortMessagePlatformDO = shortMessagePlatformDao.getById(id);
         return Convert.convert(ShortMessagePlatformDTO.class,shortMessagePlatformDO);
     }
 
@@ -78,5 +81,10 @@ public class ShortMessagePlatformServiceImpl implements ShortMessagePlatformServ
 
 
         return sendMessageStrategy.sendMessage(areaCode,phone,code,shortMessagePlatform);
+    }
+
+    @Override
+    public List<ShortMessagePlatformDO> getList() {
+        return shortMessagePlatformDao.list();
     }
 }

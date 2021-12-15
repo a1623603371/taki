@@ -12,7 +12,9 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 
 /**
@@ -66,7 +68,7 @@ public class ShortMessagePlatformDTO  {
 
     private String type;
 
-    private String text;
+    private String template;
 
     private Boolean open;
 

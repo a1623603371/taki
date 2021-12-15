@@ -21,6 +21,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 // 有参构造
 @AllArgsConstructor
+
 public class ResponseData<T> implements Serializable {
 
     private static final long serialVersionUID = 1L;

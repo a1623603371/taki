@@ -8,7 +8,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 
 /**
@@ -65,7 +67,7 @@ public class ShortMessagePlatformVO {
     private String type;
 
     @ApiModelProperty("短信模板内容 和 短信平台模板对应")
-    private String text;
+    private String template;
     @ApiModelProperty("是否开启 0 关闭， 1开启")
     private Boolean open;
 

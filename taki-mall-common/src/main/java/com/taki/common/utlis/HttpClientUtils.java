@@ -93,11 +93,11 @@ public class HttpClientUtils {
         Long endTime = System.currentTimeMillis();
 
         if (!response.isSuccessful()){
-            log.error("HTTP POST 连接失败;url = {}",response.code(),url);
+            log.warn("HTTP POST 连接失败;url = {}",response.code(),url);
             throw new ServiceException(ErrorCodeEnum.ERROR_REMOTE_SERVER,response.body().toString(),null);
         }
         if (response.code() != 200){
-            log.error("HTTP POST 请求失败;[errorCode ={}],url = {}",response.code(),url);
+            log.warn("HTTP POST 请求失败;[errorCode ={}],url = {}",response.code(),url);
         }
 
         log.info("HTTP 请求耗时{}",(endTime - startTime));
@@ -131,11 +131,11 @@ public class HttpClientUtils {
                 Long endTime = System.currentTimeMillis();
 
                 if (!response.isSuccessful()){
-                    log.error("HTTP POST 连接失败;url = {}",response.code(),url);
+                    log.warn("HTTP POST 连接失败;url = {}",response.code(),url);
                     throw new ServiceException(ErrorCodeEnum.ERROR_REMOTE_SERVER,response.body().toString(),null);
                 }
                 if (response.code() != 200){
-                    log.error("HTTP POST 请求失败;[errorCode ={}],url = {}",response.code(),url);
+                    log.warn("HTTP POST 请求失败;[errorCode ={}],url = {}",response.code(),url);
                 }
 
                 log.info("HTTP 请求耗时{}",(endTime - startTime));
@@ -183,7 +183,7 @@ public class HttpClientUtils {
                     log.info("HTTP GET 请求调用成功 [URL = {}]", url);
                     return response.body().toString();
                 }else {
-                    log.info("HTTP GET 请求调用失败 [ERROR_CODE = {},URL = {}]", response.code(),url);
+                    log.warn("HTTP GET 请求调用失败 [ERROR_CODE = {},URL = {}]", response.code(),url);
                 }
 
             } catch (IOException e) {

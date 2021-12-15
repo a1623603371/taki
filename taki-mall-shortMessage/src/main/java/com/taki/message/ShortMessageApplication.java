@@ -12,7 +12,7 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
  * @Date 2021/12/4 14:14
  * @Version 1.0
  */
-@SpringBootApplication(scanBasePackages = {"com.taki.core","com.taki.message"})
+@SpringBootApplication(scanBasePackages = {"com.taki.common","com.taki.message"})
 @EnableEurekaClient
 public class ShortMessageApplication {
 

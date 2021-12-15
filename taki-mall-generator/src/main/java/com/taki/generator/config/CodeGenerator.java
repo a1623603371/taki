@@ -21,6 +21,7 @@ import com.baomidou.mybatisplus.generator.config.rules.IColumnType;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
 import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
 import com.baomidou.mybatisplus.generator.keywords.MySqlKeyWordsHandler;
+import com.taki.common.domin.BaseEntity;
 
 import java.sql.Connection;
 import java.util.Collections;
@@ -98,18 +99,18 @@ public class CodeGenerator {
                 .packageConfig(builder -> {
                     builder.parent("com.taki") // 设置父包名
                             .moduleName("module")
-                            .entity("domain")
-                            .service("service")
-                            .serviceImpl("service.impl")
-                            .mapper("mapper")
-                            .controller("controller"); // 设置父包模块名
+                            .entity("domain");
+                            //.service("service")
+                            //.serviceImpl("service.impl")
+                           // .mapper("mapper")
+                          //  .controller("controller"); // 设置父包模块名
                           //  .pathInfo(Collections.singletonMap(OutputFile.mapperXml, "D://")); // 设置mapperXml生成路径
                 })
 
                 .strategyConfig(builder -> {
                     builder.addInclude(tables)// 设置需要生成的表名
                             .entityBuilder() // 设置 实体类
-                           // .superClass(Entity.class) // 设置实体类父类
+                            .superClass(BaseEntity.class)// 设置实体类父类
                             .enableColumnConstant() // 生成常量
                             .enableChainModel() // 开启链式调用
                             .enableLombok() // 开启lombok 模型
@@ -118,15 +119,15 @@ public class CodeGenerator {
                             .enableActiveRecord()//开启 activeRecord 模型
                             .idType(IdType.AUTO)
                             .formatFileName("%sDO")
-                            .controllerBuilder()
-                            .enableHyphenStyle()
-                            .enableRestStyle()
-                            .formatFileName("%sController")
-                            .serviceBuilder()
-                            .superServiceClass(IService.class)
-                            .superServiceImplClass(ServiceImpl.class)
-                            .formatServiceFileName("%sService")
-                            .formatServiceImplFileName("%sServiceImpl")
+                           // .controllerBuilder()
+                            //.enableHyphenStyle()
+                            //.enableRestStyle()
+                          //  .formatFileName("%sController")
+                           // .serviceBuilder()
+                           // .superServiceClass(IService.class)
+                          //  .superServiceImplClass(ServiceImpl.class)
+                         //   .formatServiceFileName("%sService")
+                           // .formatServiceImplFileName("%sServiceImpl")
                             .mapperBuilder()
                             .superClass(BaseMapper.class)
                             .enableMapperAnnotation()

@@ -9,7 +9,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.springframework.boot.actuate.endpoint.annotation.FilteredEndpoint;
 
 /**
  * <p>

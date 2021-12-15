@@ -4,6 +4,7 @@ package com.taki.message.controller;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.lang.TypeReference;
 import com.taki.common.utlis.ResponseData;
+import com.taki.message.domian.ShortMessagePlatformDO;
 import com.taki.message.domian.dto.ShortMessagePlatformDTO;
 import com.taki.message.domian.vo.ShortMessagePlatformVO;
 import com.taki.message.service.ShortMessagePlatformService;
@@ -12,6 +13,8 @@ import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * <p>
@@ -34,6 +37,12 @@ public class ShortMessagePlatformController {
     @Autowired
     public ShortMessagePlatformController(ShortMessagePlatformService shortMessagePlatformService) {
         this.shortMessagePlatformService = shortMessagePlatformService;
+    }
+
+    @ApiModelProperty("全部短信平台信息")
+    @PostMapping("/list")
+    public ResponseData<List<ShortMessagePlatformDO>> list(){
+        return ResponseData.success(shortMessagePlatformService.getList());
     }
 
     /**

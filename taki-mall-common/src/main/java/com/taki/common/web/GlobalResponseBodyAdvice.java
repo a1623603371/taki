@@ -24,7 +24,7 @@ import springfox.documentation.swagger.web.ApiResourceController;
  * @Version 1.0
  */
 @Slf4j
-@ControllerAdvice
+//@ControllerAdvice
 public class GlobalResponseBodyAdvice<T> implements ResponseBodyAdvice<Object> {
     /**
      * @description: 是否开启结果响应拦截

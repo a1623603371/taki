@@ -2,7 +2,11 @@ package com.taki.message.service;
 
 
 import com.taki.common.exception.ServiceException;
+import com.taki.common.utlis.ResponseData;
+import com.taki.message.domian.ShortMessagePlatformDO;
 import com.taki.message.domian.dto.ShortMessagePlatformDTO;
+
+import java.util.List;
 
 /**
  * <p>
@@ -59,4 +63,6 @@ public interface ShortMessagePlatformService {
      * @date: 2021/12/6 17:13
      */
     Boolean sendMessage(String areaCode,String phone, String code, String type) throws ServiceException;
+
+    List<ShortMessagePlatformDO> getList();
 }

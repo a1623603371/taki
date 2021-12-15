@@ -4,7 +4,11 @@ import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+
+import com.taki.common.domin.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -24,12 +28,11 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @TableName("short_message_platform")
 @ApiModel(value = "ShortMessagePlatformDO对象", description = "")
-public class ShortMessagePlatformDO extends Model<ShortMessagePlatformDO> {
+public class ShortMessagePlatformDO extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+
 
     @ApiModelProperty("平台名称")
     @TableField("platform_name")
@@ -79,21 +82,16 @@ public class ShortMessagePlatformDO extends Model<ShortMessagePlatformDO> {
     @TableField("type")
     private String type;
 
+
     @ApiModelProperty("短信模板内容 和 短信平台模板对应")
-    @TableField("type")
-    private String text;
+    @TableField("template")
+    private String template;
 
     @ApiModelProperty("是否开启 0 关闭， 1开启")
     @TableField("is_open")
     private Boolean open;
 
-    @ApiModelProperty("创建时间")
-    @TableField(value = "create_time",fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
 
-    @ApiModelProperty("修改时间")
-    @TableField(value = "update_time",fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
 
 
     public static final String ID = "id";
@@ -128,9 +126,5 @@ public class ShortMessagePlatformDO extends Model<ShortMessagePlatformDO> {
 
     public static final String UPDATE_TIME = "update_time";
 
-    @Override
-    public Serializable pkVal() {
-        return this.id;
-    }
 
 }

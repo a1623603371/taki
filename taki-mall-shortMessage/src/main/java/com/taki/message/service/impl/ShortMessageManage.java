@@ -40,7 +40,7 @@ public class ShortMessageManage {
         this.yunPianAPIStrategy = yunPianAPIStrategy;
         this.tencentAPIStrategy = tencentAPIStrategy;
 
-        sendMessageStrategyMap.put(mergeKey(ShortMessagePlatformEnum.TX.name(),SendTypeEnum.SDK.name()),tencentSDKStrategy);
+       // sendMessageStrategyMap.put(mergeKey(ShortMessagePlatformEnum.TX.name(),SendTypeEnum.SDK.name()),tencentSDKStrategy);
         sendMessageStrategyMap.put(mergeKey(ShortMessagePlatformEnum.TX.name(),SendTypeEnum.API.name()),tencentAPIStrategy);
         sendMessageStrategyMap.put(mergeKey(ShortMessagePlatformEnum.YP.name(),SendTypeEnum.API.name()),yunPianAPIStrategy);
     }

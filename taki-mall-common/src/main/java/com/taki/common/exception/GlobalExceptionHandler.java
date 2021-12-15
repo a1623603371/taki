@@ -30,18 +30,16 @@ public class GlobalExceptionHandler {
      * @date: 2021/11/24 21:42
      */
     @ExceptionHandler(Exception.class)
-    //@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseData<Object>  exceptionResponse(Exception ex, HttpServletRequest request){
 
         ExceptionResult.ExceptionResultBuilder result = ExceptionResult.builder();
-       // String trace =  ExceptionUtils.getStackTrace(ex);
         log.error("[系统未知错误]",ex);
          result =  ExceptionResult.builder().timestamp(new Date())
                 .message(ex.getMessage())
           //      .trace(trace)
                 .exceptionName(ex.getClass().getName())
                 .path(request.getRequestURI());
-        return ResponseData.error(ErrorCodeEnum.SYSTEM_ERROR,result);
+        return ResponseData.error(ErrorCodeEnum.SYSTEM_ERROR,result.build());
     }
 
     /** 

@@ -16,7 +16,7 @@ import springfox.documentation.oas.annotations.EnableOpenApi;
  * @Version 1.0
  */
 
-@SpringBootApplication(scanBasePackages = {"com.taki.core.*","com.taki.user"})
+@SpringBootApplication(scanBasePackages = {"com.taki.common.*","com.taki.user"})
 @EnableOpenApi
 @EnableEurekaClient
 //@EnableDiscoveryClient
