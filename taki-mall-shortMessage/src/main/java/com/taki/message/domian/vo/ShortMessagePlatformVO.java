@@ -4,6 +4,7 @@ package com.taki.message.domian.vo;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.taki.common.core.AbstractObject;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -23,7 +24,7 @@ import java.time.LocalTime;
  */
 @Data
 @Accessors(chain = true)
-public class ShortMessagePlatformVO {
+public class ShortMessagePlatformVO extends AbstractObject {
 
 
 

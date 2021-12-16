@@ -43,13 +43,13 @@ public class ShortMessagePlatformServiceImpl implements ShortMessagePlatformServ
 
     @Override
     public Boolean save(ShortMessagePlatformDTO shortMessagePlatformDTO) {
-        ShortMessagePlatformDO shortMessagePlatformDO = Convert.convert(ShortMessagePlatformDO.class,shortMessagePlatformDTO);
+        ShortMessagePlatformDO shortMessagePlatformDO = shortMessagePlatformDTO.clone(ShortMessagePlatformDO.class);
        return  shortMessagePlatformDao.save(shortMessagePlatformDO);
     }
 
     @Override
     public Boolean update(ShortMessagePlatformDTO shortMessagePlatformDTO) {
-        ShortMessagePlatformDO shortMessagePlatformDO = Convert.convert(ShortMessagePlatformDO.class,shortMessagePlatformDTO);
+        ShortMessagePlatformDO shortMessagePlatformDO = shortMessagePlatformDTO.clone(ShortMessagePlatformDO.class);
        return shortMessagePlatformDao.updateById(shortMessagePlatformDO);
     }
 

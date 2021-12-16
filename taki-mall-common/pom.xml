@@ -35,6 +35,11 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
 
+        <!--  mysql 驱动包-->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -45,7 +50,6 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid-spring-boot-starter</artifactId>
-            <version> 1.2.6</version>
         </dependency>
 
         <dependency>
@@ -100,11 +104,7 @@
         </dependency>
         <!-- end -->
 
-        <!--  mysql 驱动包-->
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-        </dependency>
+
 
     </dependencies>
 

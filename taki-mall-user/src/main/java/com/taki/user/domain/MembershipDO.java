@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+
+import com.taki.common.domin.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -23,7 +25,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @TableName("membership")
 @ApiModel(value = "MembershipDO对象", description = "")
-public class MembershipDO extends Model<MembershipDO> {
+public class MembershipDO extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -64,14 +66,6 @@ public class MembershipDO extends Model<MembershipDO> {
     @TableField("wx")
     private String wx;
 
-    @ApiModelProperty("创建时间")
-    @TableField(value = "create_time",fill = FieldFill.INSERT)
-    private LocalDateTime createTime;
-
-    @ApiModelProperty("修改时间")
-    @TableField(value = "update_time",fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime updateTime;
-
 
     public static final String UID = "uid";
 
@@ -91,13 +85,5 @@ public class MembershipDO extends Model<MembershipDO> {
 
     public static final String WX = "wx";
 
-    public static final String CREATE_TIME = "create_time";
-
-    public static final String UPDATE_TIME = "update_time";
-
-    @Override
-    public Serializable pkVal() {
-        return this.uid;
-    }
 
 }

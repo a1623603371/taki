@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
+import com.taki.common.core.AbstractObject;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -27,8 +28,7 @@ import java.time.LocalTime;
  */
 @Data
 @Accessors(chain = true)
-
-public class ShortMessagePlatformDTO  {
+public class ShortMessagePlatformDTO extends AbstractObject implements Serializable {
 
 
 

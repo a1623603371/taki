@@ -55,7 +55,7 @@ public class ShortMessagePlatformController {
     @PostMapping("/save")
     public ResponseData save(@RequestBody ShortMessagePlatformVO shortMessagePlatformVO){
 
-           ShortMessagePlatformDTO shortMessagePlatformDTO = Convert.convert(new TypeReference<ShortMessagePlatformDTO>() {},shortMessagePlatformVO);
+           ShortMessagePlatformDTO shortMessagePlatformDTO = shortMessagePlatformVO.clone(ShortMessagePlatformDTO.class);
            shortMessagePlatformService.save(shortMessagePlatformDTO);
         return ResponseData.success();
     }
@@ -70,7 +70,7 @@ public class ShortMessagePlatformController {
     @ApiModelProperty("修改短信平台信息")
     @PutMapping("/update")
     public ResponseData<Boolean> update(@RequestBody ShortMessagePlatformVO shortMessagePlatformVO){
-        ShortMessagePlatformDTO shortMessagePlatformDTO = Convert.convert(new TypeReference<ShortMessagePlatformDTO>() {},shortMessagePlatformVO);
+        ShortMessagePlatformDTO shortMessagePlatformDTO = shortMessagePlatformVO.clone(ShortMessagePlatformDTO.class);
         Boolean result =  shortMessagePlatformService.update(shortMessagePlatformDTO);
         return ResponseData.success();
     }
