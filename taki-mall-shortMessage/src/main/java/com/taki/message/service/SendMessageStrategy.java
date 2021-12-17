@@ -2,6 +2,7 @@ package com.taki.message.service;
 
 import com.taki.common.exception.ServiceException;
 import com.taki.message.domian.dto.ShortMessagePlatformDTO;
+import com.tencentcloudapi.common.exception.TencentCloudSDKException;
 
 /**
  * @ClassName SendMessageStrategy
@@ -21,6 +22,6 @@ public interface SendMessageStrategy {
      * @author Long
      * @date: 2021/12/4 18:48
      */
-    Boolean sendMessage(String areaCode,String phone, String code , ShortMessagePlatformDTO shortMessagePlatform) throws ServiceException;
+    Boolean sendMessage(String areaCode,String phone, String code , ShortMessagePlatformDTO shortMessagePlatform) throws Exception;
 
 }

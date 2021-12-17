@@ -39,22 +39,22 @@ public class CodeGenerator {
     private static final  String url = "jdbc:mysql://192.168.33.11:3306/taki-mall?useUnicode=true&characterEncoding=utf-8";
 
 
-    private static final String url2 = "jdbc:mysql://49.232.128.89:3306/sonasonic_sit?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai";
+    //private static final String url2 = "jdbc:mysql://49.232.128.89:3306/sonasonic_sit?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai";
 
     private static final  String username = "root";
-    private static final  String username2 = "root";
+   // private static final  String username2 = "root";
 
     private static final  String passwrod = "Pzk2020@";
-    private static final  String passwrod2 = "M98_so892@l1UIG";
+   // private static final  String passwrod2 = "M98_so892@l1UIG";
 
     private static final  String database = "taki-mall";
-    private static final  String database2 = "sonasonic_sit";
+   // private static final  String database2 = "sonasonic_sit";
 
 
     private static  final DataSourceConfig.Builder DATA_SOURCE_CONFIG =
-            new DataSourceConfig.Builder(url2,username2,passwrod2)
+            new DataSourceConfig.Builder(url,username,passwrod)
                     .dbQuery(new MySqlQuery())
-                    .schema(database2)
+                    .schema(database)
                     .typeConvert(
                             new MySqlTypeConvert()
 //                            {
@@ -79,8 +79,7 @@ public class CodeGenerator {
     private static  String[] tables = new String[]{
             //"membership",
           //  "short_message_platform"
-            "rule_engine_config",
-            "rule_engine_item_config"
+                "membership"
     };
 
 
@@ -110,7 +109,7 @@ public class CodeGenerator {
                 .strategyConfig(builder -> {
                     builder.addInclude(tables)// 设置需要生成的表名
                             .entityBuilder() // 设置 实体类
-                            .superClass(BaseEntity.class)// 设置实体类父类
+                            .superClass("com.taki.common.domin.BaseEntity")// 设置实体类父类
                             .enableColumnConstant() // 生成常量
                             .enableChainModel() // 开启链式调用
                             .enableLombok() // 开启lombok 模型

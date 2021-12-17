@@ -1,7 +1,7 @@
 package com.taki.user.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.taki.user.domain.MembershipDO;
+import com.taki.user.domain.entity.MembershipDO;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

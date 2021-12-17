@@ -10,6 +10,7 @@ import com.tencentcloudapi.common.profile.HttpProfile;
 import com.tencentcloudapi.sms.v20210111.SmsClient;
 import com.tencentcloudapi.sms.v20210111.models.SendSmsRequest;
 import com.tencentcloudapi.sms.v20210111.models.SendSmsResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Component;
  * @Version 1.0
  */
 @Component
+@Slf4j
 public class TencentSDKStrategy implements SendMessageStrategy {
 
 
@@ -29,9 +31,9 @@ public class TencentSDKStrategy implements SendMessageStrategy {
 
 
     @Override
-    public Boolean sendMessage(String areaCode,String phone, String code,ShortMessagePlatformDTO shortMessagePlatform) {
+    public Boolean sendMessage(String areaCode,String phone, String code,ShortMessagePlatformDTO shortMessagePlatform) throws Exception {
 
-        try {
+
             /* 必要步骤：
              * 实例化一个认证对象，入参需要传入腾讯云账户密钥对secretId，secretKey。
              * 这里采用的是从环境变量读取的方式，需要在环境变量中先设置这两个值。
@@ -65,9 +67,6 @@ public class TencentSDKStrategy implements SendMessageStrategy {
             // 也可以取出单个值，你可以通过官网接口文档或跳转到response对象的定义处查看返回字段的定义
             System.out.println(res.getRequestId());
 
-        } catch (TencentCloudSDKException e) {
-            e.printStackTrace();
-        }
 
         return false;
     }

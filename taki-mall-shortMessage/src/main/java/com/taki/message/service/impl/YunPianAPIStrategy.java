@@ -23,17 +23,16 @@ public class YunPianAPIStrategy implements SendMessageStrategy {
     private static final String codeStatus = "0";
 
     @Override
-    public Boolean sendMessage(String areaCode,String phone, String code, ShortMessagePlatformDTO shortMessagePlatform) throws ServiceException {
+    public Boolean sendMessage(String areaCode, String phone, String code, ShortMessagePlatformDTO shortMessagePlatform) throws ServiceException {
         // 构建短信请求数据
         YunPianReuqst reuqst = YunPianReuqst.builder()
                 .apikey(shortMessagePlatform.getApiKey())
                 .mobile(phone)
                 .text("[] " + code)
                 .build();
-           String response = HttpClientUtils.requestPostJson(null,8000,shortMessagePlatform.getRequestUrl(),null, JSON.toJSONString(reuqst));
-
+        String response = HttpClientUtils.requestPostJson(null, 8000, shortMessagePlatform.getRequestUrl(), null, JSON.toJSONString(reuqst));
         String responseCode = JSON.parseObject(response).getString("code");
-        if (!codeStatus.equals(responseCode)){
+        if (!codeStatus.equals(responseCode)) {
             return false;
         }
         return true;

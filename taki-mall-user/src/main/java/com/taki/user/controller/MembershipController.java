@@ -3,8 +3,12 @@ package com.taki.user.controller;
 
 
 import com.taki.common.utlis.ResponseData;
+import com.taki.user.domain.dto.MembershipDTO;
+import com.taki.user.domain.request.RegisterRequest;
 import com.taki.user.domain.vo.MembershipVO;
+import com.taki.user.service.MembershipService;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -24,19 +28,29 @@ public class MembershipController {
 
 
 
+    @Autowired
+    private MembershipService membershipService;
+
+
+
+
     /**
-     * @description:
+     * @description: 用户注册
      * @param: membership
-     * @return: com.taki.core.utlis.ResponseData<com.taki.user.domain.vo.MembershipVO>
+     * @return:
      * @author Long
      * @date: 2021/12/4 12:51
      */
     @PostMapping("/register")
-    public ResponseData<MembershipVO> register(@RequestBody MembershipVO membership){
+    public ResponseData<MembershipVO> register(@RequestBody RegisterRequest request){
 
+         MembershipDTO membershipDTO =  membershipService.register(request);
 
-        return null;
+        return ResponseData.success(membershipDTO.clone(MembershipVO.class));
     }
+
+
+
 
 
 }

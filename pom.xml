@@ -23,6 +23,7 @@
         <module>taki-mall-eureka</module>
         <module>taki-mall-shortMessage</module>
         <module>taki-mall-email</module>
+        <module>taki-mall-sso</module>
     </modules>
 
 

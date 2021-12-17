@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -57,6 +59,7 @@ public class ShortMessagePlatformController {
 
            ShortMessagePlatformDTO shortMessagePlatformDTO = shortMessagePlatformVO.clone(ShortMessagePlatformDTO.class);
            shortMessagePlatformService.save(shortMessagePlatformDTO);
+
         return ResponseData.success();
     }
 
@@ -89,7 +92,6 @@ public class ShortMessagePlatformController {
     @ApiModelProperty("发送短信接口")
     @PostMapping("/sendMessage")
     public ResponseData<Boolean> sendMessage(@ApiParam("区号") @RequestParam("areaCode")String areaCode,@ApiParam("手机号") @RequestParam("phone") String phone, @ApiParam("验证码")@RequestParam("code")String code, @ApiParam("短信类型")@RequestParam("type") String type) throws Exception {
-
 
        Boolean result =   shortMessagePlatformService.sendMessage(areaCode,phone,code,type);
 
