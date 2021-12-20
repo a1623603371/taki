@@ -2,6 +2,7 @@ package com.taki.user.domain.dto;
 
 import com.taki.common.core.AbstractObject;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -19,7 +20,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Accessors(chain = true)
-
+@Builder
 public class MembershipDTO extends AbstractObject {
 
 

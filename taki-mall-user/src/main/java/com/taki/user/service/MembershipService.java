@@ -19,9 +19,11 @@ public interface MembershipService  {
     /**
      * @description: 注册会员
      * @param request 注册请求实体
-     * @return  void
+     * @return  Boolean
      * @author Long
      * @date: 2021/12/17 17:13
      */
-    MembershipDTO register(RegisterRequest request);
+    Boolean register(RegisterRequest request);
+
+    MembershipDTO getUserInfo(Long uid);
 }

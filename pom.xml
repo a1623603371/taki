@@ -47,6 +47,7 @@
         <commons-lang3.verssion>3.10</commons-lang3.verssion>
         <jwt.version>0.9.1</jwt.version>
         <lombok.version>1.18.16</lombok.version>
+        <redisson.version>3.15.5</redisson.version>
     </properties>
 
 
@@ -188,7 +189,17 @@
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
             </dependency>
+
+            <!-- redisson -->
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson</artifactId>
+                <version>${redisson.version}</version>
+            </dependency>
         </dependencies>
+
+
+
 
     </dependencyManagement>
 

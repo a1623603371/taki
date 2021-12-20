@@ -70,6 +70,9 @@ public enum ErrorCodeEnum implements BaseErrorCodeEnum {
 
     PARAMETER_ERROR(550,"参数异常,认证失败"),
 
+
+    PASS_NOT_SAFE(541,"密码请设置6-18位的字母数字组合，需含字母和数字"),
+
     ERROR_REMOTE_SERVER(501,"远程API调用失败"),
 
     BUSINESS_ERROR(540,"业务报错"),
