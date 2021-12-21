@@ -21,7 +21,7 @@ import com.baomidou.mybatisplus.generator.config.rules.IColumnType;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
 import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
 import com.baomidou.mybatisplus.generator.keywords.MySqlKeyWordsHandler;
-import com.taki.common.domin.BaseEntity;
+
 
 import java.sql.Connection;
 import java.util.Collections;
@@ -36,25 +36,25 @@ import java.util.List;
  */
 public class CodeGenerator {
 
-    private static final  String url = "jdbc:mysql://192.168.33.11:3306/taki-mall?useUnicode=true&characterEncoding=utf-8";
+    //private static final  String url = "jdbc:mysql://192.168.33.11:3306/taki-mall?useUnicode=true&characterEncoding=utf-8";
 
 
-    //private static final String url2 = "jdbc:mysql://49.232.128.89:3306/sonasonic_sit?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai";
+    private static final String url2 = "jdbc:mysql://49.232.128.89:3306/sonasonic_sit?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai";
 
-    private static final  String username = "root";
-   // private static final  String username2 = "root";
+    //private static final  String username = "root";
+    private static final  String username2 = "root";
 
-    private static final  String passwrod = "Pzk2020@";
-   // private static final  String passwrod2 = "M98_so892@l1UIG";
+   // private static final  String passwrod = "Pzk2020@";
+    private static final  String passwrod2 = "M98_so892@l1UIG";
 
-    private static final  String database = "taki-mall";
-   // private static final  String database2 = "sonasonic_sit";
+   // private static final  String database = "taki-mall";
+    private static final  String database2 = "sonasonic_sit";
 
 
     private static  final DataSourceConfig.Builder DATA_SOURCE_CONFIG =
-            new DataSourceConfig.Builder(url,username,passwrod)
+            new DataSourceConfig.Builder(url2,username2,passwrod2)
                     .dbQuery(new MySqlQuery())
-                    .schema(database)
+                    .schema(database2)
                     .typeConvert(
                             new MySqlTypeConvert()
 //                            {
@@ -79,7 +79,8 @@ public class CodeGenerator {
     private static  String[] tables = new String[]{
             //"membership",
           //  "short_message_platform"
-                "membership"
+             //   "membership"
+            "t_rmbs_paytype"
     };
 
 
@@ -98,12 +99,12 @@ public class CodeGenerator {
                 .packageConfig(builder -> {
                     builder.parent("com.taki") // 设置父包名
                             .moduleName("module")
-                            .entity("domain");
-                            //.service("service")
-                            //.serviceImpl("service.impl")
-                           // .mapper("mapper")
-                          //  .controller("controller"); // 设置父包模块名
-                          //  .pathInfo(Collections.singletonMap(OutputFile.mapperXml, "D://")); // 设置mapperXml生成路径
+                            .entity("domain")
+                            .service("service")
+                            .serviceImpl("service.impl")
+                            .mapper("mapper")
+                            .controller("controller") // 设置父包模块名
+                            .pathInfo(Collections.singletonMap(OutputFile.mapperXml, "D://")); // 设置mapperXml生成路径
                 })
 
                 .strategyConfig(builder -> {
@@ -118,15 +119,15 @@ public class CodeGenerator {
                             .enableActiveRecord()//开启 activeRecord 模型
                             .idType(IdType.AUTO)
                             .formatFileName("%sDO")
-                           // .controllerBuilder()
-                            //.enableHyphenStyle()
-                            //.enableRestStyle()
-                          //  .formatFileName("%sController")
-                           // .serviceBuilder()
-                           // .superServiceClass(IService.class)
-                          //  .superServiceImplClass(ServiceImpl.class)
-                         //   .formatServiceFileName("%sService")
-                           // .formatServiceImplFileName("%sServiceImpl")
+                            .controllerBuilder()
+                            .enableHyphenStyle()
+                            .enableRestStyle()
+                            .formatFileName("%sController")
+                            .serviceBuilder()
+                            .superServiceClass(IService.class)
+                            .superServiceImplClass(ServiceImpl.class)
+                            .formatServiceFileName("%sService")
+                            .formatServiceImplFileName("%sServiceImpl")
                             .mapperBuilder()
                             .superClass(BaseMapper.class)
                             .enableMapperAnnotation()

@@ -8,6 +8,7 @@ import com.taki.user.domain.request.RegisterRequest;
 import com.taki.user.domain.vo.MembershipVO;
 import com.taki.user.service.MembershipService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,7 +45,7 @@ public class MembershipController {
      * @date: 2021/12/4 12:51
      */
     @PostMapping("/register")
-
+    @ApiOperation("用户注册")
     public ResponseData<Boolean> register(@RequestBody RegisterRequest request){
 
         return ResponseData.success(membershipService.register(request));

@@ -62,7 +62,7 @@ public interface ShortMessagePlatformService {
      * @author Long
      * @date: 2021/12/6 17:13
      */
-    Boolean sendMessage(String areaCode,String phone, String code, String type) throws ServiceException;
+    Boolean sendMessage(String areaCode,String phone, String type) throws ServiceException;
 
     List<ShortMessagePlatformDO> getList();
 }

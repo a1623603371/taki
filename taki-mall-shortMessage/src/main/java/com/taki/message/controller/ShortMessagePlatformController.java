@@ -93,9 +93,9 @@ public class ShortMessagePlatformController {
      */
     @ApiModelProperty("发送短信接口")
     @PostMapping("/sendMessage")
-    public ResponseData<Boolean> sendMessage(@ApiParam("区号") @RequestParam("areaCode")String areaCode,@ApiParam("手机号") @RequestParam("phone") String phone, @ApiParam("验证码")@RequestParam("code")String code, @ApiParam("短信类型")@RequestParam("type") String type) throws Exception {
+    public ResponseData<Boolean> sendMessage(@ApiParam("区号") @RequestParam("areaCode")String areaCode,@ApiParam("手机号") @RequestParam("phone") String phone, @ApiParam("短信类型")@RequestParam("type") String type) throws Exception {
 
-       Boolean result =   shortMessagePlatformService.sendMessage(areaCode,phone,code,type);
+       Boolean result =   shortMessagePlatformService.sendMessage(areaCode,phone,type);
 
         return ResponseData.success(result);
     }

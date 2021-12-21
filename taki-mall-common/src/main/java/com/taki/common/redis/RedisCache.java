@@ -1,6 +1,6 @@
 package com.taki.common.redis;
 
-import com.sun.org.apache.regexp.internal.RE;
+
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
@@ -20,7 +20,7 @@ public class RedisCache {
         this.redisTemplate = redisTemplate;
     }
 
-    /** 
+    /**
      * @description: 将数据存储到redis
      * @param key  键值
      * @param value 数据
@@ -28,7 +28,7 @@ public class RedisCache {
       * @return  void
      * @author Long
      * @date: 2021/12/20 11:33
-     */ 
+     */
     public void set(String key,String value,int seconds){
 
         ValueOperations<String,String> valueOperations =   redisTemplate.opsForValue();

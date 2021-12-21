@@ -2,8 +2,10 @@ package com.taki.message.service.impl;
 
 
 import cn.hutool.core.convert.Convert;
+import com.taki.common.constants.RedisCacheKey;
 import com.taki.common.exception.ErrorCodeEnum;
 import com.taki.common.exception.ServiceException;
+import com.taki.common.redis.RedisCache;
 import com.taki.common.utlis.ResponseData;
 import com.taki.message.dao.ShortMessagePlatformDao;
 import com.taki.message.domian.ShortMessagePlatformDO;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * <p>
@@ -34,13 +37,14 @@ public class ShortMessagePlatformServiceImpl implements ShortMessagePlatformServ
 
     private final ShortMessagePlatformDao shortMessagePlatformDao;
 
-
     private final  ShortMessageManage shortMessageManage;
 
+    private final RedisCache redisCache;
     @Autowired
-    public ShortMessagePlatformServiceImpl( ShortMessagePlatformDao shortMessagePlatformDao,ShortMessageManage shortMessageManage) {
+    public ShortMessagePlatformServiceImpl( ShortMessagePlatformDao shortMessagePlatformDao,ShortMessageManage shortMessageManage,RedisCache redisCache) {
         this.shortMessagePlatformDao = shortMessagePlatformDao;
         this.shortMessageManage = shortMessageManage;
+        this.redisCache = redisCache;
     }
 
     @Override
@@ -71,7 +75,7 @@ public class ShortMessagePlatformServiceImpl implements ShortMessagePlatformServ
     }
 
     @Override
-    public Boolean sendMessage(String areaCode,String phone, String code, String type)  {
+    public Boolean sendMessage(String areaCode,String phone, String type)  {
 
         try {
             ShortMessagePlatformDTO shortMessagePlatform = findTypeByOpen(type);
@@ -79,6 +83,7 @@ public class ShortMessagePlatformServiceImpl implements ShortMessagePlatformServ
                 throw new ServiceException(ErrorCodeEnum.BUSINESS_ERROR,"未查到短信平台信息",null);
             }
             SendMessageStrategy sendMessageStrategy = shortMessageManage.getSendMessageStrategy(shortMessagePlatform.getPlatformCode(),shortMessagePlatform.getSendType());
+            String code = generateCode(phone);
             return sendMessageStrategy.sendMessage(areaCode,phone,code,shortMessagePlatform);
         }catch (Exception e){
             log.error("发送短信异常",e.getMessage());
@@ -86,6 +91,27 @@ public class ShortMessagePlatformServiceImpl implements ShortMessagePlatformServ
         }
         return false;
     }
+
+
+
+    /** 
+     * @description: 生成随机验证码
+     * @param 
+     * @return  java.lang.String
+     * @author Long
+     * @date: 2021/12/21 16:12
+     */ 
+    private String generateCode(String phone){
+        ThreadLocalRandom random =ThreadLocalRandom.current();
+
+        String code =  String.valueOf(random.nextInt(10001,99999));
+
+        // 保存到redis
+        redisCache.set(RedisCacheKey.REGISTER_CODE_KEY + phone,code,300);
+
+        return  code;
+    }
+
 
     @Override
     public List<ShortMessagePlatformDO> getList() {

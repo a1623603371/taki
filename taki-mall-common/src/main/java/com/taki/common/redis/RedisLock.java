@@ -1,5 +1,6 @@
 package com.taki.common.redis;
 
+
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 
@@ -23,14 +24,14 @@ public class RedisLock {
     }
 
 
-    /** 
+    /**
      * @description: 获取 分布式锁
      * @param key 键值
      * @param  seconds 自动失效时间
      * @return  boolean
      * @author Long
      * @date: 2021/12/20 11:50
-     */ 
+     */
     public boolean lock(String key,int seconds){
     RLock redisLock = redissonClient.getLock(key);
 
