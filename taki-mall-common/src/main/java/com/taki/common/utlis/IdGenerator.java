@@ -82,15 +82,5 @@ public enum IdGenerator {
     }
 
 
-    public static void main(String[] args) {
-        SimpleIdGenerator idGenerator = new SimpleIdGenerator();
-
-
-
-        System.out.println("SimpleIdGenerator" + idGenerator.generateId());
-        for (int i = 0 ; i < 100 ; i++) {
-            System.out.println("t_" + IdGenerator.INSTANCE.nextId());
-        }
-    }
 
 }

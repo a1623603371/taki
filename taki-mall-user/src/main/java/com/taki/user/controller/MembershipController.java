@@ -3,18 +3,15 @@ package com.taki.user.controller;
 
 
 import com.taki.common.utlis.ResponseData;
-import com.taki.user.domain.dto.MembershipDTO;
+
+import com.taki.user.domain.request.ChangePasswordRequest;
 import com.taki.user.domain.request.RegisterRequest;
 import com.taki.user.domain.vo.MembershipVO;
 import com.taki.user.service.MembershipService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * <p>
@@ -54,15 +51,32 @@ public class MembershipController {
 
     /**
      * @description: 获取用户信息
-     * @param uid
+     * @param uid 用户Id
      * @return 用户信息
      * @author Long
      * @date: 2021/12/20 13:56
      */
-    public ResponseData<MembershipVO> getUserInfo(Long uid){
+    @GetMapping("/userInfo/{id}")
+    @ApiOperation("用户信息")
+    public ResponseData<MembershipVO> getUserInfo(@PathVariable("id") Long uid){
 
         return ResponseData.success(membershipService.getUserInfo(uid).clone(MembershipVO.class));
     }
 
 
+    /** 
+     * @description: 修改密码
+     * @param 
+     * @return 处理结果
+     * @author Long
+     * @date: 2021/12/23 20:17
+     */
+    @PostMapping("/changePassword")
+    public ResponseData<Boolean> changePassword( @RequestBody ChangePasswordRequest request){
+
+
+        membershipService.changePassword(request);
+
+        return ResponseData.success();
+    }
 }

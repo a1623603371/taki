@@ -1,19 +1,16 @@
 package com.taki.user.service.impl;
 
 
-import cn.hutool.core.annotation.AnnotationUtil;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.taki.common.constants.RedisCacheKey;
 import com.taki.common.exception.ErrorCodeEnum;
 import com.taki.common.exception.ServiceException;
-import com.taki.common.redis.RedisCache;
 import com.taki.common.utlis.IdGenerator;
 import com.taki.user.dao.MembershipDAO;
 import com.taki.user.domain.dto.MembershipDTO;
 import com.taki.user.domain.entity.MembershipDO;
+import com.taki.user.domain.request.ChangePasswordRequest;
 import com.taki.user.domain.request.RegisterRequest;
 import com.taki.user.enums.RegisterEnum;
-import com.taki.user.mapper.MembershipMapper;
 import com.taki.user.service.MembershipService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -80,6 +77,14 @@ public class MembershipServiceImpl  implements MembershipService {
 
 
         return membership;
+    }
+
+    @Override
+    public void changePassword(ChangePasswordRequest request) {
+
+
+
+
     }
 
     /** 

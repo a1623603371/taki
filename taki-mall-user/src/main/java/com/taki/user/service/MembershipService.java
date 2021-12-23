@@ -4,6 +4,7 @@ package com.taki.user.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.taki.user.domain.dto.MembershipDTO;
 import com.taki.user.domain.entity.MembershipDO;
+import com.taki.user.domain.request.ChangePasswordRequest;
 import com.taki.user.domain.request.RegisterRequest;
 
 /**
@@ -33,4 +34,13 @@ public interface MembershipService  {
      * @date: 2021/12/21 17:00
      */
     MembershipDTO getUserInfo(Long uid);
+
+    /**
+     * @description: 修改密码
+     * @param request 修改密码请求数据
+     * @return  void
+     * @author Long
+     * @date: 2021/12/23 20:26
+     */
+    void changePassword(ChangePasswordRequest request);
 }

@@ -80,7 +80,9 @@ public class CodeGenerator {
             //"membership",
           //  "short_message_platform"
              //   "membership"
-            "t_rmbs_paytype"
+            //"t_rmbs_paytype"
+           // "t_rule_bizpolicy","t_rule_bizpolicy_item","t_rule_bizpolicy_scope","t_rule_bizpolicy_scope_item"
+            "t_rule_bizrule"
     };
 
 
