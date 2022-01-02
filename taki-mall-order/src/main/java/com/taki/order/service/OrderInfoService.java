@@ -1,6 +1,8 @@
 package com.taki.order.service;
 
+import com.taki.order.domin.dto.CreateOrderDTO;
 import com.taki.order.domin.dto.GenOrderIdDTO;
+import com.taki.order.domin.request.CreateOrderRequest;
 import com.taki.order.domin.request.GenOrderIdRequest;
 
 import java.lang.reflect.GenericArrayType;
@@ -24,5 +26,14 @@ public interface OrderInfoService {
      * @date: 2022/1/2 19:15
      */
     GenOrderIdDTO getGenOrderIdDTO(GenOrderIdRequest genOrderIdRequest);
+
+    /** 
+     * @description: 创建订单
+     * @param createOrderRequest 创建订单请求
+     * @return  CreateOrderDTO
+     * @author Long
+     * @date: 2022/1/3 0:13
+     */ 
+    CreateOrderDTO createOrder(CreateOrderRequest createOrderRequest);
 
 }
