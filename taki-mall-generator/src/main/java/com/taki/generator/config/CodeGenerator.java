@@ -36,25 +36,25 @@ import java.util.List;
  */
 public class CodeGenerator {
 
-    //private static final  String url = "jdbc:mysql://192.168.33.11:3306/taki-mall?useUnicode=true&characterEncoding=utf-8";
+    private static final  String url = "jdbc:mysql://192.168.33.11:3306/taki-mall?useUnicode=true&characterEncoding=utf-8";
 
 
-    private static final String url2 = "jdbc:mysql://49.232.128.89:3306/sonasonic_sit?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai";
+    //private static final String url2 = "jdbc:mysql://49.232.128.89:3306/sonasonic_sit?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai";
 
-    //private static final  String username = "root";
-    private static final  String username2 = "root";
+    private static final  String username = "root";
+    //private static final  String username2 = "root";
 
-   // private static final  String passwrod = "Pzk2020@";
-    private static final  String passwrod2 = "M98_so892@l1UIG";
+   private static final  String passwrod = "Pzk2020@";
+   // private static final  String passwrod2 = "M98_so892@l1UIG";
 
-   // private static final  String database = "taki-mall";
-    private static final  String database2 = "sonasonic_sit";
+    private static final  String database = "taki-mall";
+   // private static final  String database2 = "sonasonic_sit";
 
 
     private static  final DataSourceConfig.Builder DATA_SOURCE_CONFIG =
-            new DataSourceConfig.Builder(url2,username2,passwrod2)
+            new DataSourceConfig.Builder(url,username,passwrod)
                     .dbQuery(new MySqlQuery())
-                    .schema(database2)
+                    .schema(database)
                     .typeConvert(
                             new MySqlTypeConvert()
 //                            {
@@ -82,7 +82,9 @@ public class CodeGenerator {
              //   "membership"
             //"t_rmbs_paytype"
            // "t_rule_bizpolicy","t_rule_bizpolicy_item","t_rule_bizpolicy_scope","t_rule_bizpolicy_scope_item"
-            "t_rule_bizrule"
+            //"t_rule_bizrule"
+            "order_info","order_item","order_amount","order_amount_detail","order_delivery","order_operate_log","order_payment_detail"
+            ,"order_snapshot"
     };
 
 
@@ -101,7 +103,7 @@ public class CodeGenerator {
                 .packageConfig(builder -> {
                     builder.parent("com.taki") // 设置父包名
                             .moduleName("module")
-                            .entity("domain")
+                            .entity("domain.entity")
                             .service("service")
                             .serviceImpl("service.impl")
                             .mapper("mapper")
@@ -118,7 +120,7 @@ public class CodeGenerator {
                             .enableLombok() // 开启lombok 模型
                             .enableRemoveIsPrefix() // 开启  Boolean 类型字段 is 移除
                             .enableTableFieldAnnotation()
-                            .enableActiveRecord()//开启 activeRecord 模型
+                            //.enableActiveRecord()//开启 activeRecord 模型
                             .idType(IdType.AUTO)
                             .formatFileName("%sDO")
                             .controllerBuilder()

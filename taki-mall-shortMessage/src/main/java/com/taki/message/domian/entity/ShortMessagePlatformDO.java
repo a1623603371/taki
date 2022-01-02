@@ -1,4 +1,4 @@
-package com.taki.message.domian;
+package com.taki.message.domian.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.activerecord.Model;

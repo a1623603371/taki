@@ -2,7 +2,7 @@ package com.taki.message.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.taki.message.domian.ShortMessagePlatformDO;
+import com.taki.message.domian.entity.ShortMessagePlatformDO;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

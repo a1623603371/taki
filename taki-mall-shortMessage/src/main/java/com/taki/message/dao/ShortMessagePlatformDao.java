@@ -2,7 +2,7 @@ package com.taki.message.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.taki.common.BaseDAO;
-import com.taki.message.domian.ShortMessagePlatformDO;
+import com.taki.message.domian.entity.ShortMessagePlatformDO;
 import com.taki.message.mapper.ShortMessagePlatformMapper;;
 import org.springframework.stereotype.Repository;
 

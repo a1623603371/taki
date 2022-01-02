@@ -2,8 +2,7 @@ package com.taki.message.service;
 
 
 import com.taki.common.exception.ServiceException;
-import com.taki.common.utlis.ResponseData;
-import com.taki.message.domian.ShortMessagePlatformDO;
+import com.taki.message.domian.entity.ShortMessagePlatformDO;
 import com.taki.message.domian.dto.ShortMessagePlatformDTO;
 
 import java.util.List;

@@ -1,5 +1,6 @@
 package com.taki.common.bean;
 
+
 import org.springframework.context.ApplicationContext;
 
 /**

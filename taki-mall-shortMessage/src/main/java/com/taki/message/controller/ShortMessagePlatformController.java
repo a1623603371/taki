@@ -1,10 +1,8 @@
 package com.taki.message.controller;
 
 
-import cn.hutool.core.convert.Convert;
-import cn.hutool.core.lang.TypeReference;
 import com.taki.common.utlis.ResponseData;
-import com.taki.message.domian.ShortMessagePlatformDO;
+import com.taki.message.domian.entity.ShortMessagePlatformDO;
 import com.taki.message.domian.dto.ShortMessagePlatformDTO;
 import com.taki.message.domian.vo.ShortMessagePlatformVO;
 import com.taki.message.service.ShortMessagePlatformService;
@@ -15,8 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**

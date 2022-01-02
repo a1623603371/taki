@@ -11,7 +11,7 @@
  Target Server Version : 50734
  File Encoding         : 65001
 
- Date: 02/12/2021 11:10:17
+ Date: 02/01/2022 15:39:03
 */
 
 SET NAMES utf8mb4;
@@ -40,10 +40,6 @@ CREATE TABLE `auth_account`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of auth_account
--- ----------------------------
-
--- ----------------------------
 -- Table structure for auth_account_role_relationship
 -- ----------------------------
 DROP TABLE IF EXISTS `auth_account_role_relationship`;
@@ -55,10 +51,6 @@ CREATE TABLE `auth_account_role_relationship`  (
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of auth_account_role_relationship
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for auth_menu
@@ -83,10 +75,6 @@ CREATE TABLE `auth_menu`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of auth_menu
--- ----------------------------
-
--- ----------------------------
 -- Table structure for auth_role
 -- ----------------------------
 DROP TABLE IF EXISTS `auth_role`;
@@ -99,10 +87,6 @@ CREATE TABLE `auth_role`  (
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of auth_role
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for auth_role_meun_relationship
@@ -118,10 +102,6 @@ CREATE TABLE `auth_role_meun_relationship`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of auth_role_meun_relationship
--- ----------------------------
-
--- ----------------------------
 -- Table structure for cart
 -- ----------------------------
 DROP TABLE IF EXISTS `cart`;
@@ -132,10 +112,6 @@ CREATE TABLE `cart`  (
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of cart
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for cart_item
@@ -150,10 +126,6 @@ CREATE TABLE `cart_item`  (
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of cart_item
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for comment_aggregate
@@ -172,10 +144,6 @@ CREATE TABLE `comment_aggregate`  (
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of comment_aggregate
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for comment_info
@@ -205,10 +173,6 @@ CREATE TABLE `comment_info`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of comment_info
--- ----------------------------
-
--- ----------------------------
 -- Table structure for comment_picture
 -- ----------------------------
 DROP TABLE IF EXISTS `comment_picture`;
@@ -220,10 +184,6 @@ CREATE TABLE `comment_picture`  (
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of comment_picture
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for commodity_brand
@@ -244,10 +204,6 @@ CREATE TABLE `commodity_brand`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of commodity_brand
--- ----------------------------
-
--- ----------------------------
 -- Table structure for commodity_category_perperty_relationship
 -- ----------------------------
 DROP TABLE IF EXISTS `commodity_category_perperty_relationship`;
@@ -261,10 +217,6 @@ CREATE TABLE `commodity_category_perperty_relationship`  (
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of commodity_category_perperty_relationship
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for commodity_categroy
@@ -283,10 +235,6 @@ CREATE TABLE `commodity_categroy`  (
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of commodity_categroy
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for commodity_goods
@@ -312,10 +260,6 @@ CREATE TABLE `commodity_goods`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of commodity_goods
--- ----------------------------
-
--- ----------------------------
 -- Table structure for commodity_goods_detail
 -- ----------------------------
 DROP TABLE IF EXISTS `commodity_goods_detail`;
@@ -327,10 +271,6 @@ CREATE TABLE `commodity_goods_detail`  (
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of commodity_goods_detail
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for commodity_goods_detail_picture
@@ -346,10 +286,6 @@ CREATE TABLE `commodity_goods_detail_picture`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of commodity_goods_detail_picture
--- ----------------------------
-
--- ----------------------------
 -- Table structure for commodity_goods_picture
 -- ----------------------------
 DROP TABLE IF EXISTS `commodity_goods_picture`;
@@ -361,10 +297,6 @@ CREATE TABLE `commodity_goods_picture`  (
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of commodity_goods_picture
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for commodity_goods_property_value
@@ -380,10 +312,6 @@ CREATE TABLE `commodity_goods_property_value`  (
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of commodity_goods_property_value
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for commodity_goods_sku
@@ -403,10 +331,6 @@ CREATE TABLE `commodity_goods_sku`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of commodity_goods_sku
--- ----------------------------
-
--- ----------------------------
 -- Table structure for commodity_goods_sku_sale_property
 -- ----------------------------
 DROP TABLE IF EXISTS `commodity_goods_sku_sale_property`;
@@ -419,10 +343,6 @@ CREATE TABLE `commodity_goods_sku_sale_property`  (
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of commodity_goods_sku_sale_property
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for commodity_property
@@ -441,10 +361,6 @@ CREATE TABLE `commodity_property`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of commodity_property
--- ----------------------------
-
--- ----------------------------
 -- Table structure for commodity_property_group
 -- ----------------------------
 DROP TABLE IF EXISTS `commodity_property_group`;
@@ -456,10 +372,6 @@ CREATE TABLE `commodity_property_group`  (
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of commodity_property_group
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for commodity_property_group_relationshop
@@ -475,10 +387,6 @@ CREATE TABLE `commodity_property_group_relationshop`  (
   `update_Time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of commodity_property_group_relationshop
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for costomer_return_goods
@@ -498,10 +406,6 @@ CREATE TABLE `costomer_return_goods`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of costomer_return_goods
--- ----------------------------
-
--- ----------------------------
 -- Table structure for finance_logistics_settlement_detail
 -- ----------------------------
 DROP TABLE IF EXISTS `finance_logistics_settlement_detail`;
@@ -515,10 +419,6 @@ CREATE TABLE `finance_logistics_settlement_detail`  (
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of finance_logistics_settlement_detail
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for finance_ourchase_settlement_order
@@ -544,10 +444,6 @@ CREATE TABLE `finance_ourchase_settlement_order`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of finance_ourchase_settlement_order
--- ----------------------------
-
--- ----------------------------
 -- Table structure for finance_purchase_settlement_order_item
 -- ----------------------------
 DROP TABLE IF EXISTS `finance_purchase_settlement_order_item`;
@@ -563,10 +459,6 @@ CREATE TABLE `finance_purchase_settlement_order_item`  (
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of finance_purchase_settlement_order_item
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for findnce_return_goods_refund_detail
@@ -586,10 +478,6 @@ CREATE TABLE `findnce_return_goods_refund_detail`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of findnce_return_goods_refund_detail
--- ----------------------------
-
--- ----------------------------
 -- Table structure for inventory_goods_stock
 -- ----------------------------
 DROP TABLE IF EXISTS `inventory_goods_stock`;
@@ -604,10 +492,6 @@ CREATE TABLE `inventory_goods_stock`  (
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of inventory_goods_stock
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for inventory_offine_sotck_update_message
@@ -625,10 +509,6 @@ CREATE TABLE `inventory_offine_sotck_update_message`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of inventory_offine_sotck_update_message
--- ----------------------------
-
--- ----------------------------
 -- Table structure for logistics_freight_template
 -- ----------------------------
 DROP TABLE IF EXISTS `logistics_freight_template`;
@@ -644,32 +524,30 @@ CREATE TABLE `logistics_freight_template`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of logistics_freight_template
--- ----------------------------
-
--- ----------------------------
 -- Table structure for membership
 -- ----------------------------
 DROP TABLE IF EXISTS `membership`;
 CREATE TABLE `membership`  (
   `uid` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `uuid` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '第三方平台用户唯一ID',
   `username` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '用户名称',
+  `avatar` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '用户头像',
   `account` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '用户账号',
   `password` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '密码',
-  `phone` varchar(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '手机号',
+  `status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '状态 0 正常 1 封禁',
+  `area_code` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '注册手机区号',
+  `phone` varchar(11) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '手机号',
   `email` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '邮箱',
   `qq` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'QQ',
   `wx` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '微信',
+  `source` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '用户来源',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
-  PRIMARY KEY (`uid`) USING BTREE
+  PRIMARY KEY (`uid`) USING BTREE,
+  UNIQUE INDEX `idx_account`(`account`) USING BTREE,
+  UNIQUE INDEX `idx_email`(`email`) USING BTREE,
+  UNIQUE INDEX `idx_phone`(`phone`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of membership
--- ----------------------------
-INSERT INTO `membership` VALUES (1, '', '17573404517', '', '17573404517', NULL, NULL, NULL, '2021-11-26 23:48:06', '2021-11-26 23:48:06');
-INSERT INTO `membership` VALUES (2, '', 'string', '', 'string', NULL, NULL, NULL, '2021-11-26 16:48:06', '2021-11-26 16:48:06');
 
 -- ----------------------------
 -- Table structure for membership_delivery_address
@@ -690,10 +568,6 @@ CREATE TABLE `membership_delivery_address`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of membership_delivery_address
--- ----------------------------
-
--- ----------------------------
 -- Table structure for membership_detail
 -- ----------------------------
 DROP TABLE IF EXISTS `membership_detail`;
@@ -703,16 +577,12 @@ CREATE TABLE `membership_detail`  (
   `real_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '真实姓名',
   `sex` tinyint(1) NULL DEFAULT NULL COMMENT '性别',
   `birthday` datetime(0) NULL DEFAULT NULL COMMENT '生日',
-  `id_number` int(11) NULL DEFAULT NULL,
+  `id_number` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '身份证号码',
   `address` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '家庭地址',
   `crate_time` datetime(0) NOT NULL COMMENT '创建时间',
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of membership_detail
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for membership_integral
@@ -726,10 +596,6 @@ CREATE TABLE `membership_integral`  (
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of membership_integral
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for membership_integral_deatail
@@ -748,10 +614,6 @@ CREATE TABLE `membership_integral_deatail`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of membership_integral_deatail
--- ----------------------------
-
--- ----------------------------
 -- Table structure for membership_member_level
 -- ----------------------------
 DROP TABLE IF EXISTS `membership_member_level`;
@@ -765,10 +627,6 @@ CREATE TABLE `membership_member_level`  (
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of membership_member_level
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for membership_member_level_datail
@@ -789,8 +647,66 @@ CREATE TABLE `membership_member_level_datail`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of membership_member_level_datail
+-- Table structure for order_amount
 -- ----------------------------
+DROP TABLE IF EXISTS `order_amount`;
+CREATE TABLE `order_amount`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `order_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '订单编号',
+  `amount_type` int(11) NOT NULL COMMENT '收费类型',
+  `amount` int(11) NOT NULL COMMENT '收费⾦额',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 21 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '订单费⽤表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for order_amount_detail
+-- ----------------------------
+DROP TABLE IF EXISTS `order_amount_detail`;
+CREATE TABLE `order_amount_detail`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `order_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '订单编号',
+  `product_type` tinyint(4) NOT NULL COMMENT '产品类型',
+  `order_item_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '订单明细编号',
+  `product_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '商品编号',
+  `sku_code` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'sku编码',
+  `sale_quantity` int(11) NOT NULL COMMENT '销售数量',
+  `sale_price` int(11) NOT NULL COMMENT '销售单价',
+  `amount_type` tinyint(4) NOT NULL COMMENT '收费类型',
+  `amount` int(11) NOT NULL COMMENT '收费⾦额',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 28 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '订单费⽤明细\r\n表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for order_delivery_detail
+-- ----------------------------
+DROP TABLE IF EXISTS `order_delivery_detail`;
+CREATE TABLE `order_delivery_detail`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `order_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '订单编号',
+  `delivery_type` tinyint(4) NULL DEFAULT NULL COMMENT '配送类型',
+  `province` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '省',
+  `city` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '市',
+  `area` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '区',
+  `street` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '街道',
+  `detail_address` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '详细地址',
+  `lon` decimal(20, 10) NULL DEFAULT NULL COMMENT '经度',
+  `lat` decimal(20, 10) NULL DEFAULT NULL COMMENT '维度',
+  `receiver_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '收货⼈姓名',
+  `receiver_phone` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '收货⼈电话',
+  `modify_address_count` tinyint(4) NOT NULL DEFAULT 0 COMMENT '调整地址次\r\n数',
+  `deliverer_no` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '配送员编号',
+  `deliverer_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '配送员姓名',
+  `deliverer_phone` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '配送员⼿机号',
+  `out_stock_time` datetime(0) NULL DEFAULT NULL COMMENT '出库时间',
+  `signed_time` datetime(0) NULL DEFAULT NULL COMMENT '签收时间',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '订单配送信息\r\n表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for order_info
@@ -798,83 +714,101 @@ CREATE TABLE `membership_member_level_datail`  (
 DROP TABLE IF EXISTS `order_info`;
 CREATE TABLE `order_info`  (
   `id` bigint(20) NOT NULL,
-  `order_on` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '订单编号',
-  `user_account_id` bigint(20) NOT NULL COMMENT '用户id',
-  `username` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '用户名',
-  `order_status` tinyint(4) NOT NULL COMMENT '订单状态 1：待付款，2：已取消，3：待发货，4：待收货，5：已完成，6：售后中（退货申请待审核），7：交易关闭（退货审核不通过），8：交易中（待寄送退货商品），9：售后中（退货商品待收货），10：售后中（退货待入库），11：（1）售后中（退货已入库），12：交易关闭（完成退款）',
-  `consignee` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '收货人',
-  `delivery_address` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '收货地址',
-  `consignee_cell_phone_number` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '收货人电话',
-  `freigth` decimal(20, 2) NOT NULL COMMENT '运费',
-  `pay_type` tinyint(4) NOT NULL COMMENT '支付方式 1.支付宝，2微信，3银联',
-  `payment_code` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '支付方式代码',
-  `coupon` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '优惠券信息',
+  `business_identifier` tinyint(4) NOT NULL COMMENT '接入方业务标识 1，自营商城',
+  `order_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '订单编号',
+  `order_status` tinyint(4) NOT NULL COMMENT '订单状态 10：已创建，30 ：已履约，40：已出库 \r\n50 ：已配送 60：已签收 70：已取消 100： 已拒收\r\n255 ：无效订单',
+  `cannel_type` tinyint(4) NULL DEFAULT NULL COMMENT '订单取消类型',
+  `cannel_time` datetime(0) NULL DEFAULT NULL COMMENT '取消时间',
+  `seller_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '卖家编号',
+  `parent_order_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '父订单编号',
+  `business_order_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '接入系统id',
+  `order_type` tinyint(4) NOT NULL COMMENT '订单类型：1 一般类型 255 其他类型',
+  `user_id` bigint(20) NOT NULL COMMENT '用户id',
   `total_amount` decimal(20, 2) NOT NULL COMMENT '订单总金额',
+  `pay_amount` decimal(20, 2) NOT NULL COMMENT '支付金额',
+  `pay_type` tinyint(4) NOT NULL COMMENT '支付方式 1.支付宝，2微信，3银联',
+  `coupon_id` varchar(0) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '使用优惠券编号',
+  `pay_time` datetime(0) NULL DEFAULT NULL COMMENT '支付时间',
+  `expire_time` datetime(0) NULL DEFAULT NULL COMMENT '支付订单截止时间',
+  `payment_code` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '支付方式代码',
   `discount_amount` decimal(20, 2) NOT NULL COMMENT '折扣金额',
   `coupon_amount` decimal(20, 2) NOT NULL COMMENT '优惠券金额',
   `payable_amount` decimal(20, 2) NOT NULL COMMENT '应付金额，订单总金额 - 促销活动折扣金额 - 优惠券抵扣金额 + 运费',
-  `invoice_title` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '发票抬头',
-  `taxpayer_id` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '纳税人号',
-  `order_comment` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '订单备注',
-  `is_published_comment` tinyint(4) NOT NULL COMMENT '是否评论',
+  `invoice_title` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '发票抬头',
+  `taxpayer_id` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '纳税人号',
   `confirm_receipt_time` datetime(0) NULL DEFAULT NULL COMMENT '确认收货时间',
-  `pay_time` datetime(0) NULL DEFAULT NULL COMMENT '支付时间',
+  `user_remark` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '订单备注',
+  `delete_status` tinyint(4) NOT NULL COMMENT '订单删除状态：0：未删除 1 已删除',
+  `comment_stauts` tinyint(4) NOT NULL COMMENT '是否评论 0 未评论 1 已评论',
+  `freigth` decimal(20, 2) NOT NULL COMMENT '运费',
+  `ext_json` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '扩展信息',
   `create_time` datetime(0) NOT NULL COMMENT '创建时间',
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of order_info
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for order_item
 -- ----------------------------
 DROP TABLE IF EXISTS `order_item`;
 CREATE TABLE `order_item`  (
-  `id` bigint(20) NOT NULL,
-  `order_info_id` bigint(20) NOT NULL COMMENT '订单id',
-  `order_on` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '订单编号',
-  `goods_id` bigint(20) NOT NULL COMMENT '商品id',
-  `goods_sku_id` bigint(20) NOT NULL COMMENT '商品sku id',
-  `goods_sku_code` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '商品编号',
-  `goods_name` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '商品名称',
-  `sale_propperties` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '商品属性',
-  `goods_gross_weigth` decimal(8, 2) NOT NULL COMMENT '商品毛重',
-  `purchase_quantity` bigint(20) NOT NULL COMMENT '购买数量',
-  `purchase_price` decimal(20, 2) NOT NULL COMMENT '购买金额',
-  `promotion_activity_id` bigint(20) NOT NULL COMMENT '促销id',
-  `goods_length` decimal(8, 2) NOT NULL COMMENT '商品长度',
-  `goods_width` decimal(8, 2) NOT NULL COMMENT '商品宽度',
-  `goods_height` decimal(8, 2) NOT NULL COMMENT '商品高度',
-  `create_time` datetime(0) NOT NULL COMMENT '创建时间',
-  `update_time` datetime(0) NOT NULL COMMENT '修改时间',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of order_item
--- ----------------------------
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `order_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '订单编号',
+  `order_item_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '订单明细编号',
+  `product_type` tinyint(4) NOT NULL COMMENT '商品类型 1:普通商品,2:预售商品',
+  `product_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '商品编号',
+  `product_img` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '商品图⽚',
+  `product_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '商品名称',
+  `sku_code` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'sku编码',
+  `sale_quantity` int(11) NOT NULL COMMENT '销售数量',
+  `sale_price` int(11) NOT NULL COMMENT '销售单价',
+  `origin_amount` int(11) NOT NULL COMMENT '当前商品⽀付原总价',
+  `pay_amount` int(11) NOT NULL COMMENT '交易⽀付⾦额',
+  `product_unit` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '商品单位',
+  `purchase_price` int(11) NULL DEFAULT NULL COMMENT '采购成本价',
+  `seller_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '卖家编号',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_order_id`(`order_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 10 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '订单条目表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for order_operate_log
 -- ----------------------------
 DROP TABLE IF EXISTS `order_operate_log`;
 CREATE TABLE `order_operate_log`  (
-  `id` bigint(20) NOT NULL,
-  `order_info_id` bigint(20) NOT NULL COMMENT '订单id',
-  `operate_type` tinyint(4) NOT NULL COMMENT '操作类型，1：创建订单，2：手动取消订单，3：自动取消订单，4：支付订单，5：手动确认收货，6：自动确认收货，7：商品发货，8：申请退货，9：退货审核不通过，10：退货审核通过，11：寄送退货商品，12：确认收到退货，13：退货已入库，14：完成退款',
-  `operate_content` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '操作内容',
-  `data` text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '请求json',
-  `create_time` datetime(0) NOT NULL COMMENT '创建时间',
-  `update_time` datetime(0) NOT NULL COMMENT '修改时间',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+  `id` bigint(20) NOT NULL COMMENT '主键ID',
+  `order_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '订单编号',
+  `operate_type` tinyint(4) NULL DEFAULT NULL COMMENT '操作类型',
+  `pre_status` tinyint(4) NULL DEFAULT NULL COMMENT '前置状态',
+  `current_status` tinyint(4) NULL DEFAULT NULL COMMENT '当前状态',
+  `remark` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '备注说明',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_order_id`(`order_id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '订单操作⽇志表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of order_operate_log
+-- Table structure for order_payment_detail
 -- ----------------------------
+DROP TABLE IF EXISTS `order_payment_detail`;
+CREATE TABLE `order_payment_detail`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `order_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '订单编号',
+  `account_type` tinyint(4) NOT NULL COMMENT '账户类型',
+  `pay_type` tinyint(4) NOT NULL COMMENT '⽀付类型 10:微信⽀付, 20:⽀付宝⽀\r\n付',
+  `pay_status` tinyint(4) NOT NULL COMMENT '⽀付状态 10:未⽀付,20:已⽀付',
+  `pay_amount` int(11) NOT NULL DEFAULT 0 COMMENT '⽀付⾦额',
+  `pay_time` datetime(0) NULL DEFAULT NULL COMMENT '⽀付时间',
+  `out_trade_no` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '⽀付系统交易流⽔号',
+  `pay_remark` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '⽀付备注信息',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_order_id`(`order_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '订单⽀付明细表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for order_return_goods_apply
@@ -893,8 +827,19 @@ CREATE TABLE `order_return_goods_apply`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of order_return_goods_apply
+-- Table structure for order_snapshot
 -- ----------------------------
+DROP TABLE IF EXISTS `order_snapshot`;
+CREATE TABLE `order_snapshot`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `order_id` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '订单号',
+  `snapshot_type` tinyint(4) UNSIGNED NOT NULL COMMENT '快照类型',
+  `snapshot_json` varchar(2000) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '订单快照内容',
+  `gmt_create` datetime(0) NOT NULL COMMENT '创建时间',
+  `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_order_id`(`order_id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '订单快照表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for pay_transaction
@@ -918,10 +863,6 @@ CREATE TABLE `pay_transaction`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of pay_transaction
--- ----------------------------
-
--- ----------------------------
 -- Table structure for promotion_activity
 -- ----------------------------
 DROP TABLE IF EXISTS `promotion_activity`;
@@ -940,10 +881,6 @@ CREATE TABLE `promotion_activity`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of promotion_activity
--- ----------------------------
-
--- ----------------------------
 -- Table structure for promotion_activity_goods_relation
 -- ----------------------------
 DROP TABLE IF EXISTS `promotion_activity_goods_relation`;
@@ -955,10 +892,6 @@ CREATE TABLE `promotion_activity_goods_relation`  (
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of promotion_activity_goods_relation
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for promotion_coupon
@@ -981,10 +914,6 @@ CREATE TABLE `promotion_coupon`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of promotion_coupon
--- ----------------------------
-
--- ----------------------------
 -- Table structure for promotion_coupon_achieve
 -- ----------------------------
 DROP TABLE IF EXISTS `promotion_coupon_achieve`;
@@ -998,10 +927,6 @@ CREATE TABLE `promotion_coupon_achieve`  (
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of promotion_coupon_achieve
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for purchase_order
@@ -1023,10 +948,6 @@ CREATE TABLE `purchase_order`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of purchase_order
--- ----------------------------
-
--- ----------------------------
 -- Table structure for purchase_order_item
 -- ----------------------------
 DROP TABLE IF EXISTS `purchase_order_item`;
@@ -1040,10 +961,6 @@ CREATE TABLE `purchase_order_item`  (
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of purchase_order_item
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for purchase_supplier
@@ -1070,10 +987,6 @@ CREATE TABLE `purchase_supplier`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of purchase_supplier
--- ----------------------------
-
--- ----------------------------
 -- Table structure for scedule_goods_allcation_stock_detail
 -- ----------------------------
 DROP TABLE IF EXISTS `scedule_goods_allcation_stock_detail`;
@@ -1089,10 +1002,6 @@ CREATE TABLE `scedule_goods_allcation_stock_detail`  (
   `update_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of scedule_goods_allcation_stock_detail
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for schedule_goods_allocation_stock
@@ -1111,10 +1020,6 @@ CREATE TABLE `schedule_goods_allocation_stock`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of schedule_goods_allocation_stock
--- ----------------------------
-
--- ----------------------------
 -- Table structure for schedule_goods_stock
 -- ----------------------------
 DROP TABLE IF EXISTS `schedule_goods_stock`;
@@ -1128,10 +1033,6 @@ CREATE TABLE `schedule_goods_stock`  (
   `updte_time` datetime(0) NOT NULL COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of schedule_goods_stock
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for schedule_order_picking_item
@@ -1150,10 +1051,6 @@ CREATE TABLE `schedule_order_picking_item`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of schedule_order_picking_item
--- ----------------------------
-
--- ----------------------------
 -- Table structure for schedule_order_send_out_detail
 -- ----------------------------
 DROP TABLE IF EXISTS `schedule_order_send_out_detail`;
@@ -1169,8 +1066,29 @@ CREATE TABLE `schedule_order_send_out_detail`  (
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of schedule_order_send_out_detail
+-- Table structure for short_message_platform
 -- ----------------------------
+DROP TABLE IF EXISTS `short_message_platform`;
+CREATE TABLE `short_message_platform`  (
+  `id` bigint(20) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+  `platform_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '平台名称',
+  `platform_code` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '平台编号（自定义代码区别）',
+  `secret_id` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '密钥ID',
+  `secret_key` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '密钥KEY',
+  `api_key` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'appKey',
+  `sdk_app_id` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'SDK应用ID',
+  `sign` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '签名',
+  `template_id` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '模板id',
+  `request_url` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '请求URL',
+  `send_type` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'SDK 或API',
+  `auth_type` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'SECRET或APIKEY',
+  `type` varchar(520) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '短信类型 REGISTER  注册, LOGIN 登录 ,MODIFY_PASS 修改密码 ，NOTICE 通知，\r\nOTHER 其他',
+  `template` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '短信模板内容 和 短信平台模板对应',
+  `is_open` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否开启 0 关闭， 1开启',
+  `create_time` datetime(0) NOT NULL COMMENT '创建时间',
+  `update_time` datetime(0) NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 16 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for wms_goods_allocation
@@ -1184,10 +1102,6 @@ CREATE TABLE `wms_goods_allocation`  (
   `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'WMS中心的货位表' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of wms_goods_allocation
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for wms_goods_allocation_stock
@@ -1204,10 +1118,6 @@ CREATE TABLE `wms_goods_allocation_stock`  (
   `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '仓库中的货位库存' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of wms_goods_allocation_stock
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for wms_goods_allocation_stock_detail
@@ -1227,10 +1137,6 @@ CREATE TABLE `wms_goods_allocation_stock_detail`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of wms_goods_allocation_stock_detail
--- ----------------------------
-
--- ----------------------------
 -- Table structure for wms_goods_stock
 -- ----------------------------
 DROP TABLE IF EXISTS `wms_goods_stock`;
@@ -1247,10 +1153,6 @@ CREATE TABLE `wms_goods_stock`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '调度中心的商品库存' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of wms_goods_stock
--- ----------------------------
-
--- ----------------------------
 -- Table structure for wms_logistic_order
 -- ----------------------------
 DROP TABLE IF EXISTS `wms_logistic_order`;
@@ -1264,10 +1166,6 @@ CREATE TABLE `wms_logistic_order`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_sale_delivery_order_id`(`sale_delivery_order_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of wms_logistic_order
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for wms_purchase_input_order
@@ -1291,10 +1189,6 @@ CREATE TABLE `wms_purchase_input_order`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'wms中心的采购入库单' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of wms_purchase_input_order
--- ----------------------------
-
--- ----------------------------
 -- Table structure for wms_purchase_input_order_item
 -- ----------------------------
 DROP TABLE IF EXISTS `wms_purchase_input_order_item`;
@@ -1312,10 +1206,6 @@ CREATE TABLE `wms_purchase_input_order_item`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'wms中心的采购入库单条目表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of wms_purchase_input_order_item
--- ----------------------------
-
--- ----------------------------
 -- Table structure for wms_purchase_input_order_put_on_item
 -- ----------------------------
 DROP TABLE IF EXISTS `wms_purchase_input_order_put_on_item`;
@@ -1329,10 +1219,6 @@ CREATE TABLE `wms_purchase_input_order_put_on_item`  (
   `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '采购入库单条目关联的上架条目' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of wms_purchase_input_order_put_on_item
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for wms_return_goods_input_order
@@ -1366,10 +1252,6 @@ CREATE TABLE `wms_return_goods_input_order`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'wms中心的退货入库单' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of wms_return_goods_input_order
--- ----------------------------
-
--- ----------------------------
 -- Table structure for wms_return_goods_input_order_item
 -- ----------------------------
 DROP TABLE IF EXISTS `wms_return_goods_input_order_item`;
@@ -1395,10 +1277,6 @@ CREATE TABLE `wms_return_goods_input_order_item`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '退货入库单条目' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of wms_return_goods_input_order_item
--- ----------------------------
-
--- ----------------------------
 -- Table structure for wms_return_goods_input_order_put_on_item
 -- ----------------------------
 DROP TABLE IF EXISTS `wms_return_goods_input_order_put_on_item`;
@@ -1412,10 +1290,6 @@ CREATE TABLE `wms_return_goods_input_order_put_on_item`  (
   `gmt_modified` datetime(0) NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '退货入库单条目关联的上架条目' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of wms_return_goods_input_order_put_on_item
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for wms_sale_delivery_order
@@ -1447,10 +1321,6 @@ CREATE TABLE `wms_sale_delivery_order`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'wms中心的销售出库单' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of wms_sale_delivery_order
--- ----------------------------
-
--- ----------------------------
 -- Table structure for wms_sale_delivery_order_item
 -- ----------------------------
 DROP TABLE IF EXISTS `wms_sale_delivery_order_item`;
@@ -1475,10 +1345,6 @@ CREATE TABLE `wms_sale_delivery_order_item`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'wms中心的销售出库单条目' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of wms_sale_delivery_order_item
--- ----------------------------
-
--- ----------------------------
 -- Table structure for wms_sale_delivery_order_picking_item
 -- ----------------------------
 DROP TABLE IF EXISTS `wms_sale_delivery_order_picking_item`;
@@ -1495,10 +1361,6 @@ CREATE TABLE `wms_sale_delivery_order_picking_item`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '销售出库单的拣货条目' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of wms_sale_delivery_order_picking_item
--- ----------------------------
-
--- ----------------------------
 -- Table structure for wms_sale_delivery_order_send_out_detail
 -- ----------------------------
 DROP TABLE IF EXISTS `wms_sale_delivery_order_send_out_detail`;
@@ -1512,10 +1374,6 @@ CREATE TABLE `wms_sale_delivery_order_send_out_detail`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_sale_delivery_order_item_id`(`sale_delivery_order_item_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of wms_sale_delivery_order_send_out_detail
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for wms_send_out_order
@@ -1547,10 +1405,6 @@ CREATE TABLE `wms_send_out_order`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '订单信息表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of wms_send_out_order
--- ----------------------------
-
--- ----------------------------
 -- Table structure for wms_send_out_order_item
 -- ----------------------------
 DROP TABLE IF EXISTS `wms_send_out_order_item`;
@@ -1573,37 +1427,5 @@ CREATE TABLE `wms_send_out_order_item`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_send_out_order_id`(`send_out_order_id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '订单商品条目' ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Records of wms_send_out_order_item
--- ----------------------------
-
-SET FOREIGN_KEY_CHECKS = 1;
-
-
--- ----------------------------
--- Table structure for short_message_platform
--- ----------------------------
-DROP TABLE IF EXISTS `short_message_platform`;
-CREATE TABLE `short_message_platform`  (
-                                           `id` bigint(20) NOT NULL AUTO_INCREMENT,
-                                           `platform_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '平台名称',
-                                           `platform_code` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '平台编号（自定义代码区别）',
-                                           `secret_id` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '密钥ID',
-                                           `secret_key` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '密钥KEY',
-                                           `api_key` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'appKey',
-                                           `sdk_app_id` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'SDK应用ID',
-                                           `sign` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '签名',
-                                           `template_id` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '模板id',
-                                           `request_url` varchar(1024) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '请求URL',
-                                           `send_type` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'SDK 或API',
-                                           `auth_type` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'SECRET或APIKEY',
-                                           `type` varchar(520) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '短信类型 REGISTER  注册, LOGIN 登录 ,MODIFY_PASS 修改密码 ，NOTICE 通知，\r\nOTHER 其他',
-                                           `text` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '短信模板内容 和 短信平台模板对应',
-                                           `is_open` tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否开启 0 关闭， 1开启',
-                                           `create_time` datetime(0) NOT NULL COMMENT '创建时间',
-                                           `update_time` datetime(0) NOT NULL COMMENT '修改时间',
-                                           PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 SET FOREIGN_KEY_CHECKS = 1;
