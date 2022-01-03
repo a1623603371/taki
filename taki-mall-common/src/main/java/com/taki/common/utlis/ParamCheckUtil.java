@@ -41,7 +41,7 @@ public class ParamCheckUtil {
      * @author Long
      * @date: 2022/1/2 20:08
      */
-    public static void  checkObject(Object o,BaseErrorCodeEnum errorCodeEnum,Object ... args){
+    public static void  checkObjectNonNull(Object o,BaseErrorCodeEnum errorCodeEnum,Object ... args){
 
         if (Objects.isNull(o)){
             throw new ServiceException(errorCodeEnum.getErrorCode(),errorCodeEnum.getErrorMsg(),args);
