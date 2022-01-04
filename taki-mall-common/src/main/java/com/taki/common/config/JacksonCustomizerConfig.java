@@ -55,6 +55,16 @@ public class JacksonCustomizerConfig {
             builder.deserializerByType(LocalDateTime.class, new LocalDateTimeDeserializer());
             // 设置序列化时字段为null也展示
             builder.serializationInclusion(JsonInclude.Include.ALWAYS);
+            //POJO 对象的属性值为“” 时 序列化 不进行展示
+            builder.serializationInclusion(JsonInclude.Include.NON_EMPTY);
+            //DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES相当于配置，JSON串含有未知字段时，反序列化依旧可以成功
+            builder.failOnUnknownProperties(false);
+            //针对于Date类型，文本格式化
+            builder.simpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            builder.propertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+
+
             //默认开启，若map的value为null，则不对map条目进行序列化。。
             //(已废弃)
            // builder.featuresToDisable(SerializationFeature.WRITE_NULL_MAP_VALUES);
