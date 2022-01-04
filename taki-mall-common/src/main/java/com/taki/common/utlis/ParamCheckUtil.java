@@ -161,19 +161,19 @@ public class ParamCheckUtil {
     }
 
     /***
-     * @description: 对比两个set集合
+     * @description: 对比两个set集合 求差
      * @param intSet 对比 set 集合
-     * @param intSet allowableValues被对比set 集合
+     * @param intSet2  被对比的set 集合
      * @return  boolean
      * @author Long
      * @date: 2022/1/2 21:09
      */
-    private static Set<Integer> diffSet(Set<Integer> intSet, Set<Integer> allowableValues) {
+    private static Set<Integer> diffSet(Set<Integer> intSet, Set<Integer> intSet2) {
 
         Set<Integer> result =new HashSet<>();
 
         result.addAll(intSet);
-        result.removeAll(allowableValues);
+        result.removeAll(intSet2);
 
         return result;
     }

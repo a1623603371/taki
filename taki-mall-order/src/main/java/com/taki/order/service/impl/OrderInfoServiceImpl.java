@@ -5,21 +5,32 @@ import com.taki.common.enums.AmountTypeEnum;
 import com.taki.common.enums.PayTypeEnum;
 import com.taki.common.exception.ServiceException;
 import com.taki.common.utlis.ParamCheckUtil;
-import com.taki.order.dao.OrderAutoNoDao;
+import com.taki.common.utlis.ResponseData;
 import com.taki.order.domin.dto.CreateOrderDTO;
 import com.taki.order.domin.dto.GenOrderIdDTO;
 import com.taki.order.domin.request.CreateOrderRequest;
 import com.taki.order.domin.request.GenOrderIdRequest;
 import com.taki.order.enums.*;
+import com.taki.order.exception.OrderBizException;
 import com.taki.order.exception.OrderErrorCodeEnum;
 import com.taki.order.manager.OrderNoManager;
 import com.taki.order.mapper.OrderAutoNoMapper;
 import com.taki.order.service.OrderInfoService;
+import com.taki.product.api.ProductApi;
+import com.taki.product.domian.dto.ProductSkuDTO;
+import com.taki.product.domian.query.ProductSkuQuery;
+import com.taki.risk.api.RiskApi;
+import com.taki.risk.domain.dto.CheckOrderRiskDTO;
+import com.taki.risk.domain.request.CheckOrderRiskRequest;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -33,10 +44,20 @@ import java.util.stream.Collectors;
  * @Version 1.0
  */
 @Service
+@Slf4j
 public class OrderInfoServiceImpl implements OrderInfoService {
 
     @Autowired
     private OrderNoManager orderNoManager;
+
+
+
+    @DubboReference
+    private RiskApi riskApi;
+
+
+    @DubboReference
+    private ProductApi productApi;
 
     @Override
     public GenOrderIdDTO getGenOrderIdDTO(GenOrderIdRequest genOrderIdRequest) {
@@ -49,6 +70,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         String orderId = orderNoManager.genOrderId(OrderAutoTypeEnum.SALE_ORDER.getCode(),userId);
         GenOrderIdDTO genOrderId = new GenOrderIdDTO();
         genOrderId.setOrderId(orderId);
+        log.info("生单id:{}",orderId);
         return genOrderId;
     }
 
@@ -58,10 +80,69 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         // 入参检查
         checkCreateOrderRequestParam(createOrderRequest);
 
+        // 风控检查
+        checkRisk(createOrderRequest);
 
+        // 查询商品
+        List<ProductSkuDTO> productSkus = listProductSkus(createOrderRequest);
 
         return null;
     }
+    /**
+     * @description: 获取商品SKU
+     * @param createOrderRequest 创建订单请求
+     * @return  商品SKU 集合
+     * @author Long
+     * @date: 2022/1/4 11:32
+     *
+     */
+    private List<ProductSkuDTO> listProductSkus(CreateOrderRequest createOrderRequest) {
+
+        List<CreateOrderRequest.OrderItemRequest> itemRequests = createOrderRequest.getOrderItemRequests();
+
+        List<ProductSkuDTO> productSkus = new ArrayList<>();
+
+        itemRequests.forEach(orderItemRequest -> {
+            ProductSkuQuery query = new ProductSkuQuery();
+            query.setSkuCode(orderItemRequest.getSkuCode());
+            query.setSellerId(query.getSellerId());
+            ResponseData<ProductSkuDTO> responseResult = productApi.getProductSku(query);
+            if (!responseResult.getSuccess()){
+                log.error("调用商品RPC失败错误信息:{}",responseResult.getMessage());
+                throw new OrderBizException(responseResult.getCode(),responseResult.getMessage());
+            }
+            ProductSkuDTO productSku = responseResult.getData();
+
+            if (!ObjectUtils.isNotEmpty(productSku)){
+                log.error("商品不存在SKU:{}",orderItemRequest.getSkuCode());
+                throw new OrderBizException(OrderErrorCodeEnum.PRODUCT_SKU_CODE_ERROR, orderItemRequest.getSkuCode());
+            }
+
+            productSkus.add(productSku);
+        });
+
+        return productSkus;
+
+    }
+
+    /**
+     * @description: 风控检查
+     * @param createOrderRequest 生单请求
+     * @return  void
+     * @author Long
+     * @date: 2022/1/4 9:37
+     */
+    private void checkRisk(CreateOrderRequest createOrderRequest) {
+        CheckOrderRiskRequest checkOrderRiskRequest = createOrderRequest.clone(CheckOrderRiskRequest.class);
+
+        ResponseData<CheckOrderRiskDTO> responseResult = riskApi.checkOrderRisk(checkOrderRiskRequest);
+        if (!responseResult.getSuccess()){
+            log.error("风控服务调用失败异常信息:{}",responseResult.getMessage());
+            throw new OrderBizException(responseResult.getCode(),responseResult.getMessage());
+        }
+
+    }
+
     /**
      * @description: 检查创建订单请求参数
      * @param createOrderRequest 创建订单请求
@@ -186,7 +267,6 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         }
 
         // 订单支付信息
-
         List<CreateOrderRequest.PaymentRequest> paymentRequests = createOrderRequest.getPaymentRequests();
         ParamCheckUtil.checkObjectNonNull(paymentRequests,OrderErrorCodeEnum.ORDER_PAYMENT_IS_NULL);
         paymentRequests.forEach(paymentRequest -> {

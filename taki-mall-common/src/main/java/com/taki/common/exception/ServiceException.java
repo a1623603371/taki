@@ -32,7 +32,13 @@ public class ServiceException extends RuntimeException{
      */
     private Object data;
 
-    public ServiceException(String message, Integer code) {
+    public ServiceException(String message) {
+        super(message);
+        this.errorCode = DEFAULT_ERROR_CODE;
+        this.errorMessage = message;
+    }
+
+    public ServiceException(Integer code,String message) {
         super(message);
         this.errorCode = code;
         this.errorMessage = message;
@@ -44,10 +50,10 @@ public class ServiceException extends RuntimeException{
         this.errorMessage = errorEnum.getErrorMsg();
     }
 
-    public ServiceException(ErrorCodeEnum errorEnum, Object data) {
-        super(errorEnum.getMessage());
-        this.errorCode = errorEnum.getCode();
-        this.errorMessage = errorEnum.getMessage();
+    public ServiceException(BaseErrorCodeEnum errorEnum, Object data) {
+        super(errorEnum.getErrorMsg());
+        this.errorCode = errorEnum.getErrorCode();
+        this.errorMessage = errorEnum.getErrorMsg();
         this.data = data;
     }
 

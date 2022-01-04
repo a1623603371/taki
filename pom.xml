@@ -17,13 +17,15 @@
         <module>taki-mall-admin</module>
         <module>taki-mall-inventory</module>
         <module>taki-mall-wms</module>
-        <module>taki-mall-commodity</module>
+        <module>taki-mall-product</module>
         <module>taki-mall-oauth</module>
         <module>taki-mall-generator</module>
         <module>taki-mall-eureka</module>
         <module>taki-mall-shortMessage</module>
         <module>taki-mall-email</module>
         <module>taki-mall-sso</module>
+        <module>taki-mall-risk-api</module>
+        <module>taki-mall-product-api</module>
     </modules>
 
 
@@ -48,6 +50,8 @@
         <jwt.version>0.9.1</jwt.version>
         <lombok.version>1.18.16</lombok.version>
         <redisson.version>3.15.5</redisson.version>
+        <spring.dubbo.version>2.2.6.RELEASE</spring.dubbo.version>
+        <dubbo.version>3.0.6-SNAPSHOT</dubbo.version>
     </properties>
 
 
@@ -196,7 +200,26 @@
                 <artifactId>redisson</artifactId>
                 <version>${redisson.version}</version>
             </dependency>
+
+
+
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-starter-dubbo</artifactId>
+                <version>${spring.dubbo.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo</artifactId>
+                <version>${dubbo.version}</version>
+            </dependency>
+
+
         </dependencies>
+
+
+
 
 
 
