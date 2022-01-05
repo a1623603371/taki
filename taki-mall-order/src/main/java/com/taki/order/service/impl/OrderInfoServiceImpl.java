@@ -1,20 +1,25 @@
 package com.taki.order.service.impl;
 
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
+import com.taki.common.core.CloneDirection;
 import com.taki.common.enums.AmountTypeEnum;
 import com.taki.common.enums.PayTypeEnum;
 import com.taki.common.exception.ServiceException;
+import com.taki.common.utlis.ObjectUtil;
 import com.taki.common.utlis.ParamCheckUtil;
 import com.taki.common.utlis.ResponseData;
+import com.taki.market.api.MarketApi;
+import com.taki.market.domain.dto.CalculateOrderAmountDTO;
+import com.taki.market.request.CalculateOrderAmountRequest;
 import com.taki.order.domin.dto.CreateOrderDTO;
 import com.taki.order.domin.dto.GenOrderIdDTO;
+import com.taki.order.domin.dto.OrderAmountDTO;
+import com.taki.order.domin.dto.OrderAmountDetailDTO;
 import com.taki.order.domin.request.CreateOrderRequest;
 import com.taki.order.domin.request.GenOrderIdRequest;
 import com.taki.order.enums.*;
 import com.taki.order.exception.OrderBizException;
 import com.taki.order.exception.OrderErrorCodeEnum;
 import com.taki.order.manager.OrderNoManager;
-import com.taki.order.mapper.OrderAutoNoMapper;
 import com.taki.order.service.OrderInfoService;
 import com.taki.product.api.ProductApi;
 import com.taki.product.domian.dto.ProductSkuDTO;
@@ -31,9 +36,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -58,6 +63,10 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
     @DubboReference
     private ProductApi productApi;
+
+
+    @DubboReference
+    private MarketApi marketApi;
 
     @Override
     public GenOrderIdDTO getGenOrderIdDTO(GenOrderIdRequest genOrderIdRequest) {
@@ -86,8 +95,65 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         // 查询商品
         List<ProductSkuDTO> productSkus = listProductSkus(createOrderRequest);
 
+        // 计算订单商品价格
+        CalculateOrderAmountDTO calculateOrderAmount = calculateOrderAmount(createOrderRequest,productSkus);
+
+
         return null;
     }
+
+    /**
+     * @description: 计算订单费用 计算 优惠券 ,红包， 积分
+     * @param createOrderRequest 生单请求
+     * @return 计算结果
+     * @author Long
+     * @date: 2022/1/5 10:20
+     */
+    private CalculateOrderAmountDTO calculateOrderAmount(CreateOrderRequest createOrderRequest,List<ProductSkuDTO> productSkuList) {
+        CalculateOrderAmountRequest calculateOrderAmountRequest = createOrderRequest.clone(CalculateOrderAmountRequest.class, CloneDirection.FORWARD);
+
+        // 订单条目补充商品信息
+        Map<String,ProductSkuDTO> productSkuDTOMap = productSkuList.stream().collect(Collectors.toMap(ProductSkuDTO::getSkuCode, Function.identity()));
+
+
+        calculateOrderAmountRequest.getOrderItemRequests().forEach(orderItemRequest -> {
+            String skuCode = orderItemRequest.getSkuCode();
+            ProductSkuDTO productSku = productSkuDTOMap.get(skuCode);
+            productSku.setSalePrice(orderItemRequest.getSalePrice());
+            productSku.setProductId(orderItemRequest.getProductId());
+        });
+        // 调用营销服务计算订单价格
+        ResponseData<CalculateOrderAmountDTO> responseResult = marketApi.calculateOrderAmount(calculateOrderAmountRequest);
+
+        if (responseResult.getSuccess()){
+            log.error("调用营销服务计算价格失败错误信息：{}",responseResult.getMessage());
+            throw new OrderBizException(responseResult.getCode(),responseResult.getMessage());
+        }
+        CalculateOrderAmountDTO calculateOrderAmount = responseResult.getData();
+
+        if (!ObjectUtils.isNotEmpty(calculateOrderAmount)){
+            log.error("计算订单价格失败");
+            throw new OrderBizException(OrderErrorCodeEnum.CALCULATE_ORDER_AMOUNT_ERROR);
+        }
+        // 订单费用
+        List<OrderAmountDTO> orderAmountDTOList = ObjectUtil.convertList(calculateOrderAmount.getOrderAmountDTOList(),OrderAmountDTO.class);
+
+        if (orderAmountDTOList == null || orderAmountDTOList.isEmpty()){
+            log.error("计算订单价格的订单费用信息为空");
+            throw  new OrderBizException(OrderErrorCodeEnum.CALCULATE_ORDER_AMOUNT_ERROR);
+        }
+
+        List<OrderAmountDetailDTO> orderAmountDetailList = ObjectUtil.convertList(calculateOrderAmount.getOrderAmountDetailDTOList(),OrderAmountDetailDTO.class);
+
+        if (orderAmountDetailList == null || orderAmountDetailList.isEmpty()){
+            log.error("计算订单价格的订单费用详细信息为空");
+            throw  new OrderBizException(OrderErrorCodeEnum.CALCULATE_ORDER_AMOUNT_ERROR);
+        }
+
+        return calculateOrderAmount;
+
+    }
+
     /**
      * @description: 获取商品SKU
      * @param createOrderRequest 创建订单请求

@@ -1,6 +1,7 @@
 package com.taki.product.domian.dto;
 
 import com.taki.common.core.AbstractObject;
+import lombok.Data;
 
 import java.io.Serializable;
 
@@ -12,6 +13,7 @@ import java.io.Serializable;
  * @Date 2022/1/4 11:43
  * @Version 1.0
  */
+@Data
 public class ProductSkuDTO extends AbstractObject implements Serializable {
 
 

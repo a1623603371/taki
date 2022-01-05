@@ -26,6 +26,7 @@
         <module>taki-mall-sso</module>
         <module>taki-mall-risk-api</module>
         <module>taki-mall-product-api</module>
+        <module>taki-mall-market-api</module>
     </modules>
 
 
