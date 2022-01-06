@@ -83,8 +83,7 @@ public class CodeGenerator {
             //"t_rmbs_paytype"
            // "t_rule_bizpolicy","t_rule_bizpolicy_item","t_rule_bizpolicy_scope","t_rule_bizpolicy_scope_item"
             //"t_rule_bizrule"
-            "order_info","order_item","order_amount","order_amount_detail","order_delivery","order_operate_log","order_payment_detail"
-            ,"order_snapshot"
+            "order_delivery_detail"
     };
 
 

@@ -206,7 +206,7 @@ public class CreateOrderRequest extends AbstractObject implements Serializable {
         /**
          * 费用
          */
-        private Integer amount;
+        private BigDecimal amount;
     }
 
     /**

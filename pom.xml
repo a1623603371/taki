@@ -27,6 +27,7 @@
         <module>taki-mall-risk-api</module>
         <module>taki-mall-product-api</module>
         <module>taki-mall-market-api</module>
+        <module>taki-mall-inventory-api</module>
     </modules>
 
 
@@ -38,6 +39,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring.cloud-version>Hoxton.SR9</spring.cloud-version>
         <spring.boot-version>2.3.2.RELEASE</spring.boot-version>
+        <spring.cloud.alibaba.verion>2.2.6.RELEASE</spring.cloud.alibaba.verion>
         <swagger.version>3.0.0</swagger.version>
         <asm.version>3.3.1</asm.version>
         <cglib.version>2.2.2</cglib.version>
@@ -84,6 +86,17 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <!--spring could Alibaba -->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${spring.cloud.alibaba.verion}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+
             <!--全局排除spring-boot-starter-logging内的所有依赖-->
             <dependency>
                 <groupId>org.springframework.boot</groupId>

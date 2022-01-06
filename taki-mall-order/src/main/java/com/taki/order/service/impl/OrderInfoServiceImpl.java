@@ -7,9 +7,12 @@ import com.taki.common.exception.ServiceException;
 import com.taki.common.utlis.ObjectUtil;
 import com.taki.common.utlis.ParamCheckUtil;
 import com.taki.common.utlis.ResponseData;
+import com.taki.inventory.api.InventoryApi;
+import com.taki.inventory.domain.request.LockProductStockRequest;
 import com.taki.market.api.MarketApi;
 import com.taki.market.domain.dto.CalculateOrderAmountDTO;
 import com.taki.market.request.CalculateOrderAmountRequest;
+import com.taki.market.request.LockUserCouponRequest;
 import com.taki.order.domin.dto.CreateOrderDTO;
 import com.taki.order.domin.dto.GenOrderIdDTO;
 import com.taki.order.domin.dto.OrderAmountDTO;
@@ -27,6 +30,7 @@ import com.taki.product.domian.query.ProductSkuQuery;
 import com.taki.risk.api.RiskApi;
 import com.taki.risk.domain.dto.CheckOrderRiskDTO;
 import com.taki.risk.domain.request.CheckOrderRiskRequest;
+import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -68,6 +72,10 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     @DubboReference
     private MarketApi marketApi;
 
+
+    @DubboReference
+    private InventoryApi inventoryApi;
+
     @Override
     public GenOrderIdDTO getGenOrderIdDTO(GenOrderIdRequest genOrderIdRequest) {
 
@@ -83,23 +91,128 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         return genOrderId;
     }
 
+    @GlobalTransactional(rollbackFor = Exception.class)
     @Override
     public CreateOrderDTO createOrder(CreateOrderRequest createOrderRequest) {
 
-        // 入参检查
+        // 1.入参检查
         checkCreateOrderRequestParam(createOrderRequest);
 
-        // 风控检查
+        // 2.风控检查
         checkRisk(createOrderRequest);
 
-        // 查询商品
+        // 3.查询商品
         List<ProductSkuDTO> productSkus = listProductSkus(createOrderRequest);
 
-        // 计算订单商品价格
+        // 4.计算订单商品价格
         CalculateOrderAmountDTO calculateOrderAmount = calculateOrderAmount(createOrderRequest,productSkus);
 
+        // 5.验证订单实付金额
+        checkRealPayAmount(createOrderRequest,calculateOrderAmount);
+
+        //6. 锁定优惠券
+        lockUserCoupon(createOrderRequest);
+
+        //7. 锁定商品库存
+        lockProductStock(createOrderRequest);
+        //8. 生成订单到数据库
+        addNewOrder(createOrderRequest,productSkus,calculateOrderAmount);
 
         return null;
+    }
+    /**
+     * @description: 添加订单到数据库
+     * @param createOrderRequest 创建订单请求
+     * @param productSkus 商品SKU 集合
+     * @param calculateOrderAmount 订单费用
+     * @return  void
+     * @author Long
+     * @date: 2022/1/6 10:39
+     */
+    private void addNewOrder(CreateOrderRequest createOrderRequest, List<ProductSkuDTO> productSkus, CalculateOrderAmountDTO calculateOrderAmount) {
+    }
+
+    /** 
+     * @description: 锁定商品库存
+     * @param createOrderRequest  生单请求
+     * @return  void
+     * @author Long
+     * @date: 2022/1/6 10:12
+     */ 
+    private void lockProductStock(CreateOrderRequest createOrderRequest) {
+
+    String orderId = createOrderRequest.getOrderId();
+
+    List<LockProductStockRequest.OrderItemRequest> orderItemRequests = ObjectUtil.convertList(createOrderRequest.getOrderItemRequests(),LockProductStockRequest.OrderItemRequest.class);
+
+    LockProductStockRequest lockProductStockRequest = createOrderRequest.clone(LockProductStockRequest.class);
+
+    lockProductStockRequest.setOrderItemRequests(orderItemRequests);
+
+    ResponseData<Boolean> responseResult = inventoryApi.lockProductStock(lockProductStockRequest);
+
+    if (!responseResult.getSuccess()){
+        log.error("锁定商品仓库失败,订单号：{}",orderId);
+
+        throw  new OrderBizException(responseResult.getCode(),responseResult.getMessage());
+    }
+
+
+    }
+
+    /**
+     * @description: 锁定优惠券
+     * @param createOrderRequest 生单请求
+     * @return  void
+     * @author Long
+     * @date: 2022/1/6 9:42
+     */
+    private void lockUserCoupon(CreateOrderRequest createOrderRequest) {
+
+        String coupon = createOrderRequest.getCouponId();
+
+        if (StringUtils.isBlank(coupon)){
+                return;
+        }
+
+        LockUserCouponRequest lockUserCouponRequest = createOrderRequest.clone(LockUserCouponRequest.class);
+
+        ResponseData<Boolean> responseResult = marketApi.lockUserCoupon(lockUserCouponRequest);
+
+        if (!responseResult.getSuccess()){
+            log.error("锁定优惠券失败,订单号:{},优惠券Id:{},用户Id:{}",lockUserCouponRequest.getOrderId(),lockUserCouponRequest.getCouponId(),lockUserCouponRequest.getUserId());
+            throw new OrderBizException(responseResult.getCode(),responseResult.getMessage());
+        }
+
+    }
+
+    /**
+     * @description: 验证订单实付金额
+     * @param createOrderRequest 创建订单请求
+     * @param calculateOrderAmount 计算的订单费用
+     * @return  void
+     * @author Long
+     * @date: 2022/1/6 9:17
+     */ 
+    private void checkRealPayAmount(CreateOrderRequest createOrderRequest, CalculateOrderAmountDTO calculateOrderAmount) {
+        List<CreateOrderRequest.OrderAmountRequest> orderAmountRequests = createOrderRequest.getOrderAmountRequests();
+
+        Map<Integer, CreateOrderRequest.OrderAmountRequest> originOrderAmountMap =orderAmountRequests.stream()
+                .collect(Collectors.toMap(CreateOrderRequest.OrderAmountRequest::getAmountType,Function.identity()));
+
+        BigDecimal originRealPayAmount = originOrderAmountMap.get(AmountTypeEnum.REAL_PAY_AMOUNT.getCode()).getAmount();
+
+        Map<Integer,CalculateOrderAmountDTO.OrderAmountDTO> orderAmountMap = calculateOrderAmount.getOrderAmountDTOList().stream()
+                .collect(Collectors.toMap(CalculateOrderAmountDTO.OrderAmountDTO::getAmountType,Function.identity()));
+
+        // 营销计算的实付价格
+        BigDecimal realPayAmount = orderAmountMap.get(AmountTypeEnum.REAL_PAY_AMOUNT.getCode()).getAmount();
+
+        if (originRealPayAmount.compareTo(realPayAmount) != 0){
+            log.error("验证订单实付价格不通过,前端传入价格:{},营销计算价格：{}",originRealPayAmount,realPayAmount);
+            throw new OrderBizException(OrderErrorCodeEnum.ORDER_CHECK_REAL_PAY_AMOUNT_FAIL);
+        }
+
     }
 
     /**
@@ -310,7 +423,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
             }
         });
 
-        Map<Integer,Integer> orderAmountMap = orderAmountRequests.stream().collect(Collectors.toMap(CreateOrderRequest.OrderAmountRequest::getAmountType, CreateOrderRequest.OrderAmountRequest::getAmount));
+        Map<Integer,BigDecimal> orderAmountMap = orderAmountRequests.stream().collect(Collectors.toMap(CreateOrderRequest.OrderAmountRequest::getAmountType, CreateOrderRequest.OrderAmountRequest::getAmount));
 
         // 订单原价不能为空
         if (orderAmountMap.get(AmountTypeEnum.ORIGIN_PAY_AMOUNT) == null){
