@@ -16,7 +16,7 @@ import com.taki.market.request.LockUserCouponRequest;
 import com.taki.order.domin.dto.CreateOrderDTO;
 import com.taki.order.domin.dto.GenOrderIdDTO;
 import com.taki.order.domin.dto.OrderAmountDTO;
-import com.taki.order.domin.dto.OrderAmountDetailDTO;
+import com.taki.product.domian.dto.OrderAmountDetailDTO;
 import com.taki.order.domin.request.CreateOrderRequest;
 import com.taki.order.domin.request.GenOrderIdRequest;
 import com.taki.order.enums.*;

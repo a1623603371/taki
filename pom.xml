@@ -28,6 +28,7 @@
         <module>taki-mall-product-api</module>
         <module>taki-mall-market-api</module>
         <module>taki-mall-inventory-api</module>
+        <module>taki-mall-order-api</module>
     </modules>
 
 

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.taki.common.domin.BaseEntity;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -40,7 +41,7 @@ public class OrderAmountDO extends BaseEntity implements Serializable {
 
     @ApiModelProperty("收费⾦额")
     @TableField("amount")
-    private Integer amount;
+    private BigDecimal amount;
 
     @ApiModelProperty("创建时间")
     @TableField("gmt_create")

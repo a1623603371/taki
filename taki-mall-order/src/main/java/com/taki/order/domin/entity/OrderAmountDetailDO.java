@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -64,7 +65,7 @@ public class OrderAmountDetailDO extends BaseEntity implements Serializable {
 
     @ApiModelProperty("收费⾦额")
     @TableField("amount")
-    private Integer amount;
+    private BigDecimal amount;
 
     @ApiModelProperty("创建时间")
     @TableField("gmt_create")

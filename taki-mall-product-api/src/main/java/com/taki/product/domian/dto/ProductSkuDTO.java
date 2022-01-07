@@ -4,6 +4,7 @@ import com.taki.common.core.AbstractObject;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * @ClassName ProductSkuDTO
@@ -52,12 +53,12 @@ public class ProductSkuDTO extends AbstractObject implements Serializable {
     /**
      *商品销售价格
      */
-    private Integer salePrice;
+    private BigDecimal salePrice;
 
 
     /**
      * 采购价格
      */
-    private Integer purchasePrice;
+    private BigDecimal purchasePrice;
 
 }

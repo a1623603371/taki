@@ -69,7 +69,7 @@ public class OrderInfoDO extends BaseEntity implements Serializable{
 
     @ApiModelProperty("用户id")
     @TableField("user_id")
-    private Long userId;
+    private String userId;
 
     @ApiModelProperty("订单总金额")
     @TableField("total_amount")

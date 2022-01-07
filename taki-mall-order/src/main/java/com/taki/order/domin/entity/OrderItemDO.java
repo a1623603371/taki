@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.taki.common.domin.BaseEntity;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -64,15 +65,15 @@ public class OrderItemDO extends BaseEntity implements Serializable{
 
     @ApiModelProperty("销售单价")
     @TableField("sale_price")
-    private Integer salePrice;
+    private BigDecimal salePrice;
 
     @ApiModelProperty("当前商品⽀付原总价")
     @TableField("origin_amount")
-    private Integer originAmount;
+    private BigDecimal originAmount;
 
     @ApiModelProperty("交易⽀付⾦额")
     @TableField("pay_amount")
-    private Integer payAmount;
+    private BigDecimal payAmount;
 
     @ApiModelProperty("商品单位")
     @TableField("product_unit")
@@ -80,7 +81,7 @@ public class OrderItemDO extends BaseEntity implements Serializable{
 
     @ApiModelProperty("采购成本价")
     @TableField("purchase_price")
-    private Integer purchasePrice;
+    private BigDecimal purchasePrice;
 
     @ApiModelProperty("卖家编号")
     @TableField("seller_id")

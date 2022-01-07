@@ -1,4 +1,4 @@
-package com.taki.order.domin.dto;
+package com.taki.product.domian.dto;
 
 import com.taki.common.core.AbstractObject;
 import lombok.Data;
@@ -53,5 +53,5 @@ public class OrderAmountDetailDTO extends AbstractObject implements Serializable
     /**
      * 收费金额
      */
-    private Integer amount;
+    private BigDecimal amount;
 }
