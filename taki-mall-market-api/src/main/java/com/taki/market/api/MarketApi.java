@@ -2,8 +2,10 @@ package com.taki.market.api;
 
 import com.taki.common.utlis.ResponseData;
 import com.taki.market.domain.dto.CalculateOrderAmountDTO;
+import com.taki.market.domain.dto.UserCouponDTO;
 import com.taki.market.request.CalculateOrderAmountRequest;
 import com.taki.market.request.LockUserCouponRequest;
+import com.taki.market.request.UserCouponQuery;
 
 /**
  * @ClassName MarketApi
@@ -32,4 +34,12 @@ public interface MarketApi {
      * @date: 2022/1/6 9:52
      */
     ResponseData<Boolean> lockUserCoupon(LockUserCouponRequest lockUserCouponRequest);
+
+
+    /**
+     *  查询用户优惠券
+     * @param userCouponQuery 查询条件
+     * @return
+     */
+    ResponseData<UserCouponDTO> queryUserCoupon(UserCouponQuery userCouponQuery);
 }

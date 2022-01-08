@@ -4,6 +4,7 @@ import com.taki.common.core.AbstractObject;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -85,7 +86,7 @@ public class CalculateOrderAmountRequest  extends AbstractObject implements Seri
         /**
          * 销售价格
          */
-        private Integer salePrice;
+        private BigDecimal salePrice;
 
         /**
          * 销售数量

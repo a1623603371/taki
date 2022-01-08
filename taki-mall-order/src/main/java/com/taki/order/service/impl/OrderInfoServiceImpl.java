@@ -1,5 +1,9 @@
 package com.taki.order.service.impl;
 
+import cn.hutool.json.JSONUtil;
+import com.taki.address.api.AddressApi;
+import com.taki.address.domian.dto.AddressDTO;
+import com.taki.address.domian.request.AddressQuery;
 import com.taki.common.core.CloneDirection;
 import com.taki.common.enums.AmountTypeEnum;
 import com.taki.common.enums.PayTypeEnum;
@@ -11,11 +15,17 @@ import com.taki.inventory.api.InventoryApi;
 import com.taki.inventory.domain.request.LockProductStockRequest;
 import com.taki.market.api.MarketApi;
 import com.taki.market.domain.dto.CalculateOrderAmountDTO;
+import com.taki.market.domain.dto.UserCouponDTO;
 import com.taki.market.request.CalculateOrderAmountRequest;
 import com.taki.market.request.LockUserCouponRequest;
+import com.taki.market.request.UserCouponQuery;
+import com.taki.order.bulider.FullOrderData;
+import com.taki.order.bulider.NewOrderBuilder;
+import com.taki.order.config.OrderProperties;
 import com.taki.order.domin.dto.CreateOrderDTO;
 import com.taki.order.domin.dto.GenOrderIdDTO;
 import com.taki.order.domin.dto.OrderAmountDTO;
+import com.taki.order.domin.entity.*;
 import com.taki.product.domian.dto.OrderAmountDetailDTO;
 import com.taki.order.domin.request.CreateOrderRequest;
 import com.taki.order.domin.request.GenOrderIdRequest;
@@ -59,7 +69,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     @Autowired
     private OrderNoManager orderNoManager;
 
-
+    @Autowired
+    private OrderProperties orderProperties;
 
     @DubboReference
     private RiskApi riskApi;
@@ -75,6 +86,12 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
     @DubboReference
     private InventoryApi inventoryApi;
+
+
+    @DubboReference
+    private AddressApi addressApi;
+
+
 
     @Override
     public GenOrderIdDTO getGenOrderIdDTO(GenOrderIdRequest genOrderIdRequest) {
@@ -130,6 +147,136 @@ public class OrderInfoServiceImpl implements OrderInfoService {
      * @date: 2022/1/6 10:39
      */
     private void addNewOrder(CreateOrderRequest createOrderRequest, List<ProductSkuDTO> productSkus, CalculateOrderAmountDTO calculateOrderAmount) {
+
+        // 封装订单数据
+        NewOrderDataHolder newOrderDataHolder = new NewOrderDataHolder();
+
+        // 生成主订单
+        FullOrderData fullOrderData = addNewMasterOrder(createOrderRequest,productSkus,calculateOrderAmount);
+
+
+        //封装主订单数据到NewOrderData对象中
+      //  newOrderDataHolder.appendOrderData(fullOrderData);
+    }
+    /**
+     * @description: 生成新的主订单
+     * @param createOrderRequest 创建订单请求
+     * @param productSkus 商品SKU
+     * @param calculateOrderAmount 订单费用
+     * @return  主订单数据
+     * @author Long
+     * @date: 2022/1/8 13:51
+     */
+    private FullOrderData addNewMasterOrder(CreateOrderRequest createOrderRequest, List<ProductSkuDTO> productSkus, CalculateOrderAmountDTO calculateOrderAmount) {
+
+        NewOrderBuilder  newOrderBuilder = new NewOrderBuilder(createOrderRequest,productSkus,calculateOrderAmount,orderProperties);
+        FullOrderData fullOrderData = newOrderBuilder.builder()
+                .buildOrderItems()
+                .buildOrderAmount()
+                .buildOrderAmountDetail()
+                .buildOrderDeliveryDetail()
+                .buildOrderPaymentDetail()
+                .buildOperateLog()
+                .buildOrderSnapsShot()
+                .build();
+
+        // 订单信息
+        OrderInfoDO orderInfo =fullOrderData.getOrderInfo();
+        
+        // 订单条目
+        List<OrderItemDO> orderItems = fullOrderData.getOrderItems();
+
+        // 订单费用信息
+        List<OrderAmountDO> orderAmounts = fullOrderData.getOrderAmounts();
+
+        //补全地址信息
+        OrderDeliveryDetailDO orderDeliveryDetail = fullOrderData.getOrderDeliveryDetailDO();
+        String detailAddress = getDeliveryDetail(orderDeliveryDetail);
+        orderDeliveryDetail.setDetailAddress(detailAddress);
+
+        //补全订单状态变更日志
+
+        OrderOperateLogDO orderOperateLog = fullOrderData.getOrderOperateLog();
+
+        String remark = "创建订单操作0-10";
+        orderOperateLog.setRemark(remark);
+
+        //补全商品快照信息
+
+        List<OrderSnapshotDO> orderSnapshots = fullOrderData.getOrderSnapshots();
+
+        orderSnapshots.forEach(orderSnapshotDO -> {
+
+            // 优惠券信息
+            if (orderSnapshotDO.getSnapshotType().equals(SnapshotTypeEnum.ORDER_COUPON.getCode())){
+                String couponId = orderInfo.getCouponId();
+                String userId = orderInfo.getUserId();
+                UserCouponQuery userCouponQuery = new UserCouponQuery();
+                userCouponQuery.setCouponId(couponId);
+                userCouponQuery.setUserId(userId);
+
+                ResponseData<UserCouponDTO> responseResult = marketApi.queryUserCoupon(userCouponQuery);
+
+                if (responseResult.getSuccess()){
+                    UserCouponDTO userCoupon = responseResult.getData();
+                    if (userCoupon != null){
+                    //        orderSnapshotDO.setSnapshotJson(JsonUtil);
+                    }
+
+                }
+
+
+
+            }
+
+
+        });
+
+        return null;
+    }
+
+    /**
+     * 获取手收货地址详细地址
+     * @param orderDeliveryDetail 订单地址信息
+     * @return
+     */
+    private String getDeliveryDetail(OrderDeliveryDetailDO orderDeliveryDetail) {
+
+        String provinceCode = orderDeliveryDetail.getProvince();
+        String cityCode = orderDeliveryDetail.getCity();
+        String areaCode = orderDeliveryDetail.getArea();
+        String streetCode = orderDeliveryDetail.getStreet();
+        AddressQuery addressQuery = new AddressQuery();
+
+        addressQuery.setProvinceCode(provinceCode);
+        addressQuery.setCityCode(cityCode);
+        addressQuery.setAreaCode(areaCode);
+        addressQuery.setStreetCode(streetCode);
+        ResponseData<AddressDTO> responseResult = addressApi.queryAddress(addressQuery);
+
+        if (!responseResult.getSuccess()  || ObjectUtils.isEmpty(responseResult.getData())){
+            return orderDeliveryDetail.getDetailAddress();
+        }
+        AddressDTO address = responseResult.getData();
+
+        StringBuilder addressBuilder = new StringBuilder();
+
+        if (StringUtils.isNotBlank(address.getProvince())){
+            addressBuilder.append(address.getProvince());
+        }
+
+        if (StringUtils.isNotBlank(address.getCity())){
+            addressBuilder.append(address.getCity());
+        }
+
+        if (StringUtils.isNotBlank(address.getArea())){
+            addressBuilder.append(address.getArea());
+        }
+
+        if (StringUtils.isNotBlank(address.getStreet())){
+            addressBuilder.append(address.getStreet());
+        }
+        return addressBuilder.toString();
     }
 
     /** 
