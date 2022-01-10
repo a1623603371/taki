@@ -224,7 +224,7 @@ public abstract class AbstractObject {
         }catch (NoSuchFieldException e){
             // 目标类有可能没有继承AbstractObject类
 
-            if(targetClazz.getSuperclass() == null){
+            if(targetClazz.getSuperclass() != null){
                 String targetSuperClazzTypeName =targetClazz.getSuperclass().getTypeName();
 
                 if (!targetSuperClazzTypeName.equals(Object.class.getTypeName()) && !targetSuperClazzTypeName.equals(AbstractObject.class.getTypeName())){

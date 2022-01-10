@@ -1,5 +1,6 @@
 package com.taki.order.service.impl;
 
+import cn.hutool.db.sql.Order;
 import cn.hutool.json.JSONUtil;
 import com.taki.address.api.AddressApi;
 import com.taki.address.domian.dto.AddressDTO;
@@ -8,6 +9,7 @@ import com.taki.common.core.CloneDirection;
 import com.taki.common.enums.AmountTypeEnum;
 import com.taki.common.enums.PayTypeEnum;
 import com.taki.common.exception.ServiceException;
+import com.taki.common.utlis.JsonUtil;
 import com.taki.common.utlis.ObjectUtil;
 import com.taki.common.utlis.ParamCheckUtil;
 import com.taki.common.utlis.ResponseData;
@@ -156,10 +158,171 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
 
         //封装主订单数据到NewOrderData对象中
-      //  newOrderDataHolder.appendOrderData(fullOrderData);
+        newOrderDataHolder.appendOrderData(fullOrderData);
+
+        // 多商品进行拆单
+        Map<Integer,List<ProductSkuDTO>> productTypeMap = productSkus.stream().collect(Collectors.groupingBy(ProductSkuDTO::getProductType));
+
+        if (productTypeMap.keySet().size() >  1){
+
+            productTypeMap.keySet().forEach(productType ->{
+                // 生成子订单
+                FullOrderData fullSubOrderData = addNewSubOrder(fullOrderData,productType);
+            });
+
+
+        }
     }
+
     /**
-     * @description: 生成新的主订单
+     * @description:  添加子订单
+     * @param fullOrderData  完整订单数据
+     * @param productType 商品类型
+     * @return
+     * @author Long
+     * @date: 2022/1/10 12:00
+     */
+    private FullOrderData addNewSubOrder(FullOrderData fullOrderData, Integer productType) {
+        // 订单
+        OrderInfoDO orderInfo = fullOrderData.getOrderInfo();
+        // 订单条目
+        List<OrderItemDO> orderItems = fullOrderData.getOrderItems();
+
+        // 订单配送信息
+        OrderDeliveryDetailDO orderDeliveryDetail = fullOrderData.getOrderDeliveryDetailDO();
+        // 主订单 支付信息
+        List<OrderPaymentDetailDO> orderPaymentDetails = fullOrderData.getOrderPaymentDetails();
+        // 主订单费用信息
+        List<OrderAmountDO> orderAmounts = fullOrderData.getOrderAmounts();
+        // 主订单费用详情
+        List<OrderAmountDetailDO> orderAmountDetails = fullOrderData.getOrderAmountDetails();
+        // 订单操作日志
+        OrderOperateLogDO operateLog = fullOrderData.getOrderOperateLog();
+        // 订单快照 日志
+        List<OrderSnapshotDO> orderSnapshots = fullOrderData.getOrderSnapshots();
+
+        // 父订单号
+        String parentOrderId = orderInfo.getOrderId();
+
+        // 用户Id
+        String userId = orderInfo.getUserId();
+
+        // 生成子订单号
+        String subOrderId = orderNoManager.genOrderId(productType,userId);
+
+        //字订单全量数据
+        FullOrderData subFullOrderData = new FullOrderData();
+
+        // 过滤出当前商品类型的订单条目信息
+
+        List<OrderItemDO> subOrderItems = orderItems.stream().filter(orderItemDO -> productType.equals(orderItemDO.getProductType())).collect(Collectors.toList());
+
+        // 统计子订单 金额
+
+        BigDecimal subOrderAmount = BigDecimal.ZERO;
+
+        BigDecimal subRealPayAmount = BigDecimal.ZERO;
+
+        for (OrderItemDO subOrderItem : subOrderItems) {
+            subOrderAmount = subOrderAmount.add(subOrderItem.getOriginAmount());
+            subRealPayAmount = subRealPayAmount.add(subOrderItem.getPayAmount());
+        }
+
+        // 订单信息 主信息
+        OrderInfoDO newSubOrder =orderInfo.clone(OrderInfoDO.class);
+        newSubOrder.setId(null);
+        newSubOrder.setOrderId(subOrderId);
+        newSubOrder.setParentOrderId(parentOrderId);
+        newSubOrder.setOrderStatus(OrderStatusEnum.INVALID.getCode());
+        newSubOrder.setTotalAmount(subOrderAmount);
+        newSubOrder.setPayAmount(subRealPayAmount);
+        subFullOrderData.setOrderInfo(newSubOrder);
+
+        // 订单条目
+       List<OrderItemDO>  newSubOrderItems = new ArrayList<>();
+
+        subOrderItems.forEach(subOrderItem ->{
+            OrderItemDO orderItemDO = subOrderItem.clone(OrderItemDO.class);
+            orderItemDO.setId(null);
+            orderItemDO.setOrderId(subOrderId);
+            String subOrderItemId = getSubOrderItemId(orderItemDO.getOrderItemId(),subOrderId);
+            orderItemDO.setOrderItemId(subOrderItemId);
+            newSubOrderItems.add(subOrderItem);
+        });
+        subFullOrderData.setOrderItems(newSubOrderItems);
+
+        // 订单配送地址信息
+        OrderDeliveryDetailDO newOrderDeliveryDetail =orderDeliveryDetail.clone(OrderDeliveryDetailDO.class);
+        newOrderDeliveryDetail.setId(null);
+        newOrderDeliveryDetail.setOrderId(subOrderId);
+        subFullOrderData.setOrderDeliveryDetailDO(newOrderDeliveryDetail);
+
+        Map<String,OrderItemDO> subOrderItemMap = subOrderItems.stream().collect(Collectors.toMap(OrderItemDO::getOrderItemId,Function.identity()));
+
+        // 子订单 总支付金额
+        BigDecimal subTotalOriginPayAmount = BigDecimal.ZERO;
+        // 子订单优惠券抵扣金额
+        BigDecimal subTotalCouponDiscountAmount = BigDecimal.ZERO;
+        // 子订单 实际支付金额
+        BigDecimal subTotalRealPayAmount = BigDecimal.ZERO;
+
+        List<OrderAmountDetailDO> subOrderAmountDetailList = new ArrayList<>();
+
+
+        for (OrderAmountDetailDO orderAmountDetail : orderAmountDetails) {
+
+        String orderItemId =  orderAmountDetail.getOrderItemId();
+
+        if (!subOrderItemMap.containsKey(orderItemId)){
+            continue;
+        }
+
+        OrderAmountDetailDO  subOrderAmountDetail = orderAmountDetail.clone(OrderAmountDetailDO.class);
+        subOrderAmountDetail.setId(null);
+        subOrderAmountDetail.setOrderId(subOrderId);
+        String subOrderItemId = getSubOrderItemId(orderItemId,subOrderId);
+        subOrderAmountDetail.setOrderItemId(subOrderItemId);
+        subOrderAmountDetailList.add(subOrderAmountDetail);
+
+        Integer amountType =orderAmountDetail.getAmountType();
+        BigDecimal amount = orderAmountDetail.getAmount();
+
+        if (AmountTypeEnum.ORIGIN_PAY_AMOUNT.getCode().equals(amountType)){
+            subTotalOriginPayAmount =   subTotalOriginPayAmount.add(amount);
+        }
+
+        if (AmountTypeEnum.REAL_PAY_AMOUNT.getCode().equals(amountType)){
+            subTotalRealPayAmount =   subTotalRealPayAmount.add(amount);
+        }
+
+        if (AmountTypeEnum.COUPON_DISCOUNT_AMOUNT.getCode().equals(amountType)){
+            subTotalCouponDiscountAmount = subTotalCouponDiscountAmount.add(amount);
+        }
+
+        }
+
+        subFullOrderData.setOrderAmountDetails(subOrderAmountDetailList);
+
+
+        // 订单费用
+
+
+        return  null;
+    }
+    /** 
+     * @description: 获取子订单的orderItemId
+     * @param 
+     * @return  java.lang.String
+     * @author Long
+     * @date: 2022/1/10 13:58
+     */ 
+    private String getSubOrderItemId(String orderItemId ,String  subOrderId) {
+        String postfix = orderItemId.substring(orderItemId.indexOf("_"));
+        return subOrderId + postfix;
+    }
+
+    /**
+     * @description: 生成主订单
      * @param createOrderRequest 创建订单请求
      * @param productSkus 商品SKU
      * @param calculateOrderAmount 订单费用
@@ -220,19 +383,30 @@ public class OrderInfoServiceImpl implements OrderInfoService {
                 if (responseResult.getSuccess()){
                     UserCouponDTO userCoupon = responseResult.getData();
                     if (userCoupon != null){
-                    //        orderSnapshotDO.setSnapshotJson(JsonUtil);
+                            orderSnapshotDO.setSnapshotJson(JsonUtil.object2Json(userCoupon));
+
                     }
 
+                }else {
+                    orderSnapshotDO.setSnapshotJson(JsonUtil.object2Json(couponId));
                 }
-
-
-
             }
 
+            // 订单费用
+
+            if(orderSnapshotDO.getSnapshotType().equals(SnapshotTypeEnum.ORDER_AMOUNT.getCode())){
+
+                orderSnapshotDO.setSnapshotJson(JsonUtil.object2Json(orderAmounts));
+            }
+
+            // 订单条目
+            if (orderSnapshotDO.getSnapshotType().equals(SnapshotTypeEnum.ORDER_ITEM.getCode())){
+                orderSnapshotDO.setSnapshotJson(JsonUtil.object2Json(orderItems));
+            }
 
         });
 
-        return null;
+        return fullOrderData;
     }
 
     /**
