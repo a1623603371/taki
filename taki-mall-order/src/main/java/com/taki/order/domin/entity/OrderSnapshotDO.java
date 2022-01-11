@@ -42,13 +42,6 @@ public class OrderSnapshotDO extends BaseEntity implements Serializable{
     @TableField("snapshot_json")
     private String snapshotJson;
 
-    @ApiModelProperty("创建时间")
-    @TableField("gmt_create")
-    private LocalDateTime gmtCreate;
-
-    @ApiModelProperty("更新时间")
-    @TableField("gmt_modified")
-    private LocalDateTime gmtModified;
 
 
     public static final String ORDER_ID = "order_id";
@@ -57,9 +50,6 @@ public class OrderSnapshotDO extends BaseEntity implements Serializable{
 
     public static final String SNAPSHOT_JSON = "snapshot_json";
 
-    public static final String GMT_CREATE = "gmt_create";
-
-    public static final String GMT_MODIFIED = "gmt_modified";
 
 
 }

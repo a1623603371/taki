@@ -36,25 +36,25 @@ import java.util.List;
  */
 public class CodeGenerator {
 
-    private static final  String url = "jdbc:mysql://192.168.33.11:3306/taki-mall?useUnicode=true&characterEncoding=utf-8";
+    //private static final  String url = "jdbc:mysql://192.168.33.11:3306/taki-mall?useUnicode=true&characterEncoding=utf-8";
 
 
-    //private static final String url2 = "jdbc:mysql://49.232.128.89:3306/sonasonic_sit?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai";
+    private static final String url2 = "jdbc:mysql://49.232.128.89:3306/sonasonic_sit?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai";
 
-    private static final  String username = "root";
-    //private static final  String username2 = "root";
+   // private static final  String username = "root";
+    private static final  String username2 = "root";
 
-   private static final  String passwrod = "Pzk2020@";
-   // private static final  String passwrod2 = "M98_so892@l1UIG";
+  // private static final  String passwrod = "Pzk2020@";
+    private static final  String passwrod2 = "M98_so892@l1UIG";
 
-    private static final  String database = "taki-mall";
-   // private static final  String database2 = "sonasonic_sit";
+   // private static final  String database = "taki-mall";
+    private static final  String database2 = "sonasonic_sit";
 
 
     private static  final DataSourceConfig.Builder DATA_SOURCE_CONFIG =
-            new DataSourceConfig.Builder(url,username,passwrod)
+            new DataSourceConfig.Builder(url2,username2,passwrod2)
                     .dbQuery(new MySqlQuery())
-                    .schema(database)
+                    .schema(database2)
                     .typeConvert(
                             new MySqlTypeConvert()
 //                            {
@@ -83,7 +83,8 @@ public class CodeGenerator {
             //"t_rmbs_paytype"
            // "t_rule_bizpolicy","t_rule_bizpolicy_item","t_rule_bizpolicy_scope","t_rule_bizpolicy_scope_item"
             //"t_rule_bizrule"
-            "order_delivery_detail"
+            //"order_delivery_detail"
+            "t_claim_inqpaymentbank"
     };
 
 
