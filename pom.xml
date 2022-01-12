@@ -57,6 +57,7 @@
         <redisson.version>3.15.5</redisson.version>
         <spring.dubbo.version>2.2.6.RELEASE</spring.dubbo.version>
         <dubbo.version>3.0.6-SNAPSHOT</dubbo.version>
+        <rocker.verion>2.1.1</rocker.verion>
     </properties>
 
 
@@ -218,7 +219,7 @@
             </dependency>
 
 
-
+            <!-- dubbo -->
             <dependency>
                 <groupId>com.alibaba.cloud</groupId>
                 <artifactId>spring-cloud-starter-dubbo</artifactId>
@@ -229,6 +230,12 @@
                 <groupId>org.apache.dubbo</groupId>
                 <artifactId>dubbo</artifactId>
                 <version>${dubbo.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.rocketmq</groupId>
+                <artifactId>rocketmq-client</artifactId>
+                <version>${rocketmq.version}</version>
             </dependency>
 
 

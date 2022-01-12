@@ -9,6 +9,7 @@ import com.taki.common.core.CloneDirection;
 import com.taki.common.enums.AmountTypeEnum;
 import com.taki.common.enums.PayTypeEnum;
 import com.taki.common.exception.ServiceException;
+import com.taki.common.message.PayOrderTimeOutDelayMessage;
 import com.taki.common.utlis.JsonUtil;
 import com.taki.common.utlis.ObjectUtil;
 import com.taki.common.utlis.ParamCheckUtil;
@@ -164,8 +165,39 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         //8. 生成订单到数据库
         addNewOrder(createOrderRequest,productSkus,calculateOrderAmount);
 
+        // 9.发送延时订单消息用于支付超时自动关单
+        sendPayOrderTimeoutDelayMessage(createOrderRequest);
+
         return null;
     }
+    /**
+     * @description: 发送 订单延时支付消息，用于支付
+     * @param createOrderRequest
+     * @return  void
+     * @author Long
+     * @date: 2022/1/12 9:54
+     */
+    private void sendPayOrderTimeoutDelayMessage(CreateOrderRequest createOrderRequest) {
+
+        PayOrderTimeOutDelayMessage payOrderTimeOutDelayMessage = PayOrderTimeOutDelayMessage
+                .builder()
+                .orderId(createOrderRequest.getOrderId())
+                .businessIdentifier(createOrderRequest.getBusinessIdentifier())
+                .cancelType(OrderCancelTypeEnum.TIMEOUT_CANCELED.getCode())
+                .orderType(createOrderRequest.getOrderType())
+                .orderStatus(OrderStatusEnum.CREATED.getCode())
+                .userId(createOrderRequest.getUserId()).build();
+
+
+        String msgJson = JsonUtil.object2Json(payOrderTimeOutDelayMessage);
+
+      //  defalultProducer.sendMessage();
+
+
+
+
+    }
+
     /**
      * @description: 添加订单到数据库
      * @param createOrderRequest 创建订单请求
@@ -218,6 +250,39 @@ public class OrderInfoServiceImpl implements OrderInfoService {
             if (!orderDeliveryDetailList.isEmpty()){
                 orderDeliveryDetailDao.saveBatch(orderDeliveryDetailList);
             }
+
+            // 保存 支付信息
+            List<OrderPaymentDetailDO> orderPaymentDetailList = newOrderDataHolder.getOrderPaymentDetails();
+            if (!orderDeliveryDetailList.isEmpty()){
+                orderPaymentDetailDao.saveBatch(orderPaymentDetailList);
+            }
+
+            // 保存订单费用信息
+            List<OrderAmountDO> orderAmountList = newOrderDataHolder.getOrderAmounts();
+
+            if (!orderAmountList.isEmpty()){
+                orderAmountDao.saveBatch(orderAmountList);
+            }
+
+            // 保存订单费用详细信息
+            List<OrderAmountDetailDO> orderAmountDetailList = newOrderDataHolder.getOrderAmountDetails();
+
+            if (!orderAmountDetailList.isEmpty()){
+                orderAmountDetailDao.saveBatch(orderAmountDetailList);
+            }
+
+            //保存订单操作日志
+            List<OrderOperateLogDO> orderOperateLogList = newOrderDataHolder.getOrderOperateLogs();
+            if (!orderOperateLogList.isEmpty()){
+                orderOperateLogDao.saveBatch(orderOperateLogList);
+            }
+            // 保存订单快照信息
+            List<OrderSnapshotDO> orderSnapshotList = newOrderDataHolder.getOrderSnapshots();
+
+            if (!orderSnapshotList.isEmpty()){
+                orderSnapshotDao.saveBatch(orderSnapshotList);
+            }
+
         }
     }
 
