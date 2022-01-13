@@ -5,6 +5,8 @@ import cn.hutool.json.JSONUtil;
 import com.taki.address.api.AddressApi;
 import com.taki.address.domian.dto.AddressDTO;
 import com.taki.address.domian.request.AddressQuery;
+import com.taki.common.constants.RocketDelayedLevel;
+import com.taki.common.constants.RocketMQConstant;
 import com.taki.common.core.CloneDirection;
 import com.taki.common.enums.AmountTypeEnum;
 import com.taki.common.enums.PayTypeEnum;
@@ -30,6 +32,7 @@ import com.taki.order.domin.dto.CreateOrderDTO;
 import com.taki.order.domin.dto.GenOrderIdDTO;
 import com.taki.order.domin.dto.OrderAmountDTO;
 import com.taki.order.domin.entity.*;
+import com.taki.order.mq.producer.DefaultProducer;
 import com.taki.product.domian.dto.OrderAmountDetailDTO;
 import com.taki.order.domin.request.CreateOrderRequest;
 import com.taki.order.domin.request.GenOrderIdRequest;
@@ -49,6 +52,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -101,6 +105,10 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
     @Autowired
     private OrderProperties orderProperties;
+
+
+    @Autowired
+    private DefaultProducer defaultProducer;
 
     @DubboReference
     private RiskApi riskApi;
@@ -167,8 +175,10 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
         // 9.发送延时订单消息用于支付超时自动关单
         sendPayOrderTimeoutDelayMessage(createOrderRequest);
-
-        return null;
+        // 返回订单数据
+        CreateOrderDTO createOrderDTO = new CreateOrderDTO();
+        createOrderDTO.setOrderId(createOrderDTO.getOrderId());
+        return createOrderDTO;
     }
     /**
      * @description: 发送 订单延时支付消息，用于支付
@@ -191,10 +201,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
         String msgJson = JsonUtil.object2Json(payOrderTimeOutDelayMessage);
 
-      //  defalultProducer.sendMessage();
-
-
-
+        defaultProducer.sendMessage(RocketMQConstant.PAY_ORDER_TIMEOUT_DELAY_TOPIC,msgJson, RocketDelayedLevel.DELAYED_30M,"支付订单超时延时消息");
 
     }
 

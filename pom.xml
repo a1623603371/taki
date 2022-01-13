@@ -57,7 +57,8 @@
         <redisson.version>3.15.5</redisson.version>
         <spring.dubbo.version>2.2.6.RELEASE</spring.dubbo.version>
         <dubbo.version>3.0.6-SNAPSHOT</dubbo.version>
-        <rocker.verion>2.1.1</rocker.verion>
+        <rocketmq.version>4.9.1</rocketmq.version>
+        <spring.boot.rocketmq.version>2.1.1</spring.boot.rocketmq.version>
     </properties>
 
 
@@ -232,6 +233,13 @@
                 <version>${dubbo.version}</version>
             </dependency>
 
+
+
+            <dependency>
+                <groupId>org.apache.rocketmq</groupId>
+                <artifactId>rocketmq-spring-boot-starter</artifactId>
+                <version>${spring.boot.rocketmq.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.rocketmq</groupId>
                 <artifactId>rocketmq-client</artifactId>
