@@ -41,6 +41,9 @@ public class ResponseData<T> implements Serializable {
      */
     private static final  Integer DEFAULT_CODE = 200;
 
+
+    private static  final  Integer ERROR_CODE = -100;
+
     /**
      * 请求是否成功
      */
@@ -123,4 +126,15 @@ public class ResponseData<T> implements Serializable {
         return new ResponseData<T>(REQUEST_FAIL,code,message,null);
     }
 
+    /**
+     * @description:  系统错误响应 自定义错误
+     * @param: codeEnum 状态码
+     *  @param:  message 异常信息
+     * @return: responseData
+     * @author Long
+     * @date: 2021/11/24 17:57
+     */
+    public static <T> ResponseData<T> error(String message){
+        return new ResponseData<T>(REQUEST_FAIL,ERROR_CODE,message,null);
+    }
 }

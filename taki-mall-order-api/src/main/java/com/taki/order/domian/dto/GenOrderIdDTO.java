@@ -1,4 +1,4 @@
-package com.taki.order.domin.dto;
+package com.taki.order.domian.dto;
 
 import com.taki.common.core.AbstractObject;
 import lombok.Data;

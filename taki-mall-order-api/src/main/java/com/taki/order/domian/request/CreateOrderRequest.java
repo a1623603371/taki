@@ -1,4 +1,4 @@
-package com.taki.order.domin.request;
+package com.taki.order.domian.request;
 
 import com.taki.common.core.AbstractObject;
 import lombok.Data;
@@ -193,7 +193,7 @@ public class CreateOrderRequest extends AbstractObject implements Serializable {
      * @Version 1.0
      */
     @Data
-    public static class OrderAmountRequest extends AbstractObject implements  Serializable {
+    public static class OrderAmountRequest extends AbstractObject implements Serializable {
 
 
         private static final long serialVersionUID = -8373432955221462266L;
@@ -234,4 +234,3 @@ public class CreateOrderRequest extends AbstractObject implements Serializable {
 
 
 }
-

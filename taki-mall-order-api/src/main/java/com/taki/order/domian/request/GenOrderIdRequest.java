@@ -1,19 +1,18 @@
-package com.taki.order.domin.request;
+package com.taki.order.domian.request;
 
 import com.taki.common.core.AbstractObject;
 import lombok.Data;
 
 import java.io.Serializable;
-
 /**
- * @ClassName GenOrderIdRequest
+ * @ClassName CreateOrderRequest
  * @Description 生成订单Id 请求
- * @Author Long
- * @Date 2022/1/2 19:41
+ * * @Author Long
+ * @Date 2022/1/3 0:16
  * @Version 1.0
  */
 @Data
-public class GenOrderIdRequest extends AbstractObject implements Serializable {
+public class  GenOrderIdRequest extends AbstractObject implements Serializable {
 
 
     private static final long serialVersionUID = 8463280326250994794L;

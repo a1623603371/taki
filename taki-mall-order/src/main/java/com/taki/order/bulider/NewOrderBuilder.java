@@ -8,7 +8,7 @@ import com.taki.order.config.OrderProperties;
 import com.taki.order.domian.dto.OrderAmountDTO;
 import com.taki.product.domian.dto.OrderAmountDetailDTO;
 import com.taki.order.domin.entity.*;
-import com.taki.order.domin.request.CreateOrderRequest;
+import com.taki.order.domian.request.CreateOrderRequest;
 import com.taki.order.enums.*;
 import com.taki.product.domian.dto.ProductSkuDTO;
 import org.apache.commons.lang3.StringUtils;

@@ -1,11 +1,11 @@
 package com.taki.order.service;
 
-import com.taki.order.domin.dto.CreateOrderDTO;
-import com.taki.order.domin.dto.GenOrderIdDTO;
-import com.taki.order.domin.request.CreateOrderRequest;
-import com.taki.order.domin.request.GenOrderIdRequest;
-
-import java.lang.reflect.GenericArrayType;
+import com.taki.order.domian.dto.CreateOrderDTO;
+import com.taki.order.domian.dto.GenOrderIdDTO;
+import com.taki.order.domian.dto.PrePayOrderDTO;
+import com.taki.order.domian.request.CreateOrderRequest;
+import com.taki.order.domian.request.GenOrderIdRequest;
+import com.taki.order.domian.request.PrePayOrderRequest;
 
 /**
  * @ClassName OrderInfoService
@@ -35,5 +35,14 @@ public interface OrderInfoService {
      * @date: 2022/1/3 0:13
      */ 
     CreateOrderDTO createOrder(CreateOrderRequest createOrderRequest);
+
+    /**
+     * @description: 预支付订单
+     * @param prePayOrderRequest 预支付订单请求
+     * @return 预支付订单信息
+     * @author Long
+     * @date: 2022/1/15 14:44
+     */
+    PrePayOrderDTO preOrder(PrePayOrderRequest prePayOrderRequest);
 
 }

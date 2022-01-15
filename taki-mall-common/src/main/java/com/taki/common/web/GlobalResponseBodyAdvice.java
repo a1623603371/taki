@@ -1,11 +1,10 @@
 package com.taki.common.web;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.taki.common.exception.ExceptionResult;
-import com.taki.common.exception.ErrorCodeEnum;
+
+import com.taki.common.utlis.JsonUtil;
 import com.taki.common.utlis.ResponseData;
+import com.taki.common.utlis.ServletUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -15,6 +14,8 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import springfox.documentation.swagger.web.ApiResourceController;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @ClassName ResponseResult
@@ -37,7 +38,7 @@ public class GlobalResponseBodyAdvice<T> implements ResponseBodyAdvice<Object> {
     @Override
     public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> aClass) {
         Class<?> declaringClass = aClass.getDeclaringClass();
-        if (declaringClass.equals(ApiResourceController.class)){
+        if (declaringClass.equals(ApiResourceController.class) ||  declaringClass.equals(null)){
             return false;
         }
         return true;
@@ -57,18 +58,25 @@ public class GlobalResponseBodyAdvice<T> implements ResponseBodyAdvice<Object> {
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
 
-        if (returnType.getGenericParameterType().equals(String.class)){
-            ObjectMapper objectMapper = new ObjectMapper();
-            //这里 将数据封装成VO 对象放回
 
+        if (selectedContentType.equals(MediaType.APPLICATION_JSON)){
+            return body;
+        }
+
+        if (body instanceof  ResponseData ){
+            return body;
+        }else if (body instanceof String){
             try {
-                return objectMapper.writeValueAsString(ResponseData.success(body));
-            } catch (JsonProcessingException e) {
-                // 加入自定义的统一异常处理
-                e.printStackTrace();
+                HttpServletResponse httpServletResponse = ServletUtil.getResponse();
+                if (httpServletResponse != null){
+                    ServletUtil.writeJsonMessage(httpServletResponse,ResponseData.success(body));
+                    return null;
+                }
+            }catch (Exception e){
+                log.warn("响应字符串对象前端异常",e);
             }
-        }else if (body instanceof ExceptionResult){ // 判断是否是异常对象类型
-           ResponseData.error(ErrorCodeEnum.SYSTEM_ERROR);
+
+            return JsonUtil.object2Json(ResponseData.success(body));
         }
 
         return ResponseData.success(body);

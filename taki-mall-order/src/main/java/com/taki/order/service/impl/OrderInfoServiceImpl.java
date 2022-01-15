@@ -1,10 +1,9 @@
 package com.taki.order.service.impl;
 
-import cn.hutool.db.sql.Order;
-import cn.hutool.json.JSONUtil;
 import com.taki.address.api.AddressApi;
 import com.taki.address.domian.dto.AddressDTO;
 import com.taki.address.domian.request.AddressQuery;
+import com.taki.common.constants.RedisLockKeyConstants;
 import com.taki.common.constants.RocketDelayedLevel;
 import com.taki.common.constants.RocketMQConstant;
 import com.taki.common.core.CloneDirection;
@@ -12,6 +11,7 @@ import com.taki.common.enums.AmountTypeEnum;
 import com.taki.common.enums.PayTypeEnum;
 import com.taki.common.exception.ServiceException;
 import com.taki.common.message.PayOrderTimeOutDelayMessage;
+import com.taki.common.redis.RedisLock;
 import com.taki.common.utlis.JsonUtil;
 import com.taki.common.utlis.ObjectUtil;
 import com.taki.common.utlis.ParamCheckUtil;
@@ -28,14 +28,16 @@ import com.taki.order.bulider.FullOrderData;
 import com.taki.order.bulider.NewOrderBuilder;
 import com.taki.order.config.OrderProperties;
 import com.taki.order.dao.*;
-import com.taki.order.domin.dto.CreateOrderDTO;
-import com.taki.order.domin.dto.GenOrderIdDTO;
-import com.taki.order.domin.dto.OrderAmountDTO;
+import com.taki.order.domian.dto.CreateOrderDTO;
+import com.taki.order.domian.dto.GenOrderIdDTO;
+import com.taki.order.domian.dto.OrderAmountDTO;
+import com.taki.order.domian.dto.PrePayOrderDTO;
+import com.taki.order.domian.request.PrePayOrderRequest;
 import com.taki.order.domin.entity.*;
 import com.taki.order.mq.producer.DefaultProducer;
 import com.taki.product.domian.dto.OrderAmountDetailDTO;
-import com.taki.order.domin.request.CreateOrderRequest;
-import com.taki.order.domin.request.GenOrderIdRequest;
+import com.taki.order.domian.request.CreateOrderRequest;
+import com.taki.order.domian.request.GenOrderIdRequest;
 import com.taki.order.enums.*;
 import com.taki.order.exception.OrderBizException;
 import com.taki.order.exception.OrderErrorCodeEnum;
@@ -52,9 +54,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -109,6 +111,10 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
     @Autowired
     private DefaultProducer defaultProducer;
+
+
+    @Autowired
+    private RedisLock redisLock;
 
     @DubboReference
     private RiskApi riskApi;
@@ -180,6 +186,54 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         createOrderDTO.setOrderId(createOrderDTO.getOrderId());
         return createOrderDTO;
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public PrePayOrderDTO preOrder(PrePayOrderRequest prePayOrderRequest) {
+        // 入参检查
+        checkPerPayOrderRequestPram(prePayOrderRequest);
+
+        String orderId = prePayOrderRequest.getOrderId();
+
+        BigDecimal payAmount = prePayOrderRequest.getPayAmount();
+
+        //  加分布式锁（与订单支付回调加的是同一把锁）
+
+        String lockKey = RedisLockKeyConstants.ORDER_PAY_KEY + orderId;
+
+    //    boolean lock =
+
+
+        return null;
+    }
+
+    /**
+     * @description:
+     * @param prePayOrderRequest
+     * @return  void
+     * @author Long
+     * @date: 2022/1/15 14:48
+     */
+    private void checkPerPayOrderRequestPram(PrePayOrderRequest prePayOrderRequest) {
+        String userId = prePayOrderRequest.getUserId();
+        ParamCheckUtil.checkStringNonEmpty(userId,OrderErrorCodeEnum.USER_ID_IS_NULL);
+        String businessIdentifier = prePayOrderRequest.getBusinessIdentifier();
+        ParamCheckUtil.checkObjectNonNull(businessIdentifier,OrderErrorCodeEnum.BUSINESS_IDENTIFIER_ERROR);
+
+        Integer payType = prePayOrderRequest.getPayType();
+        ParamCheckUtil.checkObjectNonNull(payType,OrderErrorCodeEnum.PAY_TYPE_PARAM_ERROR);
+
+        if (PayTypeEnum.getByCode(payType) == null){
+            throw new OrderBizException(OrderErrorCodeEnum.PAY_TYPE_PARAM_ERROR);
+        }
+
+        String orderId = prePayOrderRequest.getOrderId();
+        ParamCheckUtil.checkStringNonEmpty(orderId,OrderErrorCodeEnum.ORDER_ID_IS_NULL);
+
+        BigDecimal payAmount = prePayOrderRequest.getPayAmount();
+        ParamCheckUtil.checkObjectNonNull(payAmount,OrderErrorCodeEnum.PAY_TYPE_PARAM_ERROR);
+    }
+
     /**
      * @description: 发送 订单延时支付消息，用于支付
      * @param createOrderRequest
