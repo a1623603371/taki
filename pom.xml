@@ -30,6 +30,7 @@
         <module>taki-mall-inventory-api</module>
         <module>taki-mall-order-api</module>
         <module>taki-mall-address-api</module>
+        <module>taki-mall-pay-api</module>
     </modules>
 
 

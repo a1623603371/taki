@@ -35,6 +35,9 @@ import com.taki.order.domian.dto.PrePayOrderDTO;
 import com.taki.order.domian.request.PrePayOrderRequest;
 import com.taki.order.domin.entity.*;
 import com.taki.order.mq.producer.DefaultProducer;
+import com.taki.pay.api.PayApi;
+import com.taki.pay.domian.dto.PayOrderDTO;
+import com.taki.pay.domian.rquest.PayOrderRequest;
 import com.taki.product.domian.dto.OrderAmountDetailDTO;
 import com.taki.order.domian.request.CreateOrderRequest;
 import com.taki.order.domian.request.GenOrderIdRequest;
@@ -59,7 +62,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -135,6 +140,9 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     @DubboReference
     private AddressApi addressApi;
 
+    @DubboReference
+    private PayApi payApi;
+
 
 
     @Override
@@ -201,15 +209,121 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
         String lockKey = RedisLockKeyConstants.ORDER_PAY_KEY + orderId;
 
-    //    boolean lock =
+        boolean lock = redisLock.lock(lockKey);
 
+        if (!lock){
+            throw new OrderBizException(OrderErrorCodeEnum.ORDER_PRE_PAY_ERROR);
+        }
+        try {
+            // 预支付订单检查
+            checkPerPayOrderInfo(orderId,payAmount);
 
-        return null;
+            //调用 支付系统 进行预支付
+            PayOrderRequest payOrderRequest =  prePayOrderRequest.clone(PayOrderRequest.class);
+
+            ResponseData<PayOrderDTO> responseResult = payApi.payOrder(payOrderRequest);
+
+            if (!responseResult.getSuccess()){
+                throw new OrderBizException(OrderErrorCodeEnum.ORDER_PRE_PAY_ERROR);
+            }
+            PayOrderDTO payOrder = responseResult.getData();
+
+            //更新订单表 与支付信息表
+            updateOrderPaymentInfo(payOrder);
+            return payOrder.clone(PrePayOrderDTO.class);
+        }finally {
+            redisLock.unLock(lockKey);
+        }
+
+    }
+    /**
+     * @description: 更新订单支付信息
+     * @param payOrder 支付订单
+     * @return  void
+     * @author Long
+     * @date: 2022/1/16 15:31
+     */
+    private void updateOrderPaymentInfo(PayOrderDTO payOrder) {
+        String orderId = payOrder.getOrderId();
+       Integer payType = payOrder.getPayType();
+        String outTradeNo = payOrder.getOutTradeNo();
+        LocalDateTime now = LocalDateTime.now();
+
+        // 订单支付信息
+        OrderInfoDO orderInfoDO = orderInfoDao.getByOrderId(orderId);
+        orderInfoDO.setPayTime(now);
+        orderInfoDO.setPayType(payType);
+        orderInfoDao.updateById(orderInfoDO);
+
+        // 支付明细
+        OrderPaymentDetailDO orderPaymentDetailDO = orderPaymentDetailDao.getPaymentDetailByOrderId(orderId);
+        orderPaymentDetailDO.setPayTime(now);
+        orderPaymentDetailDO.setPayType(payType);
+        orderPaymentDetailDO.setOutTradeNo(outTradeNo);
+        orderPaymentDetailDao.updateById(orderPaymentDetailDO);
+
+        // 判断 是否存在 子订单
+        List<OrderInfoDO> subOrderList = orderInfoDao.listByParentOrderId(orderId);
+        if (subOrderList != null && !subOrderList.isEmpty()) {
+            subOrderList.forEach(subOrder -> {
+                subOrder.setPayTime(now);
+                subOrder.setPayType(payType);
+                orderInfoDao.updateById(subOrder);
+
+            OrderPaymentDetailDO  subOrderPaymentDetail = orderPaymentDetailDao.getPaymentDetailByOrderId(subOrder.getOrderId());
+                subOrderPaymentDetail.setPayTime(now);
+                subOrderPaymentDetail.setPayType(payType);
+                subOrderPaymentDetail.setOutTradeNo(outTradeNo);
+                orderPaymentDetailDao.updateById(subOrderPaymentDetail);
+
+            });
+        }
+    }
+
+    /***
+     * @description: 检查预支付订单
+     * @param orderId 订单Id
+     * @param  payAmount 支付金额
+     * @return  void
+     * @author Long
+     * @date: 2022/1/16 13:37
+     */
+    private void checkPerPayOrderInfo(String orderId, BigDecimal payAmount) {
+        // 查询订单信息
+        OrderInfoDO orderInfo = orderInfoDao.getByOrderId(orderId);
+
+        OrderPaymentDetailDO orderPaymentDetail = orderPaymentDetailDao.getPaymentDetailByOrderId(orderId);
+
+        if(ObjectUtils.isEmpty(orderInfo) || ObjectUtils.isEmpty(orderPaymentDetail)){
+            throw new OrderBizException(OrderErrorCodeEnum.ORDER_INFO_IS_NULL);
+        }
+
+        //检查订单支付金额
+        if (payAmount.compareTo(orderInfo.getPayAmount()) != 0){
+            throw new OrderBizException(OrderErrorCodeEnum.ORDER_PAY_AMOUNT_ERROR);
+        }
+
+        // 判断订单状态
+        if (!OrderStatusEnum.CREATED.getCode().equals(orderInfo.getOrderStatus())){
+            throw new OrderBizException(OrderErrorCodeEnum.ORDER_STATUS_ERROR);
+        }
+        // 判断支付状态
+        if (PayStatusEnum.PAID.getCode().equals(orderInfo.getOrderStatus())){
+          throw new OrderBizException(OrderErrorCodeEnum.ORDER_PAY_STATUS_IS_PAID);
+        }
+
+        // 判断是否超时
+        LocalDateTime currentDate = LocalDateTime.now();
+
+        if (currentDate.compareTo(orderInfo.getExpireTime()) < 0){
+            throw new OrderBizException(OrderErrorCodeEnum.ORDER_PRE_PAY_EXPIRE_ERROR);
+        }
+
     }
 
     /**
-     * @description:
-     * @param prePayOrderRequest
+     * @description: 检查预支付订单请求参数
+     * @param prePayOrderRequest 预支付请求
      * @return  void
      * @author Long
      * @date: 2022/1/15 14:48

@@ -43,6 +43,26 @@ public class RedisLock {
 
     }
 
+
+    /**
+     * @description: 获取 分布式锁
+     * @param key 键值
+     * @return  boolean
+     * @author Long
+     * @date: 2021/12/20 11:50
+     */
+    public boolean lock(String key){
+        RLock redisLock = redissonClient.getLock(key);
+
+        if (redisLock.isLocked()){
+            return false;
+        }
+        redisLock.lock();
+        return true;
+
+    }
+
+
     /**
      * @description: 释放 分布式锁
      * @param
