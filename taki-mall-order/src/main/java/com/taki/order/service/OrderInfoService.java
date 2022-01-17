@@ -5,6 +5,7 @@ import com.taki.order.domian.dto.GenOrderIdDTO;
 import com.taki.order.domian.dto.PrePayOrderDTO;
 import com.taki.order.domian.request.CreateOrderRequest;
 import com.taki.order.domian.request.GenOrderIdRequest;
+import com.taki.order.domian.request.PayCallbackRequest;
 import com.taki.order.domian.request.PrePayOrderRequest;
 
 /**
@@ -44,5 +45,14 @@ public interface OrderInfoService {
      * @date: 2022/1/15 14:44
      */
     PrePayOrderDTO preOrder(PrePayOrderRequest prePayOrderRequest);
+
+    /**
+     * @description: 支付回调
+     * @param payCallbackRequest 支付回调请求
+     * @return  void
+     * @author Long
+     * @date: 2022/1/17 16:08
+     */
+    void payCallback(PayCallbackRequest payCallbackRequest);
 
 }
