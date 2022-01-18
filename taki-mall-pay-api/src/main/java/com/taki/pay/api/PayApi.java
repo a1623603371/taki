@@ -3,6 +3,7 @@ package com.taki.pay.api;
 import com.taki.common.utlis.ResponseData;
 import com.taki.pay.domian.dto.PayOrderDTO;
 import com.taki.pay.domian.rquest.PayOrderRequest;
+import com.taki.pay.domian.rquest.PayRefundRequest;
 
 /**
  * @ClassName PayApi
@@ -20,4 +21,13 @@ public interface PayApi {
      * @date: 2022/1/16 15:28
      */
     ResponseData<PayOrderDTO> payOrder(PayOrderRequest payOrderRequest);
+
+    /***
+     * @description: 执行退款操作
+     * @param payRefundRequest 支付退款请求
+     * @return 执行结果
+     * @author Long
+     * @date: 2022/1/18 16:23
+     */
+    Boolean executeRefund(PayRefundRequest payRefundRequest);
 }

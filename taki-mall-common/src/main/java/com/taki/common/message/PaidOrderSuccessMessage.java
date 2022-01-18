@@ -1,5 +1,7 @@
 package com.taki.common.message;
 
+import lombok.Data;
+
 import java.io.Serializable;
 
 /**
@@ -9,6 +11,7 @@ import java.io.Serializable;
  * @Date 2022/1/17 17:15
  * @Version 1.0
  */
+@Data
 public class PaidOrderSuccessMessage implements Serializable {
 
 

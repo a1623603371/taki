@@ -1,6 +1,6 @@
 package com.taki.order.service.impl;
 
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
+import com.alibaba.fastjson.JSON;
 import com.taki.address.api.AddressApi;
 import com.taki.address.domian.dto.AddressDTO;
 import com.taki.address.domian.request.AddressQuery;
@@ -42,6 +42,7 @@ import com.taki.order.mq.producer.DefaultProducer;
 import com.taki.pay.api.PayApi;
 import com.taki.pay.domian.dto.PayOrderDTO;
 import com.taki.pay.domian.rquest.PayOrderRequest;
+import com.taki.pay.domian.rquest.PayRefundRequest;
 import com.taki.product.domian.dto.OrderAmountDetailDTO;
 import com.taki.order.domian.request.CreateOrderRequest;
 import com.taki.order.domian.request.GenOrderIdRequest;
@@ -68,7 +69,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -281,13 +281,38 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         if (OrderStatusEnum.CREATED.getCode().equals(orderStatus)){
             //如果订单状态是 ”已创建“ 直接更新订单状态为已支付
             updateOrderStatusPaid(payCallbackRequest,orderInfo,orderPaymentDetail);
-
             // 发送 “订单已完成支付” 消息
             sendPaidOrderSuccessMessage(orderInfo);
+        }else {
+            // 如果订单状态 不是 “已创建”
+            if (OrderStatusEnum.CANCELED.getCode().equals(orderStatus)) {
+                //如果订单是取消状态
+                Integer payStatus = orderPaymentDetail.getPayStatus();
+
+                if (PayStatusEnum.UNPAID.getCode().equals(payStatus)) {
+                    // 调用退款
+                    executeOrderRefund(orderInfo, orderPaymentDetail);
+
+                    throw new OrderBizException(OrderErrorCodeEnum.ORDER_CANCEL_PAY_CALLBACK_ERROR);
+                } else if (PayStatusEnum.PAID.getCode().equals(payStatus)) {
+                    if (payType.equals(orderPaymentDetail.getPayType())) {
+                        throw new OrderBizException(OrderErrorCodeEnum.ORDER_CANCEL_PAY_CALLBACK_PAY_TYPE_NO_SAME_ERROR);
+                    } else {
+                        throw new OrderBizException(OrderErrorCodeEnum.ORDER_CANCEL_PAY_CALLBACK_PAY_TYPE_NO_SAME_ERROR);
+                    }
+                }else {
+                    // 如果订单状态不是取消状态
+                    if (PayStatusEnum.PAID.getCode().equals(orderPaymentDetail.getPayStatus())){
+                        if (payType.equals(orderPaymentDetail.getPayType())){
+                            return;
+                        }
+                        // 调用退款
+                        executeOrderRefund(orderInfo,orderPaymentDetail);
+                        throw new OrderBizException(OrderErrorCodeEnum.ORDER_CANCEL_PAY_CALLBACK_REPEAT_ERROR);
+                    }
+                }
+            }
         }
-
-
-
 
         }finally {
             redisLock.unLock(lockKey);
@@ -295,6 +320,21 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
 
 
+    }
+    /***
+     * @description: 进行订单退款
+     * @param orderInfo 订单信息
+     * @param   orderPaymentDetail 订单支付详情
+     * @return  void
+     * @author Long
+     * @date: 2022/1/18 16:15
+     */
+    private void executeOrderRefund(OrderInfoDO orderInfo, OrderPaymentDetailDO orderPaymentDetail) {
+        PayRefundRequest payRefundRequest = new PayRefundRequest();
+        payRefundRequest.setOrderId(orderInfo.getOrderId());
+        payRefundRequest.setRefundAmount(orderPaymentDetail.getPayAmount());
+        payRefundRequest.setOutTradeNo(orderPaymentDetail.getOutTradeNo());
+        payApi.executeRefund(payRefundRequest);
     }
 
     /**
@@ -306,10 +346,12 @@ public class OrderInfoServiceImpl implements OrderInfoService {
      */
     private void sendPaidOrderSuccessMessage(OrderInfoDO orderInfo) {
         String orderId = orderInfo.getOrderId();
+        PaidOrderSuccessMessage paidOrderSuccessMessage = new PaidOrderSuccessMessage();
 
-        PaidOrderSuccessMessage paidOrderSuccessMessage
+        paidOrderSuccessMessage.setOrderId(orderId);
 
-
+        String msgJson = JSON.toJSONString(paidOrderSuccessMessage);
+        defaultProducer.sendMessage(RocketMQConstant.PAID_ORDER_SUCCESS_TOPIC,msgJson,"订单已完成支付");
     }
 
     /** 
@@ -324,7 +366,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     private void updateOrderStatusPaid(PayCallbackRequest payCallbackRequest, OrderInfoDO orderInfo, OrderPaymentDetailDO orderPaymentDetail) {
 
         // 主单信息
-        String orderId = orderInfo.getOrderId();
+        String orderId = payCallbackRequest.getOrderId();
         // 预支付订单状态
         Integer preOrderStatus = orderInfo.getOrderStatus();
         orderInfo.setOrderStatus(OrderStatusEnum.PAID.getCode());
@@ -372,7 +414,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
                 //更新子订单的支付明细状态
                 String subOrderId = suborderInfo.getOrderId();
 
-                OrderPaymentDetailDO subOrderPaymentDetail = orderPaymentDetailDao.getPaymentDetailByOrderId(orderId);
+                OrderPaymentDetailDO subOrderPaymentDetail = orderPaymentDetailDao.getPaymentDetailByOrderId(subOrderId);
 
                 if(!ObjectUtils.isEmpty(subOrderPaymentDetail)){
                     subOrderPaymentDetail.setPayStatus(OrderStatusEnum.PAID.getCode());
@@ -380,7 +422,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
                 }
                 // 新增订单状态变更日志
                 OrderOperateLogDO subOrderOperateLog = new OrderOperateLogDO();
-                subOrderOperateLog.setOrderId(orderId);
+                subOrderOperateLog.setOrderId(subOrderId);
                 subOrderOperateLog.setOperateType(OrderOperateTypeEnum.PAID_ORDER.getCode());
                 subOrderOperateLog.setPreStatus(subOrderStatus);
                 subOrderOperateLog.setCurrentStatus(OrderStatusEnum.PAID.getCode());
@@ -390,10 +432,6 @@ public class OrderInfoServiceImpl implements OrderInfoService {
             });
 
         }
-
-
-
-
 
 
     }
