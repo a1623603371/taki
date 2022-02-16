@@ -79,10 +79,10 @@ public class NewOrderBuilder {
         orderInfo.setOrderId(createOrderRequest.getOrderId());
         orderInfo.setParentOrderId(null);
         orderInfo.setBusinessOrderId(null);
+        orderInfo.setCannelTime(null);
         orderInfo.setOrderType(OrderTypeEnum.NORMAL.getCode());
         orderInfo.setOrderStatus(OrderStatusEnum.CREATED.getCode());
         orderInfo.setCannelType(null);
-        orderInfo.setCannelTime(null);
         orderInfo.setSellerId(createOrderRequest.getSellerId());
         orderInfo.setUserId(createOrderRequest.getUserId());
 

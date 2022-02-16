@@ -4,8 +4,11 @@ import com.taki.common.utlis.ResponseData;
 import com.taki.order.api.OrderApi;
 import com.taki.order.domian.dto.CreateOrderDTO;
 import com.taki.order.domian.dto.GenOrderIdDTO;
+import com.taki.order.domian.dto.PrePayOrderDTO;
 import com.taki.order.domian.request.CreateOrderRequest;
 import com.taki.order.domian.request.GenOrderIdRequest;
+import com.taki.order.domian.request.PayCallbackRequest;
+import com.taki.order.domian.request.PrePayOrderRequest;
 import com.taki.order.exception.OrderBizException;
 import com.taki.order.exception.OrderErrorCodeEnum;
 import com.taki.order.service.OrderInfoService;
@@ -60,6 +63,37 @@ public class OrderApiImpl implements OrderApi {
         }catch (OrderBizException e){
             log.error("biz error",e);
             return ResponseData.error(e.getErrorCode(),e.getErrorMessage());
+        }catch (Exception e){
+            log.error("system error",e);
+            return ResponseData.error(e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseData<PrePayOrderDTO> prePayOrder(PrePayOrderRequest payOrderRequest) {
+
+            try {
+                PrePayOrderDTO prePayOrderDTO = orderInfoService.preOrder(payOrderRequest);
+                return ResponseData.success(prePayOrderDTO);
+            }catch (OrderBizException e){
+                log.error("biz error",e);
+                return  ResponseData.error(e.getErrorCode(),e.getErrorMessage());
+            }catch (Exception e){
+                log.error("system error",e);
+                return ResponseData.error(e.getMessage());
+            }
+
+    }
+
+    @Override
+    public ResponseData<Boolean> payCallback(PayCallbackRequest payCallbackRequest) {
+
+        try {
+            orderInfoService.payCallback(payCallbackRequest);
+            return ResponseData.success(true);
+        }catch (OrderBizException e){
+            log.error("biz error",e);
+            return  ResponseData.error(e.getErrorCode(),e.getErrorMessage());
         }catch (Exception e){
             log.error("system error",e);
             return ResponseData.error(e.getMessage());

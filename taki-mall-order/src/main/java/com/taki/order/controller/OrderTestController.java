@@ -4,8 +4,13 @@ import com.taki.common.utlis.ResponseData;
 import com.taki.order.api.OrderApi;
 import com.taki.order.domian.dto.CreateOrderDTO;
 import com.taki.order.domian.dto.GenOrderIdDTO;
+import com.taki.order.domian.dto.PrePayOrderDTO;
 import com.taki.order.domian.request.CreateOrderRequest;
 import com.taki.order.domian.request.GenOrderIdRequest;
+import com.taki.order.domian.request.PayCallbackRequest;
+import com.taki.order.domian.request.PrePayOrderRequest;
+import com.taki.pay.domian.dto.PayOrderDTO;
+import com.taki.pay.domian.rquest.PayOrderRequest;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +39,7 @@ public class OrderTestController {
     /**
      * @description: 生成订单Id
      * @param genOrderIdRequest 生成订单Id请求
-     * @return  结果
+     * @return  响应结果数据
      * @author Long
      * @date: 2022/1/14 17:30
      */
@@ -57,4 +62,31 @@ public class OrderTestController {
         return orderInfoService.createOrder(createOrderRequest);
     }
 
+
+    /**
+     * @description: 预支付
+     * @param payOrderRequest 预支付请求
+     * @return  响应结果数据
+     * @author Long
+     * @date: 2022/2/16 15:43
+     */
+    @PostMapping("/prepayOrder")
+    public ResponseData<PrePayOrderDTO> prepayOrder(@RequestBody PrePayOrderRequest payOrderRequest) {
+
+        return orderInfoService.prePayOrder(payOrderRequest);
+    }
+
+    /**
+     * @description: 支付回调
+     * @param payCallbackRequest 支付回调 请求
+     * @return  支付回调结果
+     * @author Long
+     * @date: 2022/2/16 16:03
+     */
+    @PostMapping("/payCallback")
+    public ResponseData<Boolean> payCallback(PayCallbackRequest payCallbackRequest){
+
+
+        return orderInfoService.payCallback(payCallbackRequest);
+    }
 }

@@ -109,8 +109,6 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     @Autowired
     private OrderPaymentDetailDao orderPaymentDetailDao;
 
-
-
     @Autowired
     private OrderNoManager orderNoManager;
 

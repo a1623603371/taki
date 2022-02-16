@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taki.inventory.mapper.ProductStockMapper">
+
+    <resultMap id="BaseResultMap" type="com.taki.inventory.domain.entity.ProductStockDO">
+
+        <id column="id" property="id"/>
+        <result column="sku_code" property="skuCode"/>
+        <result column="sale_stock_quantity" property="saleStockQuantity"/>
+        <result column="locked_stock_quantity" property="lockedStockQuantity"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+    
+
+
+</mapper>

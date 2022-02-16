@@ -26,6 +26,7 @@
             <exclusions>
             </exclusions>
         </dependency>
+
         <!--风控API-->
         <dependency>
             <groupId>com.taki</groupId>
@@ -39,12 +40,14 @@
             <artifactId>taki-mall-product-api</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+
         <!--营销API -->
         <dependency>
             <groupId>com.taki</groupId>
             <artifactId>taki-mall-market-api</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+
         <!--库存API-->
         <dependency>
             <groupId>com.taki</groupId>
@@ -70,6 +73,7 @@
             <artifactId>taki-mall-order-api</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+
         <!-- 引入seata整合分布式事务 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
