@@ -81,6 +81,12 @@ spring:
         allow: 127.0.0.1
         # 黑名单
         deny: 192.168.33.11
+
+#************ nacos 配置 *****************
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8084
 #***************Redis 配置**********************
   redis:
     host: 192.168.33.11
@@ -114,3 +120,18 @@ dubbo:
   provider:
     threads: 800
     actives: 200
+
+#***************rocketMq 配置********************
+rocketmq:
+  name-server: localhost:8091
+
+
+#**************SEATA 配置 **********************
+
+seata:
+  tx-service-group: taki-eshop-order-group
+  service:
+    grouplist:
+      taki-eshop-seata: 127.0.0.1:8091
+    vgroup-mapping:
+      taki-eshop-order-group: taki-eshop-seata

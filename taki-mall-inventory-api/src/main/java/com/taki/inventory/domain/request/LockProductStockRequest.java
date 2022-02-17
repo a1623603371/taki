@@ -59,7 +59,7 @@ public class LockProductStockRequest extends AbstractObject implements Serializa
      * @Date 2022/1/6 10:19
      * @Version 1.0
      */
-    @Data
+  @Data
   public  static class OrderItemRequest extends AbstractObject implements Serializable{
 
 

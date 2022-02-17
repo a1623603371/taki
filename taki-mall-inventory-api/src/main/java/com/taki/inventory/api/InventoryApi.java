@@ -2,6 +2,7 @@ package com.taki.inventory.api;
 
 import com.taki.common.utlis.ResponseData;
 import com.taki.inventory.domain.request.LockProductStockRequest;
+import com.taki.inventory.domain.request.ReleaseProductStockRequest;
 
 /**
  * @ClassName InventoryApi
@@ -21,4 +22,15 @@ public interface InventoryApi {
      * @date: 2022/1/6 10:18
      */
     ResponseData<Boolean> lockProductStock(LockProductStockRequest lockProductStockRequest);
+
+
+
+    /**
+     * @description:  取消订单 释放库存
+     * @param releaseProductStockRequest
+     * @return  com.taki.common.utlis.ResponseData<java.lang.Boolean>
+     * @author Long
+     * @date: 2022/2/17 10:28
+     */
+    ResponseData<Boolean> cancelOrderReleaseProductStock(ReleaseProductStockRequest releaseProductStockRequest);
 }
