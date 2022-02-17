@@ -1,6 +1,7 @@
 package com.taki.inventory.api;
 
 import com.taki.common.utlis.ResponseData;
+import com.taki.inventory.domain.request.CancelOrderReleaseProductStockRequest;
 import com.taki.inventory.domain.request.LockProductStockRequest;
 import com.taki.inventory.domain.request.ReleaseProductStockRequest;
 
@@ -32,5 +33,5 @@ public interface InventoryApi {
      * @author Long
      * @date: 2022/2/17 10:28
      */
-    ResponseData<Boolean> cancelOrderReleaseProductStock(ReleaseProductStockRequest releaseProductStockRequest);
+    ResponseData<Boolean> cancelOrderReleaseProductStock(CancelOrderReleaseProductStockRequest cancelOrderReleaseProductStockRequest);
 }

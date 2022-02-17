@@ -1,6 +1,7 @@
 package com.taki.inventory.api;
 
 import com.taki.common.utlis.ResponseData;
+import com.taki.inventory.domain.request.CancelOrderReleaseProductStockRequest;
 import com.taki.inventory.domain.request.LockProductStockRequest;
 import com.taki.inventory.domain.request.ReleaseProductStockRequest;
 import com.taki.inventory.exception.InventoryBizException;
@@ -41,10 +42,11 @@ public class InventoryApiImpl implements InventoryApi {
     }
 
     @Override
-    public ResponseData<Boolean> cancelOrderReleaseProductStock(ReleaseProductStockRequest releaseProductStockRequest) {
+    public ResponseData<Boolean> cancelOrderReleaseProductStock(CancelOrderReleaseProductStockRequest cancelOrderReleaseProductStockRequest) {
         try {
-            Boolean result = inventoryService.releaseProductStock(releaseProductStockRequest);
-            return ResponseData.success(result);
+        log.info("回滚 库存 ,orderId:{}",cancelOrderReleaseProductStockRequest.getOrderId());
+         //   Boolean result = inventoryService.releaseProductStock(releaseProductStockRequest);
+            return ResponseData.success(true);
         }catch (InventoryBizException e){
             log.error("biz error",e);
             return ResponseData.error(e.getErrorCode(),e.getErrorMessage());
