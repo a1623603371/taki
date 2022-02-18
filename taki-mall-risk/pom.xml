@@ -9,15 +9,15 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>taki-mall-product</artifactId>
+    <artifactId>taki-mall-risk</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
 
-
     <dependencies>
+
         <dependency>
             <groupId>com.taki</groupId>
             <artifactId>taki-mall-common</artifactId>
@@ -38,9 +38,10 @@
             </exclusions>
         </dependency>
 
+
         <dependency>
             <groupId>com.taki</groupId>
-            <artifactId>taki-mall-product-api</artifactId>
+            <artifactId>taki-mall-risk-api</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
