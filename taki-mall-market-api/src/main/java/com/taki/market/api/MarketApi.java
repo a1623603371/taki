@@ -5,6 +5,7 @@ import com.taki.market.domain.dto.CalculateOrderAmountDTO;
 import com.taki.market.domain.dto.UserCouponDTO;
 import com.taki.market.request.CalculateOrderAmountRequest;
 import com.taki.market.request.LockUserCouponRequest;
+import com.taki.market.request.ReleaseUserCouponRequest;
 import com.taki.market.request.UserCouponQuery;
 
 /**
@@ -37,9 +38,31 @@ public interface MarketApi {
 
 
     /**
+     * @description: 释放用户优惠券
+     * @param releaseUserCouponRequest 释放用户优惠券请求
+     * @return  处理结果
+     * @author Long
+     * @date: 2022/2/18 14:03
+     */
+    ResponseData<Boolean> releaseUserCoupon(ReleaseUserCouponRequest releaseUserCouponRequest);
+
+    /**
      *  查询用户优惠券
      * @param userCouponQuery 查询条件
      * @return
      */
     ResponseData<UserCouponDTO> queryUserCoupon(UserCouponQuery userCouponQuery);
+
+
+    /** 
+     * @description: 取消订单 释放已使用用户优惠券
+     * @param calculateOrderAmountRequest 取消订单 释放已使用用户优惠券 请求
+     * @return  com.taki.common.utlis.ResponseData<java.lang.Boolean>
+     * @author Long
+     * @date: 2022/2/18 14:08
+     */ 
+    ResponseData<Boolean>cancelOrderReleaseCoupon(CalculateOrderAmountRequest calculateOrderAmountRequest);
+
+
+
 }

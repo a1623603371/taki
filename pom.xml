@@ -32,6 +32,7 @@
         <module>taki-mall-address-api</module>
         <module>taki-mall-pay-api</module>
         <module>taki-mall-risk</module>
+        <module>taki-mall-market</module>
     </modules>
 
 

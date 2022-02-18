@@ -35,8 +35,7 @@ import com.taki.order.domian.dto.CreateOrderDTO;
 import com.taki.order.domian.dto.GenOrderIdDTO;
 import com.taki.order.domian.dto.OrderAmountDTO;
 import com.taki.order.domian.dto.PrePayOrderDTO;
-import com.taki.order.domian.request.PayCallbackRequest;
-import com.taki.order.domian.request.PrePayOrderRequest;
+import com.taki.order.domian.request.*;
 import com.taki.order.domin.entity.*;
 import com.taki.order.mq.producer.DefaultProducer;
 import com.taki.pay.api.PayApi;
@@ -44,8 +43,6 @@ import com.taki.pay.domian.dto.PayOrderDTO;
 import com.taki.pay.domian.rquest.PayOrderRequest;
 import com.taki.pay.domian.rquest.PayRefundRequest;
 import com.taki.product.domian.dto.OrderAmountDetailDTO;
-import com.taki.order.domian.request.CreateOrderRequest;
-import com.taki.order.domian.request.GenOrderIdRequest;
 import com.taki.order.enums.*;
 import com.taki.order.exception.OrderBizException;
 import com.taki.order.exception.OrderErrorCodeEnum;
@@ -319,6 +316,17 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
 
     }
+
+    @Override
+    public Boolean removeOrders(List<String> orderIds) {
+        return null;
+    }
+
+    @Override
+    public Boolean adjustDeliveryAddress(AdjustDeliveryAddressRequest adjustDeliveryAddressRequest) {
+        return null;
+    }
+
     /***
      * @description: 进行订单退款
      * @param orderInfo 订单信息
