@@ -108,6 +108,6 @@ public class CalculateOrderAmountDTO extends AbstractObject implements Serializa
         /**
          * 收费金额
          */
-        private Integer amount;
+        private BigDecimal amount;
     }
 }

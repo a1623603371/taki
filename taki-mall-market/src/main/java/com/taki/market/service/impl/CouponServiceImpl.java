@@ -11,7 +11,7 @@ import com.taki.market.exception.MarketBizException;
 import com.taki.market.exception.MarketErrorCodeEnum;
 import com.taki.market.request.LockUserCouponRequest;
 import com.taki.market.request.ReleaseUserCouponRequest;
-import com.taki.market.request.UserCouponQuery;
+import com.taki.market.domain.query.UserCouponQuery;
 import com.taki.market.service.CouponService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

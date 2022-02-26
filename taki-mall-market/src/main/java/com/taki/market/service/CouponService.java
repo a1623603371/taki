@@ -3,7 +3,7 @@ package com.taki.market.service;
 import com.taki.market.domain.dto.UserCouponDTO;
 import com.taki.market.request.LockUserCouponRequest;
 import com.taki.market.request.ReleaseUserCouponRequest;
-import com.taki.market.request.UserCouponQuery;
+import com.taki.market.domain.query.UserCouponQuery;
 
 /**
  * @ClassName CouponService

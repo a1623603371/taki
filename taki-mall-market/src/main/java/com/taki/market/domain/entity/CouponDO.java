@@ -6,6 +6,7 @@ import com.taki.common.domin.BaseEntity;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -53,7 +54,7 @@ public class CouponDO extends BaseEntity implements Serializable {
     /**
      * 抵扣价格
      */
-    private Integer amount;
+    private BigDecimal amount;
 
 
 

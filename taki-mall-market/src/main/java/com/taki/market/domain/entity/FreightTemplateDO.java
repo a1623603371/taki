@@ -5,6 +5,7 @@ import com.taki.common.domin.BaseEntity;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * @ClassName FreightTemplateDO
@@ -36,11 +37,14 @@ public class FreightTemplateDO extends BaseEntity implements Serializable {
     /**
      * 标注收费
      */
-    private Integer shippingAmount;
+    private BigDecimal shippingAmount;
 
 
     /**
      * 订单满多少则免运费
      */
-    private Integer conditionAmount;
+    private BigDecimal conditionAmount;
+
+
+    public static  final  String REGION_ID = "region_id";
 }

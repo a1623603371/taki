@@ -4,9 +4,10 @@ import com.taki.common.utlis.ResponseData;
 import com.taki.market.domain.dto.CalculateOrderAmountDTO;
 import com.taki.market.domain.dto.UserCouponDTO;
 import com.taki.market.request.CalculateOrderAmountRequest;
+import com.taki.market.request.CancelOrderReleaseUserCouponRequest;
 import com.taki.market.request.LockUserCouponRequest;
 import com.taki.market.request.ReleaseUserCouponRequest;
-import com.taki.market.request.UserCouponQuery;
+import com.taki.market.domain.query.UserCouponQuery;
 
 /**
  * @ClassName MarketApi
@@ -61,7 +62,7 @@ public interface MarketApi {
      * @author Long
      * @date: 2022/2/18 14:08
      */ 
-    ResponseData<Boolean>cancelOrderReleaseCoupon(CalculateOrderAmountRequest calculateOrderAmountRequest);
+    ResponseData<Boolean>cancelOrderReleaseCoupon(CancelOrderReleaseUserCouponRequest cancelOrderReleaseUserCouponRequest);
 
 
 

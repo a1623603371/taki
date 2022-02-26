@@ -1,4 +1,4 @@
-package com.taki.market.request;
+package com.taki.market.domain.query;
 
 import lombok.Data;
 

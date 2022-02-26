@@ -26,7 +26,7 @@ import com.taki.market.domain.dto.CalculateOrderAmountDTO;
 import com.taki.market.domain.dto.UserCouponDTO;
 import com.taki.market.request.CalculateOrderAmountRequest;
 import com.taki.market.request.LockUserCouponRequest;
-import com.taki.market.request.UserCouponQuery;
+import com.taki.market.domain.query.UserCouponQuery;
 import com.taki.order.bulider.FullOrderData;
 import com.taki.order.bulider.NewOrderBuilder;
 import com.taki.order.config.OrderProperties;
