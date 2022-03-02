@@ -113,6 +113,11 @@ public enum OrderStatusEnum {
         validStatus.remove(OUT_STOCK.code);
         return validStatus;
     }
-    
 
+
+    public static List<Integer> canRemoveStatus() {
+
+        return Lists.newArrayList(SIGNED.code, CANCELED.code, REFUSED.code, INVALID.code);
+
+    }
 }

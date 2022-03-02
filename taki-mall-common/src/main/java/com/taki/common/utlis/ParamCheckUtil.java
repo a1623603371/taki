@@ -160,10 +160,26 @@ public class ParamCheckUtil {
         }
     }
 
+    /** 
+     * @description: 检查 set 集合 最大数量
+     * @param setPram set 集合
+     * @param  maxSize 最大数量
+     * @param  baseErrorCodeEnum 错误信息
+     * @param  args 参数
+     * @return  void
+     * @author Long
+     * @date: 2022/2/26 19:20
+     */ 
+    public static  void  checkSetMaxSize(Set<?> setPram,Integer maxSize,BaseErrorCodeEnum baseErrorCodeEnum,Object... args){
+        if(!CollectionUtils.isEmpty(setPram) &&  setPram.size() > maxSize){
+            throw new ServiceException(baseErrorCodeEnum.getErrorCode(),baseErrorCodeEnum.getErrorMsg());
+        }
+
+    }
     /***
-     * @description: 对比两个set集合 求差
-     * @param intSet 对比 set 集合
-     * @param intSet2  被对比的set 集合
+     * @description: 去重
+     * @param intSet 去重 set 集合
+     * @param intSet2  被去重的set 集合
      * @return  boolean
      * @author Long
      * @date: 2022/1/2 21:09

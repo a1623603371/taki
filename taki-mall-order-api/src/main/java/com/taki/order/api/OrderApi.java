@@ -1,13 +1,11 @@
 package com.taki.order.api;
 
+import com.taki.common.page.PagingInfo;
 import com.taki.common.utlis.ResponseData;
-import com.taki.order.domian.dto.CreateOrderDTO;
-import com.taki.order.domian.dto.GenOrderIdDTO;
-import com.taki.order.domian.dto.PrePayOrderDTO;
-import com.taki.order.domian.request.CreateOrderRequest;
-import com.taki.order.domian.request.GenOrderIdRequest;
-import com.taki.order.domian.request.PayCallbackRequest;
-import com.taki.order.domian.request.PrePayOrderRequest;
+import com.taki.order.domian.dto.*;
+import com.taki.order.domian.query.OrderQuery;
+import com.taki.order.domian.request.RemoveOrderRequest;
+import com.taki.order.domian.request.*;
 
 
 /**
@@ -56,4 +54,32 @@ public interface OrderApi {
      * @date: 2022/2/16 16:05
      */
     ResponseData<Boolean> payCallback(PayCallbackRequest payCallbackRequest);
+
+    /**
+     * @description: 移除订单
+     * @param removeOrderRequest 移除订单 请求
+     * @return 移除订单信息
+     * @author Long
+     * @date: 2022/2/26 17:45
+     */
+    ResponseData<RemoveOrderDTO> removeOrder(RemoveOrderRequest removeOrderRequest);
+
+
+    /**
+     * @description:  调整订单地址
+     * @param adjustDeliveryAddressRequest 调整订单地址请求
+     * @return  调整订单地址请求结果
+     * @author Long
+     * @date: 2022/2/26 19:48
+     */
+    ResponseData<AdjustDeliveryAddressDTO> adjustDeliveryAddress(AdjustDeliveryAddressRequest adjustDeliveryAddressRequest);
+
+    /** 
+     * @description:  订单列表
+     * @param orderQuery 订单查询条件
+     * @return
+     * @author Long
+     * @date: 2022/3/2 22:08
+     */ 
+    ResponseData<PagingInfo<OrderListDTO>> listOrders(OrderQuery orderQuery);
 }

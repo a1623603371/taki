@@ -1,17 +1,14 @@
 package com.taki.order.controller;
 
+import com.taki.common.page.PagingInfo;
 import com.taki.common.utlis.ResponseData;
 import com.taki.order.api.OrderApi;
-import com.taki.order.domian.dto.CreateOrderDTO;
-import com.taki.order.domian.dto.GenOrderIdDTO;
-import com.taki.order.domian.dto.PrePayOrderDTO;
-import com.taki.order.domian.request.CreateOrderRequest;
-import com.taki.order.domian.request.GenOrderIdRequest;
-import com.taki.order.domian.request.PayCallbackRequest;
-import com.taki.order.domian.request.PrePayOrderRequest;
-import com.taki.pay.domian.dto.PayOrderDTO;
-import com.taki.pay.domian.rquest.PayOrderRequest;
+import com.taki.order.domian.dto.*;
+import com.taki.order.domian.query.OrderQuery;
+import com.taki.order.domian.request.RemoveOrderRequest;
+import com.taki.order.domian.request.*;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,6 +40,7 @@ public class OrderTestController {
      * @author Long
      * @date: 2022/1/14 17:30
      */
+    @ApiOperation("生成订单Id")
     @PostMapping("/genOrderId")
     public ResponseData<GenOrderIdDTO> genOrderId(@RequestBody GenOrderIdRequest genOrderIdRequest){
 
@@ -56,6 +54,7 @@ public class OrderTestController {
      * @author Long
      * @date: 2022/1/15 14:30
      */
+    @ApiOperation("创建订单")
     @PostMapping("/createOrder")
     public  ResponseData<CreateOrderDTO> createOrder(@RequestBody CreateOrderRequest createOrderRequest){
 
@@ -70,6 +69,7 @@ public class OrderTestController {
      * @author Long
      * @date: 2022/2/16 15:43
      */
+    @ApiOperation("预支付")
     @PostMapping("/prepayOrder")
     public ResponseData<PrePayOrderDTO> prepayOrder(@RequestBody PrePayOrderRequest payOrderRequest) {
 
@@ -83,10 +83,53 @@ public class OrderTestController {
      * @author Long
      * @date: 2022/2/16 16:03
      */
+    @ApiOperation("支付回调")
     @PostMapping("/payCallback")
-    public ResponseData<Boolean> payCallback(PayCallbackRequest payCallbackRequest){
+    public ResponseData<Boolean> payCallback(@RequestBody PayCallbackRequest payCallbackRequest){
 
 
         return orderInfoService.payCallback(payCallbackRequest);
+    }
+
+
+    /**
+     * @description: 移除订单
+     * @param removeOrderRequest 删除订单请求参数
+     * @return删除订单 信息
+     * @author Long
+     * @date: 2022/2/26 17:43
+     */
+    @ApiOperation("移除订单")
+    @PostMapping("/removeOrders")
+    public ResponseData<RemoveOrderDTO> removeOrder(@RequestBody RemoveOrderRequest removeOrderRequest){
+        return  orderInfoService.removeOrder(removeOrderRequest);
+    }
+
+    /** 
+     * @description:  调整订单地址
+     * @param adjustDeliveryAddressRequest 调整订单地址请求
+     * @return  调整订单地址请求结果
+     * @author Long
+     * @date: 2022/2/26 19:48
+     */
+    @ApiOperation("调整订单地址")
+    @PostMapping("/adjustDeliveryAddress")
+    public ResponseData<AdjustDeliveryAddressDTO>  adjustDeliveryAddress(@RequestBody AdjustDeliveryAddressRequest adjustDeliveryAddressRequest){
+
+        return orderInfoService.adjustDeliveryAddress(adjustDeliveryAddressRequest);
+    }
+
+    /**
+     * @description:  查询订单集合
+     * @param orderQuery 订单查询
+     * @return  订单集合
+     * @author Long
+     * @date: 2022/2/26 19:48
+     */
+    @ApiOperation("查询订单集合")
+    @PostMapping("/listOrders")
+    public  ResponseData<PagingInfo<OrderListDTO>> listOrders(@RequestBody OrderQuery orderQuery){
+
+        return orderInfoService.listOrders(orderQuery);
     }
 }

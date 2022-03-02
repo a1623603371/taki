@@ -47,4 +47,16 @@ public class OrderInfoDao extends BaseDAO<OrderInfoMapper, OrderInfoDO> {
         return this.list(new QueryWrapper<OrderInfoDO>().eq(OrderInfoDO.PARENT_ORDER_ID,orderId));
 
     }
+
+    /**
+     * @description: 根据订单id 集合查询 订单
+     * @param orderIds 订单id 集合
+     * @return  订单集合
+     * @author Long
+     * @date: 2022/2/26 19:28
+     */
+    public List<OrderInfoDO> listByOrderIds(List<String> orderIds) {
+
+        return this.listByIds(orderIds);
+    }
 }

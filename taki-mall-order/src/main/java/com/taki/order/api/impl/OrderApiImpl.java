@@ -1,14 +1,14 @@
 package com.taki.order.api.impl;
 
+import com.taki.common.page.PagingInfo;
+import com.taki.common.utlis.ParamCheckUtil;
 import com.taki.common.utlis.ResponseData;
 import com.taki.order.api.OrderApi;
-import com.taki.order.domian.dto.CreateOrderDTO;
-import com.taki.order.domian.dto.GenOrderIdDTO;
-import com.taki.order.domian.dto.PrePayOrderDTO;
-import com.taki.order.domian.request.CreateOrderRequest;
-import com.taki.order.domian.request.GenOrderIdRequest;
-import com.taki.order.domian.request.PayCallbackRequest;
-import com.taki.order.domian.request.PrePayOrderRequest;
+import com.taki.order.constants.OrderConstants;
+import com.taki.order.domian.dto.*;
+import com.taki.order.domian.query.OrderQuery;
+import com.taki.order.domian.request.RemoveOrderRequest;
+import com.taki.order.domian.request.*;
 import com.taki.order.exception.OrderBizException;
 import com.taki.order.exception.OrderErrorCodeEnum;
 import com.taki.order.service.OrderInfoService;
@@ -16,6 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @ClassName OrderApiImpl
@@ -98,5 +102,56 @@ public class OrderApiImpl implements OrderApi {
             log.error("system error",e);
             return ResponseData.error(e.getMessage());
         }
+    }
+
+    @Override
+    public ResponseData<RemoveOrderDTO> removeOrder(RemoveOrderRequest removeOrderRequest) {
+
+        // 参数效验
+        Set<String> orderIdSet = removeOrderRequest.getOrderIds();
+
+        ParamCheckUtil.checkCollectionNonEmpty(orderIdSet,OrderErrorCodeEnum.ORDER_ID_IS_NULL);
+
+        ParamCheckUtil.checkSetMaxSize(orderIdSet, OrderConstants.REMOVE_ORDER_COUNT,OrderErrorCodeEnum
+        .COLLECTION_PARAM_CANNOT_BEYOND_MAX_SIZE,"orderIds",OrderConstants.REMOVE_ORDER_COUNT);
+        List<String> orderIds = new ArrayList<>(orderIdSet);
+        try {
+            Boolean result = orderInfoService.removeOrders(orderIds);
+            return ResponseData.success(new RemoveOrderDTO(result));
+        }catch (OrderBizException e){
+            log.error("biz error",e);
+            return ResponseData.error(e.getErrorCode(),e.getErrorMessage());
+        }catch (Exception e){
+            log.error("system error",e);
+            return ResponseData.error(e.getMessage());
+        }
+    }
+
+    @Override
+    public ResponseData<AdjustDeliveryAddressDTO> adjustDeliveryAddress(AdjustDeliveryAddressRequest adjustDeliveryAddressRequest) {
+        // 参数效应
+        try {
+            ParamCheckUtil.checkStringNonEmpty(adjustDeliveryAddressRequest.getOrderId(),OrderErrorCodeEnum.ORDER_ID_IS_NULL);
+
+            // 执行调整 订单配送地址逻辑
+           Boolean result =   orderInfoService.adjustDeliveryAddress(adjustDeliveryAddressRequest);
+
+           return ResponseData.success(new AdjustDeliveryAddressDTO(result));
+        }catch (OrderBizException e){
+            log.error("biz error",e);
+            return ResponseData.error(e.getErrorCode(),e.getErrorMessage());
+        }catch (Exception e){
+            log.error("system error",e);
+            return ResponseData.error(e.getMessage());
+        }
+
+
+
+    }
+
+    @Override
+    public ResponseData<PagingInfo<OrderListDTO>> listOrders(OrderQuery orderQuery) {
+        // 参数效应
+        return null;
     }
 }

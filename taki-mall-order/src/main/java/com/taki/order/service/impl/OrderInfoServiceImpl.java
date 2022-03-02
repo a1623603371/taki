@@ -31,10 +31,7 @@ import com.taki.order.bulider.FullOrderData;
 import com.taki.order.bulider.NewOrderBuilder;
 import com.taki.order.config.OrderProperties;
 import com.taki.order.dao.*;
-import com.taki.order.domian.dto.CreateOrderDTO;
-import com.taki.order.domian.dto.GenOrderIdDTO;
-import com.taki.order.domian.dto.OrderAmountDTO;
-import com.taki.order.domian.dto.PrePayOrderDTO;
+import com.taki.order.domian.dto.*;
 import com.taki.order.domian.request.*;
 import com.taki.order.domin.entity.*;
 import com.taki.order.mq.producer.DefaultProducer;
@@ -319,13 +316,64 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
     @Override
     public Boolean removeOrders(List<String> orderIds) {
+        List<OrderInfoDO> orderInfos = orderInfoDao.listByOrderIds(orderIds);
+
+        if (ObjectUtils.isEmpty(orderInfos) || orderInfos.isEmpty()){
+            return  true;
+        }
+        //  效验订单是否可以移除
+        orderInfos.forEach(orderInfoDO -> {
+            if (!canRemove(orderInfoDO)){
+                throw new OrderBizException(OrderErrorCodeEnum.ORDER_CANNOT_REMOVE);
+            }
+        });
+
         return null;
+    }
+    
+    /** 
+     * @description:
+     * @param orderInfoDO
+     * @return  boolean
+     * @author Long
+     * @date: 2022/2/26 19:33
+     */ 
+    private boolean canRemove(OrderInfoDO orderInfoDO) {
+        return OrderStatusEnum.canRemoveStatus().contains(orderInfoDO.getOrderStatus()) &&  DeleteStatusEnum.NO.getCode().equals(orderInfoDO.getDeleteStatus());
     }
 
     @Override
     public Boolean adjustDeliveryAddress(AdjustDeliveryAddressRequest adjustDeliveryAddressRequest) {
-        return null;
+        // 1.根据 id 查询订单
+    OrderInfoDO orderInfo = orderInfoDao.getByOrderId(adjustDeliveryAddressRequest.getOrderId());
+    ParamCheckUtil.checkObjectNonNull(orderInfo,OrderErrorCodeEnum.ORDER_NOT_FOUND);
+
+    // 2效验 订单 是否 未出库
+        if (!OrderStatusEnum.unOutStockStatus().contains(orderInfo.getOrderStatus())){
+            throw new OrderBizException(OrderErrorCodeEnum.ORDER_NOT_ALLOW_TO_ADJUST_ADDRESS);
+        }
+     // 3 查询订单配送信息
+
+        OrderDeliveryDetailDO orderDeliveryDetail = orderDeliveryDetailDao.getByOrderId(orderInfo.getOrderId());
+
+        if (ObjectUtils.isEmpty(orderDeliveryDetail)){
+            throw new OrderBizException(OrderErrorCodeEnum.ORDER_DELIVERY_NOT_FOUND);
+        }
+
+        // 4. 效验 配送信息是否已经被修改
+
+        if (orderDeliveryDetail.getModifyAddressCount() > 0){
+            throw  new OrderBizException(OrderErrorCodeEnum.ORDER_DELIVERY_ADDRESS_HAS_BEEN_ADJUSTED);
+        }
+
+        // 5.更新订单配送订单
+
+       Boolean result =   orderDeliveryDetailDao.updateDeliveryAddress(orderDeliveryDetail.getId(),orderDeliveryDetail.getModifyAddressCount(),adjustDeliveryAddressRequest);
+
+        return result;
     }
+
+
 
     /***
      * @description: 进行订单退款
