@@ -1,21 +1,27 @@
 package com.taki.order.service.impl;
 
+import cn.hutool.db.sql.Order;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.taki.common.page.PagingInfo;
+import com.taki.common.utlis.ExJsonUtil;
 import com.taki.common.utlis.ParamCheckUtil;
-import com.taki.order.dao.OrderInfoDao;
-import com.taki.order.domain.dto.OrderDetailDTO;
-import com.taki.order.domain.dto.OrderListDTO;
+import com.taki.order.bulider.OrderDetailBuilder;
+import com.taki.order.dao.*;
+import com.taki.order.domain.dto.*;
+import com.taki.order.domain.entity.*;
 import com.taki.order.domain.query.OrderQuery;
-import com.taki.order.domain.dto.OrderListQueryDTO;
 import com.taki.order.enums.BusinessIdentifierEnum;
 import com.taki.order.enums.OrderStatusEnum;
 import com.taki.order.enums.OrderTypeEnum;
 import com.taki.order.exception.OrderErrorCodeEnum;
+import com.taki.order.service.AfterSaleQueryService;
 import com.taki.order.service.OrderQueryService;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.stylesheets.LinkStyle;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -31,6 +37,31 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
     @Autowired
     private OrderInfoDao orderInfoDao;
+
+    @Autowired
+    private OrderItemDao orderItemDao;
+
+    @Autowired
+    private OrderAmountDetailDao orderAmountDetailDao;
+
+    @Autowired
+    private OrderDeliveryDetailDao orderDeliveryDetailDao;
+
+    @Autowired
+    private OrderPaymentDetailDao orderPaymentDetailDao;
+
+    @Autowired
+    private OrderAmountDao orderAmountDao;
+
+    @Autowired
+    private OrderOperateLogDao orderOperateLogDao;
+
+    @Autowired
+    private OrderSnapshotDao orderSnapshotDao;
+
+
+    @Autowired
+    private AfterSaleQueryService afterSaleQueryService;
 
     @Override
     public void checkQueryParam(OrderQuery query) {
@@ -114,12 +145,67 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         // 2查询
         Page<OrderListDTO> page =  orderInfoDao.listByPage(orderListQuery);
 
-
-        return null;
+        // 3.转化
+        return PagingInfo.toResponse(page.getRecords(), page.getTotal(),(int)page.getCurrent(),(int)page.getSize());
     }
 
     @Override
     public OrderDetailDTO orderDetail(String orderId) {
-        return null;
+        // 查询订单
+        OrderInfoDO orderInfo = orderInfoDao.getByOrderId(orderId);
+
+        if (ObjectUtils.isEmpty(orderInfo)){
+            return null;
+        }
+
+        //2.查询订单条目
+        List<OrderItemDO> orderItems = orderItemDao.listByOrderId(orderId);
+
+        // 3.查询订单费用明细
+        List<OrderAmountDetailDO> orderAmountDetails = orderAmountDetailDao.listByOrderId(orderId);
+
+        //4.查询订单配送信息
+        OrderDeliveryDetailDO orderDeliveryDetail = orderDeliveryDetailDao.getByOrderId(orderId);
+
+        //5.查询订单 支付明细
+        List<OrderPaymentDetailDO> orderPaymentDetails = orderPaymentDetailDao.listByOrderId(orderId);
+
+        // 6. 查询订单费用类型
+        List<OrderAmountDO> orderAmounts = orderAmountDao.listByOrderId(orderId);
+
+        // 7. 查询订单操作日志
+        List<OrderOperateLogDO> orderOperateLogs = orderOperateLogDao.listByOrderId(orderId);
+
+        // 8. 查询订单快照
+        List<OrderSnapshotDO> orderSnapshots = orderSnapshotDao.listByOrderId(orderId);
+
+        // 9. 查询缺品退款信息
+        List<OrderLackItemDTO> lackItems = null;
+
+        if (isLack(orderInfo)){
+            lackItems = afterSaleQueryService.getOrderLackItemInfo(orderId);
+        }
+
+
+        //10.构造返参
+        return new OrderDetailBuilder()
+                .orderInfo(orderInfo)
+                .orderItems(orderItems)
+                .orderAmountDetails(orderAmountDetails)
+                .orderDeliveryDetail(orderDeliveryDetail)
+                .orderPaymentDetail(orderPaymentDetails)
+                .orderAmounts(orderAmounts)
+                .orderOperateLogs(orderOperateLogs)
+                .orderSnapshots(orderSnapshots)
+                .lackItems(lackItems).build();
+    }
+
+    private boolean isLack(OrderInfoDO orderInfo) {
+        OrderExtJsonDTO orderExtJson = ExJsonUtil.parseJson(orderInfo.getExtJson(),OrderExtJsonDTO.class);
+
+        if (null != orderExtJson){
+            return orderExtJson.getLackFlag();
+        }
+        return false;
     }
 }

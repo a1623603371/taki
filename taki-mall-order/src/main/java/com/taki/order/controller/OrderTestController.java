@@ -3,6 +3,7 @@ package com.taki.order.controller;
 import com.taki.common.page.PagingInfo;
 import com.taki.common.utlis.ResponseData;
 import com.taki.order.api.OrderApi;
+import com.taki.order.api.OrderQueryApi;
 import com.taki.order.domain.dto.*;
 import com.taki.order.domain.query.OrderQuery;
 import com.taki.order.domain.request.RemoveOrderRequest;
@@ -11,10 +12,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @ClassName OrderTestController
@@ -32,6 +30,10 @@ public class OrderTestController {
 
     @Autowired
     private OrderApi orderInfoService;
+
+
+    @Autowired
+    private OrderQueryApi orderQueryApi;
 
     /**
      * @description: 生成订单Id
@@ -130,6 +132,33 @@ public class OrderTestController {
     @PostMapping("/listOrders")
     public  ResponseData<PagingInfo<OrderListDTO>> listOrders(@RequestBody OrderQuery orderQuery){
 
-        return orderInfoService.listOrders(orderQuery);
+        return orderQueryApi.listOrders(orderQuery);
     }
+
+    /**
+     * @description:  查询订单详情
+     * @param orderId 订单iD
+     * @return  订单详情
+     * @author Long
+     * @date: 2022/3/3 23:21
+     */
+    @ApiOperation("订单详情")
+    @PostMapping("/listOrders")
+    public ResponseData<OrderDetailDTO> orderDetail(@RequestParam("orderId") String orderId){
+
+        return orderQueryApi.orderDetail(orderId);
+    }
+
+    /** 
+     * @description: 触发订单发货出库事件
+     * @param event
+     * @return  com.taki.common.utlis.ResponseData<java.lang.Boolean>
+     * @author Long
+     * @date: 2022/3/3 23:25
+
+    @ApiOperation("触发订单发货出库事件")
+    @PostMapping("/triggerOrderOutStockWmsEvent")
+    public ResponseData<Boolean> triggerOrderOutStockWmsEvent(@RequestBody OrderOutStockWmsEvent  event){
+
+    }*/
 }

@@ -74,12 +74,4 @@ public interface OrderApi {
      */
     ResponseData<AdjustDeliveryAddressDTO> adjustDeliveryAddress(AdjustDeliveryAddressRequest adjustDeliveryAddressRequest);
 
-    /** 
-     * @description:  订单列表
-     * @param orderQuery 订单查询条件
-     * @return
-     * @author Long
-     * @date: 2022/3/2 22:08
-     */ 
-    ResponseData<PagingInfo<OrderListDTO>> listOrders(OrderQuery orderQuery);
 }

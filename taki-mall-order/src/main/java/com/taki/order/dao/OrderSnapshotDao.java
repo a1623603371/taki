@@ -1,8 +1,11 @@
 package com.taki.order.dao;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.taki.common.BaseDAO;
 import com.taki.order.domain.entity.OrderSnapshotDO;
 import com.taki.order.mapper.OrderSnapshotMapper;
+
+import java.util.List;
 
 /**
  * @ClassName OrderSnapshotDao
@@ -12,4 +15,9 @@ import com.taki.order.mapper.OrderSnapshotMapper;
  * @Version 1.0
  */
 public class OrderSnapshotDao extends BaseDAO<OrderSnapshotMapper, OrderSnapshotDO> {
+
+    public List<OrderSnapshotDO> listByOrderId(String orderId) {
+
+        return this.list(new QueryWrapper<OrderSnapshotDO>().eq(OrderSnapshotDO.ORDER_ID,orderId));
+    }
 }

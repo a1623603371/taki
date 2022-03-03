@@ -4,6 +4,8 @@ import com.taki.common.core.AbstractObject;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
@@ -39,12 +41,18 @@ public class OrderDetailDTO extends AbstractObject implements Serializable {
     /**
      * 订单配送 信息表
      */
-    private List<OrderDeliverDetailDTO> orderDeliverDetail;
+    private OrderDeliverDetailDTO orderDeliverDetail;
+
+
+    /**
+     * 订单支付信息
+     */
+    private List<OrderPaymentDetailDTO> orderPaymentDetails;
 
     /**
      * 费用类型
      */
-    private Map<Integer,Integer> orderAmounts;
+    private Map<Integer, BigDecimal> orderAmounts;
 
     /**
      * 订单操作日志

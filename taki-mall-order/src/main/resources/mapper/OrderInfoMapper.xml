@@ -64,9 +64,81 @@
                 AND o.business_identifier = #{query.businessIdentifier}
             </if>
 
-
+            <if test="query.orderTypes != null  and query.orderTypes.size != 0">
+                <foreach collection="query.orderTypes" item="type"open = "AND  o.order_type in (' close = ')"separator=",">
+                    #{type}
+                </foreach>
+            </if>
+            <if test='query.orderIds != null and query.orderIds.size !=0'>
+                <foreach collection='query.orderIds' item='orderId' open=' AND o.order_id in (' close=')' separator=','>
+                    #{orderId}
+                </foreach>
+            </if>
+            <if test='query.sellerIds != null and query.sellerIds.size !=0'>
+                <foreach collection='query.sellerIds' item='sellerId' open=' AND o.seller_id in (' close=')' separator=','>
+                    #{sellerId}
+                </foreach>
+            </if>
+            <if test='query.parentOrderIds != null and query.parentOrderIds.size !=0'>
+                <foreach collection='query.parentOrderIds' item='parentOrderId' open=' AND o.parent_order_id in (' close=')' separator=','>
+                    #{parentOrderId}
+                </foreach>
+            </if>
+            <if test='query.orderStatus != null and query.orderStatus.size !=0'>
+                <foreach collection='query.orderStatus' item='orderStatus' open=' AND o.order_status in (' close=')' separator=','>
+                    #{orderStatus}
+                </foreach>
+            </if>
+            <if test='query.userIds != null and query.userIds.size !=0'>
+                <foreach collection='query.userIds' item='userId' open=' AND o.user_id in (' close=')' separator=','>
+                    #{userId}
+                </foreach>
+            </if>
+            <if test='query.receiverPhones != null and query.receiverPhones.size !=0'>
+                <foreach collection='query.receiverPhones' item='receiverPhone' open=' AND delivery.receiver_phone in (' close=')' separator=','>
+                    #{receiverPhone}
+                </foreach>
+            </if>
+            <if test='query.receiverNames != null and query.receiverNames.size !=0'>
+                <foreach collection='query.receiverNames' item='receiverName' open=' AND delivery.receiver_name in (' close=')' separator=','>
+                    #{receiverName}
+                </foreach>
+            </if>
+            <if test='query.tradeNos != null and query.tradeNos.size !=0'>
+                <foreach collection='query.tradeNos' item='tradeNo' open=' AND pay.out_trade_no in (' close=')' separator=','>
+                    #{tradeNo}
+                </foreach>
+            </if>
+            <if test='query.skuCodes != null and query.skuCodes.size !=0'>
+                <foreach collection='query.skuCodes' item='skuCode' open=' AND item.sku_code in (' close=')' separator=','>
+                    #{skuCode}
+                </foreach>
+            </if>
+            <if test='query.productNames != null and query.productNames.size !=0'>
+                <foreach collection='query.productNames' item='productName' open=' AND item.product_name in (' close=')' separator=','>
+                    #{productName}
+                </foreach>
+            </if>
+            <if test='query.createdTimeInterval != null and query.createdTimeInterval.left != null'>
+                AND DATE_FORMAT(o.gmt_create,'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(#{query.createdTimeInterval.left},'%Y-%m-%d %H:%i:%S')
+            </if>
+            <if test='query.createdTimeInterval != null and query.createdTimeInterval.right != null'>
+                AND DATE_FORMAT(o.gmt_create,'%Y-%m-%d %H:%i:%S') <![CDATA[<=]]> DATE_FORMAT(#{query.createdTimeInterval.right},'%Y-%m-%d %H:%i:%S')
+            </if>
+            <if test='query.payTimeInterval != null and query.payTimeInterval.left != null'>
+                AND DATE_FORMAT(o.pay_time,'%Y-%m-%d %H:%i:%S') >= DATE_FORMAT(#{query.payTimeInterval.left},'%Y-%m-%d %H:%i:%S')
+            </if>
+            <if test='query.payTimeInterval != null and query.payTimeInterval.right != null'>
+                AND DATE_FORMAT(o.pay_time,'%Y-%m-%d %H:%i:%S') <![CDATA[<=]]> DATE_FORMAT(#{query.payTimeInterval.right},'%Y-%m-%d %H:%i:%S')
+            </if>
+            <if test='query.payAmountInterval != null and query.payAmountInterval.left != null'>
+                AND o.pay_amount >= #{query.payAmountInterval.left}
+            </if>
+            <if test='query.payAmountInterval != null and query.payAmountInterval.right != null'>
+                AND o.pay_amount <![CDATA[<=]]> #{query.payAmountInterval.right}
+            </if>
         </where>
-
+        ORDER BY o.create_time DESC
 
     </select>
 

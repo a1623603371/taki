@@ -149,9 +149,4 @@ public class OrderApiImpl implements OrderApi {
 
     }
 
-    @Override
-    public ResponseData<PagingInfo<OrderListDTO>> listOrders(OrderQuery orderQuery) {
-        // 参数效应
-        return null;
-    }
 }
