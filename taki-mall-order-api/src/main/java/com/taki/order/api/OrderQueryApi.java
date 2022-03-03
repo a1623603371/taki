@@ -1,11 +1,10 @@
 package com.taki.order.api;
 
+import com.taki.common.page.PagingInfo;
 import com.taki.common.utlis.ResponseData;
-import com.taki.order.domian.dto.OrderDetailDTO;
-import com.taki.order.domian.dto.OrderListDTO;
-import com.taki.order.domian.query.OrderQuery;
-
-import java.util.List;
+import com.taki.order.domain.dto.OrderDetailDTO;
+import com.taki.order.domain.dto.OrderListDTO;
+import com.taki.order.domain.query.OrderQuery;
 
 /**
  * @ClassName OrderQueryApi
@@ -23,7 +22,7 @@ public interface OrderQueryApi {
      * @author Long
      * @date: 2022/3/2 22:12
      */ 
-    ResponseData<List<OrderListDTO>> listOrders(OrderQuery orderQuery);
+    ResponseData<PagingInfo<OrderListDTO>> listOrders(OrderQuery orderQuery);
 
 
     /***

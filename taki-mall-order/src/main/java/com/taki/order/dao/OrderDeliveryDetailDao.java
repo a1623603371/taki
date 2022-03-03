@@ -2,10 +2,8 @@ package com.taki.order.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.taki.common.BaseDAO;
-import com.taki.order.domian.request.AdjustDeliveryAddressRequest;
-import com.taki.order.domin.entity.OrderAutoNoDO;
-import com.taki.order.domin.entity.OrderDeliveryDetailDO;
-import com.taki.order.mapper.OrderAutoNoMapper;
+import com.taki.order.domain.request.AdjustDeliveryAddressRequest;
+import com.taki.order.domain.entity.OrderDeliveryDetailDO;
 import com.taki.order.mapper.OrderDeliveryDetailMapper;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;

@@ -1,6 +1,6 @@
 package com.taki.order.bulider;
 
-import com.taki.order.domin.entity.*;
+import com.taki.order.domain.entity.*;
 import lombok.Data;
 
 import java.util.List;

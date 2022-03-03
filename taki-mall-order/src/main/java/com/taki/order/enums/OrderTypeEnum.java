@@ -3,7 +3,9 @@ package com.taki.order.enums;
 import lombok.Getter;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @ClassName OrderTypeEnum
@@ -60,5 +62,15 @@ public enum OrderTypeEnum {
 
         }
         return null;
+    }
+
+    public static Set<Integer> allowableValues(){
+        Set<Integer> allowableValues = new HashSet<>(values().length);
+
+        for (BusinessIdentifierEnum businessIdentifierEnum : BusinessIdentifierEnum.values()) {
+
+            allowableValues.add(businessIdentifierEnum.getCode());
+        }
+        return allowableValues;
     }
 }

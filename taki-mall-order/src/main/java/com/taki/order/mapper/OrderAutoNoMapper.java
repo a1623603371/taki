@@ -2,7 +2,7 @@ package com.taki.order.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
-import com.taki.order.domin.entity.OrderAutoNoDO;
+import com.taki.order.domain.entity.OrderAutoNoDO;
 
 /**
  * @ClassName OrderAutoNoMapper

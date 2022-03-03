@@ -1,9 +1,8 @@
 package com.taki.order.dao;
 
 import com.taki.common.BaseDAO;
-import com.taki.order.domin.entity.OrderAmountDetailDO;
+import com.taki.order.domain.entity.OrderAmountDetailDO;
 import com.taki.order.mapper.OrderAmountDetailMapper;
-import com.taki.order.mapper.OrderAmountMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 

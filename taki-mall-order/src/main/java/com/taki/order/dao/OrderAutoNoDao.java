@@ -2,7 +2,7 @@ package com.taki.order.dao;
 
 import com.taki.common.BaseDAO;
 
-import com.taki.order.domin.entity.OrderAutoNoDO;
+import com.taki.order.domain.entity.OrderAutoNoDO;
 import com.taki.order.mapper.OrderAutoNoMapper;
 import org.springframework.stereotype.Repository;
 

@@ -92,7 +92,7 @@ public class ParamCheckUtil {
      * @author Long
      * @date: 2022/1/2 20:12
      */
-    public  static  void checkIntAllowableValues(Integer i, Set<Integer> allowableValues, BaseErrorCodeEnum errorCodeEnum,Object args){
+    public  static  void checkIntAllowableValues(Integer i, Set<Integer> allowableValues, BaseErrorCodeEnum errorCodeEnum,Object... args){
         if (Objects.nonNull(i) && !allowableValues.contains(i)){
             throw new ServiceException(errorCodeEnum.getErrorCode(),errorCodeEnum.getErrorMsg(),args);
         }

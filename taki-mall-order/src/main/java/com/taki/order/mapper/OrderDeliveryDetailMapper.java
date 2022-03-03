@@ -1,7 +1,7 @@
 package com.taki.order.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.taki.order.domin.entity.OrderDeliveryDetailDO;
+import com.taki.order.domain.entity.OrderDeliveryDetailDO;
 
 /**
  * @ClassName OrderDeliveryDetailMapper

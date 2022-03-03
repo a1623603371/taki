@@ -2,8 +2,7 @@ package com.taki.order.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.taki.common.BaseDAO;
-import com.taki.order.domin.entity.OrderInfoDO;
-import com.taki.order.domin.entity.OrderPaymentDetailDO;
+import com.taki.order.domain.entity.OrderPaymentDetailDO;
 import com.taki.order.mapper.OrderPaymentDetailMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;

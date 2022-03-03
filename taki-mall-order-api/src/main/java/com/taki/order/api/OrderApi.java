@@ -2,10 +2,10 @@ package com.taki.order.api;
 
 import com.taki.common.page.PagingInfo;
 import com.taki.common.utlis.ResponseData;
-import com.taki.order.domian.dto.*;
-import com.taki.order.domian.query.OrderQuery;
-import com.taki.order.domian.request.RemoveOrderRequest;
-import com.taki.order.domian.request.*;
+import com.taki.order.domain.dto.*;
+import com.taki.order.domain.query.OrderQuery;
+import com.taki.order.domain.request.RemoveOrderRequest;
+import com.taki.order.domain.request.*;
 
 
 /**

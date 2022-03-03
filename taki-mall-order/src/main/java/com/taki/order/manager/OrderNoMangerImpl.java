@@ -5,7 +5,7 @@ import com.taki.common.utlis.DateFormatUtils;
 import com.taki.common.utlis.NumberUtils;
 import com.taki.order.dao.OrderAutoNoDao;
 
-import com.taki.order.domin.entity.OrderAutoNoDO;
+import com.taki.order.domain.entity.OrderAutoNoDO;
 import com.taki.order.enums.OrderAutoTypeEnum;
 import com.taki.order.exception.OrderErrorCodeEnum;
 import lombok.extern.slf4j.Slf4j;

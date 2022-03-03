@@ -1,7 +1,7 @@
 package com.taki.order.dao;
 
 import com.taki.common.BaseDAO;
-import com.taki.order.domin.entity.OrderSnapshotDO;
+import com.taki.order.domain.entity.OrderSnapshotDO;
 import com.taki.order.mapper.OrderSnapshotMapper;
 
 /**

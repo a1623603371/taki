@@ -1,9 +1,9 @@
 package com.taki.order.service;
 
 import com.taki.common.page.PagingInfo;
-import com.taki.order.domian.dto.OrderDetailDTO;
-import com.taki.order.domian.dto.OrderListDTO;
-import com.taki.order.domian.query.OrderQuery;
+import com.taki.order.domain.dto.OrderDetailDTO;
+import com.taki.order.domain.dto.OrderListDTO;
+import com.taki.order.domain.query.OrderQuery;
 
 /**
  * @ClassName OrderQueryService

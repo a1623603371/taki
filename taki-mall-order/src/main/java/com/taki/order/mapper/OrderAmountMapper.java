@@ -2,7 +2,7 @@ package com.taki.order.mapper;
 
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.taki.order.domin.entity.OrderAmountDO;
+import com.taki.order.domain.entity.OrderAmountDO;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

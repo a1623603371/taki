@@ -1,9 +1,9 @@
 package com.taki.order.service;
 
-import com.taki.order.domian.dto.CreateOrderDTO;
-import com.taki.order.domian.dto.GenOrderIdDTO;
-import com.taki.order.domian.dto.PrePayOrderDTO;
-import com.taki.order.domian.request.*;
+import com.taki.order.domain.dto.CreateOrderDTO;
+import com.taki.order.domain.dto.GenOrderIdDTO;
+import com.taki.order.domain.dto.PrePayOrderDTO;
+import com.taki.order.domain.request.*;
 
 import java.util.List;
 

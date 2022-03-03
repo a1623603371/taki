@@ -1,10 +1,15 @@
 package com.taki.order.dao;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.taki.common.BaseDAO;
-import com.taki.order.domin.entity.OrderInfoDO;
+import com.taki.order.domain.dto.OrderListDTO;
+import com.taki.order.domain.dto.OrderListQueryDTO;
+import com.taki.order.domain.entity.OrderInfoDO;
 import com.taki.order.mapper.OrderInfoMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,7 +26,8 @@ import java.util.List;
 public class OrderInfoDao extends BaseDAO<OrderInfoMapper, OrderInfoDO> {
 
 
-
+    @Autowired
+    private OrderInfoMapper orderInfoMapper;
 
     /**
      * @description: 根据订单Id查询订单
@@ -58,5 +64,18 @@ public class OrderInfoDao extends BaseDAO<OrderInfoMapper, OrderInfoDO> {
     public List<OrderInfoDO> listByOrderIds(List<String> orderIds) {
 
         return this.listByIds(orderIds);
+    }
+
+    /**
+     * @description: 根据条件查询订单
+     * @param query 订单查询条件
+     * @return
+     * @author Long
+     * @date: 2022/3/3 17:26
+     */
+    public Page<OrderListDTO> listByPage(OrderListQueryDTO query) {
+        log.info("query = {}", JSONObject.toJSONString(query));
+        Page<OrderListDTO> page = new Page<>(query.getPageNo(),query.getPageSize());
+        return  orderInfoMapper.listByPage(page,query);
     }
 }

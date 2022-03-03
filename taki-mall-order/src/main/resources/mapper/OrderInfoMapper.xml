@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taki.order.mapper.OrderInfoMapper">
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.taki.order.domain.entity.OrderInfoDO">
+        <id column="id" property="id"/>
+        <result column="business_identifier" property="businessIdentifier"/>
+        <result column="order_id" property="orderId"/>
+        <result column="parent_order_id" property="parentOrderId"/>
+        <result column="business_order_id" property="businessOrderId"/>
+        <result column="order_type" property="orderType"/>
+        <result column="order_status" property="orderStatus"/>
+        <result column="cancel_type" property="cancelType"/>
+        <result column="cancel_time" property="cancelTime"/>
+        <result column="seller_id" property="sellerId"/>
+        <result column="user_id" property="userId"/>
+        <result column="pay_type" property="payType"/>
+        <result column="total_amount" property="totalAmount"/>
+        <result column="pay_amount" property="payAmount"/>
+        <result column="coupon_id" property="couponId"/>
+        <result column="pay_time" property="payTime"/>
+        <result column="user_remark" property="userRemark"/>
+        <result column="delete_status" property="deleteStatus"/>
+        <result column="comment_status" property="commentStatus"/>
+        <result column="ext_json" property="extJson"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, business_identifier, order_id, parent_order_id, business_order_id, order_type, order_status, cancel_type, cancel_time, seller_id, user_id, pay_type, total_amount, pay_amount, coupon_id, pay_time, cancel_deadline_time, seller_remark, user_remark, user_type, delete_status, comment_status, ext_json, create_time, update_time
+    </sql>
+
+    <select id="listByPage"  parameterType="com.taki.order.domain.dto.OrderListQueryDTO" resultType="com.taki.order.domain.dto.OrderListDTO">
+
+        SELECT
+        o.business_identifier  as  businessIdentifier,
+        o.order_id as orderId,
+        o.business_order_id as businessOrderId,
+        o.order_type as  orderType,
+        o.order_status as orderStatus,
+        o.seller_id as sellerId,
+        o.user_id as userId,
+        o.pay_type as payType,
+        o.coupon_id  as couponId,
+        o.pay_time as payTime,
+        o.pay_amount as payAmount,
+        o.user_remoark as userRemark,
+        o.comment_status as commentStatus,
+        item.product_img as productImg,
+        item.product_name as productName,
+        item.sku_code as skuCode,
+        item.sale_quantity as saleQuanity,
+        item.pay_amount as  payAmount
+        FROM  order_info as  o
+        LEFT JOIN  order_item as item on o.order_id = item.order_id
+        LEFT JOIN  order_payment_detail as pay on  o.order_id = pay.order_id
+        LEFT  JOIN  order_delivery_detail as delivery on o.order_id = delivery.order_id
+
+        <where>
+            o.delete_status = 0
+            <if test='query.businessIdentifier != null'>
+                AND o.business_identifier = #{query.businessIdentifier}
+            </if>
+
+
+        </where>
+
+
+    </select>
+
+</mapper>

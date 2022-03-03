@@ -95,7 +95,7 @@ public enum OrderStatusEnum {
      * @author Long
      * @date: 2022/1/6 11:59
      */ 
-    private static Set<Integer> allowableValues() {
+    public static Set<Integer> allowableValues() {
         Set<Integer> allowableValue = new HashSet<>(values().length);
 
         for (OrderStatusEnum orderStatusEnum : values()) {
