@@ -2,6 +2,7 @@ package com.taki.order.bulider;
 
 import com.taki.common.enums.AmountTypeEnum;
 import com.taki.common.enums.OrderOperateTypeEnum;
+import com.taki.common.enums.OrderStatusEnum;
 import com.taki.common.utlis.ObjectUtil;
 import com.taki.market.domain.dto.CalculateOrderAmountDTO;
 import com.taki.order.config.OrderProperties;

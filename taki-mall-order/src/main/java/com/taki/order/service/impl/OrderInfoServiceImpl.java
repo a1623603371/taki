@@ -10,6 +10,7 @@ import com.taki.common.constants.RocketMQConstant;
 import com.taki.common.core.CloneDirection;
 import com.taki.common.enums.AmountTypeEnum;
 import com.taki.common.enums.OrderOperateTypeEnum;
+import com.taki.common.enums.OrderStatusEnum;
 import com.taki.common.enums.PayTypeEnum;
 import com.taki.common.exception.ServiceException;
 import com.taki.common.message.PaidOrderSuccessMessage;

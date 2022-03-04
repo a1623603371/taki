@@ -1,6 +1,5 @@
 package com.taki.order.service.impl;
 
-import cn.hutool.db.sql.Order;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.taki.common.page.PagingInfo;
 import com.taki.common.utlis.ExJsonUtil;
@@ -11,7 +10,7 @@ import com.taki.order.domain.dto.*;
 import com.taki.order.domain.entity.*;
 import com.taki.order.domain.query.OrderQuery;
 import com.taki.order.enums.BusinessIdentifierEnum;
-import com.taki.order.enums.OrderStatusEnum;
+import com.taki.common.enums.OrderStatusEnum;
 import com.taki.order.enums.OrderTypeEnum;
 import com.taki.order.exception.OrderErrorCodeEnum;
 import com.taki.order.service.AfterSaleQueryService;
@@ -19,7 +18,6 @@ import com.taki.order.service.OrderQueryService;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.stylesheets.LinkStyle;
 
 import java.util.List;
 import java.util.Set;

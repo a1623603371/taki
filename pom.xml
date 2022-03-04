@@ -34,6 +34,7 @@
         <module>taki-mall-risk</module>
         <module>taki-mall-market</module>
         <module>taki-mall-fulfill-api</module>
+        <module>taki-mall-fulfill</module>
     </modules>
 
 

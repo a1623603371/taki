@@ -1,7 +1,6 @@
-package com.taki.order.enums;
+package com.taki.common.enums;
 
 import com.google.common.collect.Lists;
-import com.sun.org.apache.regexp.internal.RE;
 import lombok.Getter;
 
 import java.util.*;
