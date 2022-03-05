@@ -1,7 +1,13 @@
 package com.taki.order.controller;
 
+import com.alibaba.fastjson.JSONObject;
+import com.taki.common.enums.OrderStatusChangEnum;
 import com.taki.common.page.PagingInfo;
 import com.taki.common.utlis.ResponseData;
+import com.taki.fulfill.api.FulFillApi;
+import com.taki.fulfill.domain.evnet.OrderDeliveredWmsEvent;
+import com.taki.fulfill.domain.evnet.OrderOutStockWmsEvent;
+import com.taki.fulfill.domain.evnet.OrderSignedWmsEvent;
 import com.taki.order.api.OrderApi;
 import com.taki.order.api.OrderQueryApi;
 import com.taki.order.domain.dto.*;
@@ -11,6 +17,7 @@ import com.taki.order.domain.request.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,12 +35,16 @@ import org.springframework.web.bind.annotation.*;
 public class OrderTestController {
 
 
-    @Autowired
+    @DubboReference(version = "1.0.0",retries = 0)
     private OrderApi orderInfoService;
 
 
-    @Autowired
+    @DubboReference(version = "1.0.0",retries = 0)
     private OrderQueryApi orderQueryApi;
+
+
+    @DubboReference(version = "1.0.0",retries = 0)
+    private FulFillApi fulFillApi;
 
     /**
      * @description: 生成订单Id
@@ -149,16 +160,48 @@ public class OrderTestController {
         return orderQueryApi.orderDetail(orderId);
     }
 
-    /** 
+    /**
      * @description: 触发订单发货出库事件
-     * @param event
-     * @return  com.taki.common.utlis.ResponseData<java.lang.Boolean>
+     * @param event 订单发货出库事件
+     * @return  结果
      * @author Long
      * @date: 2022/3/3 23:25
-
+     */
     @ApiOperation("触发订单发货出库事件")
     @PostMapping("/triggerOrderOutStockWmsEvent")
-    public ResponseData<Boolean> triggerOrderOutStockWmsEvent(@RequestBody OrderOutStockWmsEvent  event){
+    public ResponseData<Boolean> triggerOrderOutStockWmsEvent(@RequestBody OrderOutStockWmsEvent event){
+        log.info("orderId={},event",event.getOrderId(), JSONObject.toJSONString(event));
 
-    }*/
+        return fulFillApi.triggerOrderWmsShipEvent(event.getOrderId(), OrderStatusChangEnum.ORDER_OUT_STOCKED,event);
+
+    }
+
+    /**
+     * @description: 触发订单发货出库事件
+     * @param event 订单发货出库事件
+     * @return  处理结果
+     * @author Long
+     * @date: 2022/3/3 23:25
+     */
+    @ApiOperation("触发订单发货出库事件")
+    @PostMapping("/triggerOrderDeliveredWmsEvent")
+    public  ResponseData<Boolean>  triggerOrderDeliveredWmsEvent (@RequestBody OrderDeliveredWmsEvent event){
+
+        return fulFillApi.triggerOrderWmsShipEvent(event.getOrderId(),OrderStatusChangEnum.ORDER_DELIVERED,event);
+    }
+
+    /**
+     * @description: 触发订单发货出库事件
+     * @param event 订单发货出库事件
+     * @return  处理结果
+     * @author Long
+     * @date: 2022/3/3 23:25
+     */
+    @ApiOperation("触发订单收货")
+    @PostMapping("/triggerOrderDeliveredWmsEvent")
+    public ResponseData<Boolean> triggerOrderSignedWmsEvent(@RequestBody OrderSignedWmsEvent event){
+        return fulFillApi.triggerOrderWmsShipEvent(event.getOrderId(),OrderStatusChangEnum.ORDER_SIGNED,event);
+    }
+
+
 }

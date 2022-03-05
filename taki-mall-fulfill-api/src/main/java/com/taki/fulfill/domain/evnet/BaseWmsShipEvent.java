@@ -18,7 +18,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BaseWmsShipEvent implements Serializable {
+public class BaseWmsShipEvent implements   Serializable {
 
 
     private static final long serialVersionUID = 3159934178756997759L;

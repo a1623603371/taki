@@ -19,7 +19,7 @@ public interface FulFillApi {
     /** 
      * @description:  接收订单履约
      * @param
-     * @return request
+     * @return request 接收订单履约请求参数
      *
      * @author Long
      * @date: 2022/3/4 10:51
@@ -29,7 +29,7 @@ public interface FulFillApi {
 
     /**
      * @description: 触发订单物流配送结果事件接口
-     * @param orderId 订单Id+
+     * @param orderId 订单Id
      * @param orderStatusChang 订单状态
      * @param event 物流结果事件
      * @return  结果
