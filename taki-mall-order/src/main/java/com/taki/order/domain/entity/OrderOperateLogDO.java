@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -24,6 +25,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @TableName("order_operate_log")
 @ApiModel(value = "OrderOperateLogDO对象", description = "订单操作⽇志表")
+@Builder
 public class OrderOperateLogDO extends BaseEntity implements Serializable{
 
     private static final long serialVersionUID = 1L;

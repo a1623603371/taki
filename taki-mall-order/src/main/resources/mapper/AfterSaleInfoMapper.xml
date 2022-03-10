@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.taki.order.mapper.AfterSaleInfoMapper">
+
+
+    <resultMap id="BaseResultMap" type="com.taki.order.domain.entity.AfterSaleInfoDO">
+        <id column="id" property="id"/>
+        <result column="business_identifier" property="businessIdentifier"/>
+        <result column="after_sale_id" property="afterSaleId"/>
+        <result column="order_id" property="orderId"/>
+        <result column="order_source_channel" property="orderSourceChannel"/>
+        <result column="user_id" property="userId"/>
+        <result column="after_sale_status" property="afterSaleStatus"/>
+        <result column="order_type" property="orderType"/>
+        <result column="apply_source" property="applySource"/>
+        <result column="apply_time" property="applyTime"/>
+        <result column="apply_reason_code" property="applyReasonCode"/>
+        <result column="apply_reason" property="applyReason"/>
+        <result column="review_time" property="reviewTime"/>
+        <result column="review_source" property="reviewSource"/>
+        <result column="review_time" property="reviewTime"/>
+        <result column="review_source" property="reviewSource"/>
+        <result column="review_reason_code" property="reviewReasonCode"/>
+        <result column="review_reason" property="reviewReason"/>
+        <result column="after_sale_type" property="afterSaleType"/>
+        <result column="after_sale_type_detail" property="afterSaleTypeDetail"/>
+        <result column="apply_refund_amount" property="applyRefundAmount"/>
+        <result column="real_refund_amount" property="realRefundAmount"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        , business_identifier, after_sale_id, order_id, order_source_channel, user_id, after_sale_status, order_type, apply_source,apply_time, apply_reason_code, apply_reason, review_time, review_source, review_reason_code, review_reason, after_sale_type, after_sale_type_detail, apply_refund_amount, real_refund_amount, remark,gmt_create, gmt_modified
+    </sql>
+
+    <select id="listByPage"  parameterType="com.taki.order.domain.dto.AfterSaleListQueryDTO" resultType="com.taki.order.domain.dto.AfterSaleOrderListDTO">
+        SELECT
+        a.after_sale_id  as afterSaleId,
+        a.business_identifier as businessIdentifier,
+        a.order_id as  orderId,
+        a.order_type as orderType,
+        a.user_id as  userId,
+        a.after_sale_status as  afterSaleStatus,
+        a.apply_source as applySource,
+        a.apply_time as applyTime,
+        a.apply_reason_code as applyReasonCode,
+        a.apply_reason as applyReason,
+        a.review_time as reviewTime,
+        a.review_reason as reviewReason,
+        a.remark as remark,
+        a.after_sale_type as afterSaleType,
+        a.after_sale_type_detail as afterSaleTypeDetail,
+        item.product_name as productName,
+        item.sku_code as skuCode,
+        item.retrun_quantity as retrunQuantity,
+        item.product_img as productImg,
+        item.origin_amount as originAmount,
+        item.apply_refund_amount as applyRefundAmount,
+        item.real_refund_amount as realRefundAmount,
+        FROM asfter_sale_info AS a
+        LEFT JOIN asfter_sale_item AS item ON a.after_sale_id = item.after_sale_id
+        LEFT JOIN asfter_sale_refund as refund ON a.after_sale_id = refund.after_sale_id
+        <where>
+            <if test="query.businessIdentifier != null">
+                AND a.business_identifier = #{query.businessIdentifier}
+            </if>
+
+            <if test="query.orderTypes != null and query.orderTypes != 0">
+                <foreach collection="query.orderTypes" item="type" open="AND a.order_type in (" close=")" separator=",">
+                    #{type}
+                </foreach>
+            </if>
+
+            <if test="query.afterSaleStatus != null and query.afterStatus != 0">
+                <foreach collection="query.afterSaleStatus" item="status" open="AND a.after_sale_status in (" close=")" separator=",">
+                    #{status}
+                </foreach>
+            </if>
+
+            <if test="query.applySources != null and query.applySources != 0">
+                <foreach collection="query.applySources" item="applySource" open="AND a.apply_source in (" close=")" separator=",">
+                    #{applySource}
+                </foreach>
+            </if>
+
+            <if test="query.afterSaleTypes != null and query.afterSaleTypes != 0">
+                <foreach collection="query.afterSaleTypes" item="afterSaleType" open="AND a.after_sale_type in (" close=")" separator=",">
+                    #{afterSaleType}
+                </foreach>
+            </if>
+
+            <if test="query.afterSaleIds != null and query.afterSaleIds != 0">
+                <foreach collection="query.afterSaleIds" item="afterSaleId" open="AND a.after_sale_id in (" close=")" separator=",">
+                    #{afterSaleId}
+                </foreach>
+            </if>
+
+            <if test="query.userIds != null and query.userIds != 0">
+                <foreach collection="query.userIds" item="userId" open="AND a.user_id in (" close=")" separator=",">
+                    #{userId}
+                </foreach>
+            </if>
+
+            <if test="query.orderIds != null and query.orderIds != 0">
+                <foreach collection="query.orderIds" item="orderId" open="AND order_id in (" close=")" separator=",">
+                    #{orderId}
+                </foreach>
+            </if>
+
+            <if test="query.skuCodes != null and query.skuCodes != 0">
+                <foreach collection="query.skuCodes" item="skuCode" open="AND sku_code in (" close=")" separator=",">
+                    #{skuCode}
+                </foreach>
+            </if>
+
+            <if test="query.createdTimeInterval != null and query.createdTimeInterval.left != null">
+                AND DATE_FORMAT(a.create_time,'%Y-%m-%d %H:%i:%S') >=
+                DATE_FORMAT(#{query.createdTimeInterval.left},'%Y-%m-%d %H:%i:%S')
+            </if>
+
+            <if test="query.createdTimeInterval != null and query.createdTimeInterval.right != null">
+                AND DATE_FORMAT(a.create_time,'%Y-%m-%d %H:%i:%S') <![CDATA[<=]]>
+                DATE_FORMAT(${query.createdTimeInterval.right},'%Y-%m-%d %H:%i:%S')
+            </if>
+
+            <if test="query.applyTimeInterval != null and query.applyTimeInterval.left != null">
+                AND DATE_FORMAT(a.apply_time,'%Y-%m-%d %H:%i:%S') >=
+                DATE_FORMAT(${query.applyTimeInterval.left},'%Y-%m-%d %H:%i:%S')
+            </if>
+
+            <if test="query.applyTimeInterval != null and query.createdTimeInterval.right != null">
+                AND DATE_FORMAT(a.apply_time,'%Y-%m-%d %H:%i:%S')<![CDATA[<=]]>
+                DATE_FORMAT(${query.applyTimeInterval.right},'%Y-%m-%d %H:%i:%S')
+            </if>
+
+
+            <if test="query.reviewTimeInterval != null and query.reviewInterval.left != null">
+                AND DATE_FORMAT(a.review_time,'%Y-%m-%d %H:%i:%S') >=
+                DATE_FORMAT(${query.reviewTimeInterval.left},'%Y-%m-%d %H:%i:%S')
+            </if>
+
+            <if test="query.reviewTimeInterval != null and query.reviewInterval.right != null">
+                AND DATE_FORMAT(a.review_time,'%Y-%m-%d %H:%i:%S') <![CDATA[<=]]>
+                DATE_FORMAT(${query.reviewTimeInterval.right},'%Y-%m-%d %H:%i:%S')
+            </if>
+
+            <if test="query.refundPayTimeInterval != null and query.reviewInterval.left != null">
+                AND DATE_FORMAT(a.refund_pay_time,'%Y-%m-%d %H:%i:%S') >=
+                DATE_FORMAT(${refundPayTimeInterval.left},'%Y-%m-%d %H:%i:%S')
+            </if>
+
+            <if test="query.refundPayTimeInterval != null and query.reviewInterval.right != null">
+                AND DATE_FORMAT(a.refund_pay_time,'%Y-%m-%d %H:%i:%S') <![CDATA[<=]]>
+                DATE_FORMAT(${query.refundPayTimeInterval.right},'%Y-%m-%d %H:%i:%S')
+            </if>
+
+            <if test='query.refundAmountInterval != null and query.refundAmountInterval.left != null'>
+                AND refund.refund_amount >= #{query.refundAmountInterval.left}
+            </if>
+            <if test='query.refundAmountInterval != null and query.refundAmountInterval.right != null'>
+                AND refund.refund_amount <![CDATA[<=]]> #{query.refundAmountInterval.right}
+            </if>
+        </where>
+            ORDER BY a.create_time DESC
+    </select>
+</mapper>

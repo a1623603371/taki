@@ -2,8 +2,10 @@ package com.taki.order.controller;
 
 import com.taki.common.utlis.ResponseData;
 import com.taki.order.domain.request.CancelOrderRequest;
+import com.taki.order.service.OrderAfterSaleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,11 +23,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/afterSale")
 public class AfterSaleController {
 
+    @Autowired
+    private OrderAfterSaleService orderAfterSaleService;
+
     @ApiOperation("取消订单")
     @PostMapping("/cancelOrder")
     public ResponseData<Boolean> cancelOrder(@RequestBody CancelOrderRequest cancelOrderRequest){
-
-        return null;
-
+        return ResponseData.success(orderAfterSaleService.cancelOrder(cancelOrderRequest));
     }
 }
