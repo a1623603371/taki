@@ -4,6 +4,7 @@ import com.taki.common.core.AbstractObject;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * @ClassName AfterSaleItemDTO
@@ -42,17 +43,17 @@ public class AfterSaleItemDTO extends AbstractObject implements Serializable {
     /**
      * 商品总金额
      */
-    private Integer originAmount;
+    private BigDecimal originAmount;
 
     /**
      * 申请退款金额
      */
-    private Integer applyRefundAmount;
+    private BigDecimal applyRefundAmount;
 
     /**
      * 实际退款金额
      */
-    private Integer realRefundAmount;
+    private BigDecimal realRefundAmount;
 
     /**
      * 商品名

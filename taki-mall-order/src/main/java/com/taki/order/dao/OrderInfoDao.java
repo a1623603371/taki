@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.taki.common.BaseDAO;
+import com.taki.order.domain.dto.OrderExtJsonDTO;
 import com.taki.order.domain.dto.OrderListDTO;
 import com.taki.order.domain.dto.OrderListQueryDTO;
 import com.taki.order.domain.entity.OrderInfoDO;
@@ -77,5 +78,19 @@ public class OrderInfoDao extends BaseDAO<OrderInfoMapper, OrderInfoDO> {
         log.info("query = {}", JSONObject.toJSONString(query));
         Page<OrderListDTO> page = new Page<>(query.getPageNo(),query.getPageSize());
         return  orderInfoMapper.listByPage(page,query);
+    }
+
+    /** 
+     * @description: 更新订单扩展信息
+     * @param orderId 订单Id
+     * @param lackExJson 订单缺品扩展信息
+     * @return  void
+     * @author Long
+     * @date: 2022/3/11 17:42
+     */ 
+    public void updateOrderExJson(String orderId, OrderExtJsonDTO lackExJson) {
+        String exJsonStr = JSONObject.toJSONString(lackExJson);
+
+        this.update().set(OrderInfoDO.EXT_JSON,exJsonStr).eq(OrderInfoDO.ORDER_ID,orderId).update();
     }
 }

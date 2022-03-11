@@ -1,5 +1,6 @@
 package com.taki.order.domain.dto;
 
+import com.taki.order.domain.entity.OrderInfoDO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 public class CheckLackDTO {
 
-    private OrderInfoDTO orderInfo;
+    private OrderInfoDO orderInfo;
 
-    private List<OrderLackItemDTO> orderLackItems;
+    private List<LackItemDTO> orderLackItems;
 }

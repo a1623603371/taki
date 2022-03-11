@@ -2,10 +2,13 @@ package com.taki.order.domain.entity;
 
 import com.taki.common.core.AbstractObject;
 import com.taki.common.domin.BaseEntity;
+import lombok.Builder;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * @ClassName AfterSaleInfoDO
@@ -15,6 +18,7 @@ import java.time.LocalDate;
  * @Version 1.0
  */
 @Data
+@Builder
 public class AfterSaleInfoDO extends BaseEntity implements Serializable {
 
 
@@ -61,7 +65,7 @@ public class AfterSaleInfoDO extends BaseEntity implements Serializable {
     /**
      * 申请售后来源
      */
-    private LocalDate applyTime;
+    private LocalDateTime applyTime;
 
     /**
      *申请原因编码
@@ -76,7 +80,7 @@ public class AfterSaleInfoDO extends BaseEntity implements Serializable {
     /**
      * 审核时间
      */
-    private LocalDate reviewTime;
+    private LocalDateTime reviewTime;
 
     /**
      * 客服审核来源
@@ -111,12 +115,12 @@ public class AfterSaleInfoDO extends BaseEntity implements Serializable {
     /**
      * 申请退款金额
      */
-    private Integer applyRefundAmount;
+    private BigDecimal applyRefundAmount;
 
     /**
      * 实际退款金额
      */
-    private Integer realRefundAmount;
+    private BigDecimal realRefundAmount;
 
     /**
      * 备注

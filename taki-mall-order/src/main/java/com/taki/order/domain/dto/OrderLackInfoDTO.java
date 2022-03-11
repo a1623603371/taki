@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -32,12 +33,12 @@ public class OrderLackInfoDTO {
     /**
      * 申请退款金额
      */
-    private Integer applyRefundAmount;
+    private BigDecimal applyRefundAmount;
 
     /**
      * 实际退款金额
      */
-    private Integer realRefundAmount;
+    private BigDecimal realRefundAmount;
 
     /**
      * 具体的缺品项
