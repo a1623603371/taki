@@ -28,7 +28,7 @@ public class AfterSaleRefundDO extends BaseEntity implements Serializable {
     /**
      * 售后Id
      */
-    private String afterSaleId;
+    private Long afterSaleId;
 
     /**
      * 订单Id
@@ -74,4 +74,10 @@ public class AfterSaleRefundDO extends BaseEntity implements Serializable {
      * 备注
      */
     private String remark;
+
+
+    public static  final String AFTER_SALE_ID = "after_sale_id";
+
+
+
 }

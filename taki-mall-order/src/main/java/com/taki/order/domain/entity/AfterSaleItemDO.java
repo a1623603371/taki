@@ -22,7 +22,7 @@ public class AfterSaleItemDO extends AbstractObject implements Serializable {
     /**
      * 售后ID
      */
-    private String afterSaleId;
+    private Long afterSaleId;
 
     /**
      * 订单ID
@@ -64,4 +64,9 @@ public class AfterSaleItemDO extends AbstractObject implements Serializable {
      *实际退款金额
      */
     private BigDecimal realRefundAmount;
+
+
+    public   static final  String ORDER_ID = "order_id";
+
+    public   static  final  String SKU_CODE = "sku_code";
 }

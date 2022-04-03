@@ -126,4 +126,8 @@ public class AfterSaleInfoDO extends BaseEntity implements Serializable {
      * 备注
      */
     private String remark;
+
+
+
+    public static final String AFTER_SALE_ID = "after_sale_id";
 }

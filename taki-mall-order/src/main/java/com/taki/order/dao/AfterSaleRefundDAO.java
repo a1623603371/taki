@@ -1,5 +1,6 @@
 package com.taki.order.dao;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.taki.common.BaseDAO;
 import com.taki.order.domain.entity.AfterSaleRefundDO;
 import com.taki.order.mapper.AfterSaleRefundMapper;
@@ -14,4 +15,10 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class AfterSaleRefundDAO extends BaseDAO<AfterSaleRefundMapper, AfterSaleRefundDO> {
+
+
+
+    public AfterSaleRefundDO getByAfterSaleId(Long afterSaleId) {
+        return this.getOne(new QueryWrapper<AfterSaleRefundDO>().eq(AfterSaleRefundDO.AFTER_SALE_ID,afterSaleId));
+    }
 }

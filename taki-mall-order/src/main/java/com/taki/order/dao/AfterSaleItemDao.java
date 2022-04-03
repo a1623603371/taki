@@ -1,11 +1,15 @@
 package com.taki.order.dao;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.taki.common.BaseDAO;
 import com.taki.order.domain.entity.AfterSaleItemDO;
 import com.taki.order.domain.entity.OrderAmountDO;
 import com.taki.order.mapper.AfterSaleItemMapper;
 import com.taki.order.mapper.OrderAmountMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * @ClassName AfterSaleItemDao
@@ -17,4 +21,29 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class AfterSaleItemDao extends BaseDAO<AfterSaleItemMapper, AfterSaleItemDO> {
 
+
+    /**
+     * @description: 根据 订单id 和 sku 编码 查询 售后单条目
+     * @param orderId 订单id
+     * @param skuCode sku 编码
+     * @return  售后单条目
+     * @author Long
+     * @date: 2022/4/3 20:38
+     */
+    public List<AfterSaleItemDO> getOrderIdAndSkuCode(String orderId, String skuCode) {
+
+        return this.list(new QueryWrapper<AfterSaleItemDO>().eq(AfterSaleItemDO.ORDER_ID,orderId).eq(AfterSaleItemDO.SKU_CODE,skuCode));
+
+    }
+
+    /**
+     * @description: 根据 订单id查询 售后单条目
+     * @param orderId 订单Id
+     * @return
+     * @author Long
+     * @date: 2022/4/3 20:38
+     */
+    public List<AfterSaleItemDO> listByOrderId(String orderId) {
+        return this.list(new QueryWrapper<AfterSaleItemDO>().eq(AfterSaleItemDO.ORDER_ID,orderId));
+    }
 }

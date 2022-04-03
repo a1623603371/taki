@@ -2,6 +2,7 @@ package com.taki.order.service;
 
 import com.taki.common.utlis.ResponseData;
 import com.taki.order.domain.request.CancelOrderRequest;
+import com.taki.order.domain.request.ReturnGoodsOrderRequest;
 
 /**
  * @ClassName OrderAfterSaleService
@@ -25,4 +26,13 @@ public interface OrderAfterSaleService {
      * @date: 2022/3/8 17:04
      */
     Boolean cancelOrder(CancelOrderRequest cancelOrderRequest);
+    
+    /** 
+     * @description: 处理售后 申请
+     * @param request 退货申请请求 参数
+     * @return
+     * @author Long
+     * @date: 2022/4/3 15:32
+     */ 
+    Boolean processApplyAfterSale(ReturnGoodsOrderRequest request);
 }
