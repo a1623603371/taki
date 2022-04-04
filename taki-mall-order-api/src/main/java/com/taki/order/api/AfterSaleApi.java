@@ -50,7 +50,7 @@ public interface AfterSaleApi {
      * @author Long
      * @date: 2022/3/9 14:55
      */ 
-    ResponseData<Boolean> receiveCustomerAuditResult(CustomReviewReturnGoodsRequest customReviewReturnGoodsRequest);
+    ResponseData<Boolean> receiveCustomerAuditResult(CustomerAuditAssembleRequest customReviewReturnGoodsRequest);
 
 
     /** 

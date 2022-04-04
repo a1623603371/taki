@@ -1,8 +1,12 @@
 package com.taki.order.domain.dto;
 
 import com.taki.common.core.AbstractObject;
+import com.taki.order.domain.query.AfterSaleQuery;
+import com.taki.order.enums.AfterSaleApplySourceEnum;
 import javafx.util.Pair;
+import lombok.Builder;
 import lombok.Data;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Date;
 import java.util.Set;
@@ -101,4 +105,45 @@ public class AfterSaleListQueryDTO extends AbstractObject {
     private Integer pageSize = 20;
 
 
+    /**
+     * 内部构造器
+     */
+    public static class Builder {
+
+        private AfterSaleListQueryDTO  query = null;
+
+       public static  Builder builder(){
+           return new Builder();
+       }
+
+        public Builder copy(AfterSaleQuery afterSaleQuery){
+            query = afterSaleQuery.clone(AfterSaleListQueryDTO.class);
+            return this;
+        }
+
+        /** 
+         * @description:  售后列表只展示用户主动发起的售后退款记录，超时自动取消和用户手动取消的售后默认不展示
+         * @param
+         * @return  com.taki.order.domain.dto.AfterSaleListQueryDTO.Builder
+         * @author Long
+         * @date: 2022/4/4 18:42
+         */ 
+        public  Builder useApplySource(){
+            if (CollectionUtils.isEmpty(query.getApplySources())){
+                query.setApplySources(AfterSaleApplySourceEnum.userApply());
+            }
+            return this;
+        }
+
+        public Builder setPage(AfterSaleQuery afterSaleQuery){
+            query.setPageNo(afterSaleQuery.getPageNo());
+            query.setPageSize(afterSaleQuery.getPageSize());
+            return this;
+        }
+
+        public  AfterSaleListQueryDTO build(){
+            return query;
+        }
+
+    }
 }

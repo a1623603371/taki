@@ -20,6 +20,9 @@ public class AfterSaleQuery  extends AbstractObject implements Serializable {
 
 
     private static final long serialVersionUID = 8963993635518744915L;
+
+    public static final Integer MAX_PAGE_SIZE = 100;
+
     /**
      * 业务线
      */

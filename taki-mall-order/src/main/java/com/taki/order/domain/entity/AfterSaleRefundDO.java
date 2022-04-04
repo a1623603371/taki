@@ -5,6 +5,7 @@ import com.taki.common.core.AbstractObject;
 import com.taki.common.domin.BaseEntity;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 @Data
 @TableName("after_sale_refund")
 @Builder
+@NoArgsConstructor
 public class AfterSaleRefundDO extends BaseEntity implements Serializable {
 
 

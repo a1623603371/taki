@@ -1,47 +1,40 @@
 package com.taki.order.service.impl;
 
+
+
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
-import com.sun.corba.se.spi.ior.IdentifiableFactory;
 import com.taki.common.constants.RedisLockKeyConstants;
 import com.taki.common.constants.RocketMQConstant;
-import com.taki.common.enums.AfterSaleTypeEnum;
-import com.taki.common.enums.AmountTypeEnum;
-import com.taki.common.enums.OrderOperateTypeEnum;
-import com.taki.common.enums.OrderStatusEnum;
+import com.taki.common.enums.*;
+import com.taki.common.exception.ServiceException;
 import com.taki.common.redis.RedisLock;
 import com.taki.common.utlis.ObjectUtil;
 import com.taki.common.utlis.ParamCheckUtil;
+import com.taki.common.utlis.RandomUtil;
 import com.taki.common.utlis.ResponseData;
+import com.taki.customer.api.CustomerApi;
+import com.taki.customer.domain.request.CustomReviewReturnGoodsRequest;
 import com.taki.fulfill.api.FulFillApi;
 import com.taki.fulfill.domain.request.CancelFulfillRequest;
 import com.taki.order.dao.*;
-import com.taki.order.domain.dto.AfterSaleItemDTO;
-import com.taki.order.domain.dto.AfterSaleOrderItemDTO;
-import com.taki.order.domain.dto.OrderInfoDTO;
-import com.taki.order.domain.dto.OrderItemDTO;
+import com.taki.order.domain.dto.*;
 import com.taki.order.domain.entity.*;
-import com.taki.order.domain.request.CancelOrderAssembleRequest;
-import com.taki.order.domain.request.CancelOrderRequest;
-import com.taki.order.domain.request.ReturnGoodsAssembleRequest;
-import com.taki.order.domain.request.ReturnGoodsOrderRequest;
-import com.taki.order.enums.AfterSaleStatusEnum;
-import com.taki.order.enums.OrderCancelTypeEnum;
-import com.taki.order.enums.RefundStatusEnum;
+import com.taki.order.domain.request.*;
+import com.taki.order.enums.*;
 import com.taki.order.exception.OrderBizException;
 import com.taki.order.exception.OrderErrorCodeEnum;
+import com.taki.order.manager.OrderNoManager;
 import com.taki.order.mq.producer.DefaultProducer;
 import com.taki.order.service.OrderAfterSaleService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,6 +68,9 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
     @Autowired
     private OrderOperateLogDao orderOperateLogDao;
 
+    @Autowired
+    private OrderPaymentDetailDao orderPaymentDetailDao;
+
 
     @Autowired
     private AfterSaleItemDao afterSaleItemDao;
@@ -86,11 +82,21 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
     private AfterSaleRefundDAO afterSaleRefundDAO;
 
 
+    @Autowired
+    private AfterSaleLogDAO afterSaleLogDAO;
+    @Autowired
+    private DefaultProducer defaultProducer;
+
+
+    @Autowired
+    private OrderNoManager orderNoManager;
+
+
     @DubboReference
     private FulFillApi fulFillApi;
 
     @Autowired
-    private DefaultProducer defaultProducer;
+    private CustomerApi customerApi;
 
     private Integer returnGoodsItemNum = 1;
 
@@ -167,12 +173,203 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
             ReturnGoodsAssembleRequest returnGoodsAssembleRequest = buildReturnGoodsData(request);
 
 
-            // 计算退款金额
+            // 3.计算退款金额
             returnGoodsAssembleRequest = calculateReturnGoodsAmount(returnGoodsAssembleRequest);
+
+            // 4. 售后数据落库
+            insertReturnGoodsAfterSale(returnGoodsAssembleRequest,AfterSaleStatusEnum.COMMITED.getCode());
+
+            // 5. 发起客服审核
+            CustomReviewReturnGoodsRequest customReviewReturnGoodsRequest = returnGoodsAssembleRequest.clone(CustomReviewReturnGoodsRequest.class);
+
+            customerApi.customerAudit(customReviewReturnGoodsRequest);
+        }catch (ServiceException e){
+            log.error("system error",e);
+            return false;
+        }finally {
+            redisLock.unLock(key);
         }
 
 
-        return null;
+        return true;
+    }
+
+
+    /**
+     * @description: 插入客服审核 退货 申请
+     * @param returnGoodsAssembleRequest 退货商品集合 请求
+     * @param   afterSaleStatus 退货状态
+     * @return  void
+     * @author Long
+     * @date: 2022/4/4 13:45
+     */
+    private void insertReturnGoodsAfterSale(ReturnGoodsAssembleRequest returnGoodsAssembleRequest, Integer afterSaleStatus) {
+        OrderInfoDTO orderInfoDTO = returnGoodsAssembleRequest.getOrderInfoDTO();
+        OrderInfoDO orderInfoDO = orderInfoDTO.clone(OrderInfoDO.class);
+        Integer afterSaleType = returnGoodsAssembleRequest.getAfterSaleType();
+
+        //售后退货过程中 申请退款金额 和 实际退款金额  计算出来 可能不同
+
+        AfterSaleInfoDO afterSaleInfoDO = new AfterSaleInfoDO();
+
+        BigDecimal applyRefundAmount = returnGoodsAssembleRequest.getApplyRefundAmount();
+        afterSaleInfoDO.setApplyRefundAmount(applyRefundAmount);
+
+        BigDecimal returnGoodsAmount = returnGoodsAssembleRequest.getReturnGoodsAmount();
+        afterSaleInfoDO.setRealRefundAmount(returnGoodsAmount);
+
+
+        //1 新增售后订单表
+        Integer cancelOrderAfterSaleStatus = AfterSaleStatusEnum.COMMITED.getCode();
+        String afterSaleId = insertReturnGoodsAfterSaleInfoTable(orderInfoDO,afterSaleType,cancelOrderAfterSaleStatus,afterSaleInfoDO);
+
+        returnGoodsAssembleRequest.setAfterSaleId(afterSaleId);
+
+        // 2.新增售后条目表
+        insertAfterSaleItemTable(orderInfoDO.getOrderId(),returnGoodsAssembleRequest.getRefundOrderItems(),afterSaleId);
+
+        // 3. 新增售后变更表
+        insertReturnGoodsAfterSaleLogTable(afterSaleId,AfterSaleStatusEnum.UN_CREATE.getCode(),afterSaleStatus);
+
+        // 4 新增售后支付表
+        AfterSaleRefundDO afterSaleRefundDO = insertAfterSaleRefundTable(orderInfoDO,afterSaleId,afterSaleInfoDO);
+
+        returnGoodsAssembleRequest.setAfterSaleRefundId(afterSaleRefundDO.getId());
+
+    }
+    /**
+     * @description: 新增售后支付表
+     * @param orderInfoDO 订单信息
+     * @param afterSaleId 售后Id
+     * @param afterSaleInfoDO 售后信息
+     * @return
+     * @author Long
+     * @date: 2022/4/4 16:01
+     */
+    private AfterSaleRefundDO insertAfterSaleRefundTable(OrderInfoDO orderInfoDO, String afterSaleId, AfterSaleInfoDO afterSaleInfoDO) {
+        String orderId = orderInfoDO.getOrderId();
+        OrderPaymentDetailDO orderPaymentDetailDO = orderPaymentDetailDao.getPaymentDetailByOrderId(orderId);
+
+        AfterSaleRefundDO afterSaleRefundDO = new AfterSaleRefundDO();
+        afterSaleRefundDO.setAfterSaleId(Long.valueOf(afterSaleId));
+        afterSaleRefundDO.setOrderId(orderId);
+        afterSaleRefundDO.setAccountType(AccountTypeEnum.THIRD.getCode());
+        afterSaleRefundDO.setRefundStatus(RefundStatusEnum.UN_REFUND.getCode());
+        afterSaleRefundDO.setRemark(RefundStatusEnum.UN_REFUND.getMsg());
+        afterSaleRefundDO.setRefundAmount(afterSaleInfoDO.getRealRefundAmount());
+        afterSaleRefundDO.setAfterSaleBatchNo(orderId + RandomUtil.genRandomNumber(10));
+
+        if (orderPaymentDetailDO != null){
+            afterSaleRefundDO.setOutTradeNo(orderPaymentDetailDO.getOutTradeNo());
+            afterSaleRefundDO.setPayType(orderPaymentDetailDO.getPayType());
+        }
+
+        afterSaleRefundDAO.save(afterSaleRefundDO);
+
+        log.info("新增售后支付信息,订单号:{},售后号：{}，状态：{}",orderId,afterSaleId,afterSaleInfoDO.getAfterSaleStatus());
+
+        return afterSaleRefundDO;
+    }
+
+    /**
+     * @description: 新增售后变更表
+     * @param afterSaleId 售后Id
+     * @param  preAfterSaleStatus 上一个售后状态
+     * @param currentAfterSaleStatus 当前售后状态
+     * @return  void
+     * @author Long
+     * @date: 2022/4/4 14:42
+     */
+    private void insertReturnGoodsAfterSaleLogTable(String afterSaleId, Integer preAfterSaleStatus, Integer currentAfterSaleStatus) {
+        AfterSaleLogDO afterSaleLogDO = new AfterSaleLogDO();
+        afterSaleLogDO.setAfterSaleId(afterSaleId);
+        afterSaleLogDO.setPreStatus(preAfterSaleStatus);
+        afterSaleLogDO.setCurrentStatus(currentAfterSaleStatus);
+
+        // 售后 退货的业务值
+        afterSaleLogDO.setRemark(ReturnGoodsTypeEnum.AFTER_SALE_RETURN_GOODS.getMsg());
+
+        afterSaleLogDAO.save(afterSaleLogDO);
+
+        log.info("新增售后单变更信息， 售后单：{}，状态：{}PreStatus{}，CurrentStatus：{}",afterSaleLogDO.getAfterSaleId(),preAfterSaleStatus,currentAfterSaleStatus);
+
+    }
+
+    /**
+     * @description: 新增售后条目表
+     * @param orderId 订单Id
+     * @param refundOrderItems  退货订单条目
+     * @param afterSaleId 售后Id
+     * @return  void
+     * @author Long
+     * @date: 2022/4/4 14:34
+     */ 
+    private void insertAfterSaleItemTable(String orderId, List<OrderItemDTO> refundOrderItems, String afterSaleId) {
+
+        List<AfterSaleItemDO> afterSaleItemDOS = new ArrayList<>();
+        refundOrderItems.forEach(orderItemDTO -> {
+            AfterSaleItemDO afterSaleItemDO = new AfterSaleItemDO();
+            afterSaleItemDO.setAfterSaleId(Long.valueOf(afterSaleId));
+            afterSaleItemDO.setOrderId(orderId);
+            afterSaleItemDO.setSkuCode(orderItemDTO.getSkuCode());
+            afterSaleItemDO.setProductName(orderItemDTO.getProductName());
+            afterSaleItemDO.setProductImg(orderItemDTO.getProductImg());
+            afterSaleItemDO.setReturnQuantity(orderItemDTO.getSaleQuantity());
+            afterSaleItemDO.setOriginAmount(orderItemDTO.getOriginAmount());
+            afterSaleItemDO.setApplyRefundAmount(orderItemDTO.getOriginAmount());
+            afterSaleItemDO.setRealRefundAmount(orderItemDTO.getPayAmount());
+            afterSaleItemDOS.add(afterSaleItemDO);
+        });
+        afterSaleItemDao.saveBatch(afterSaleItemDOS);
+    }
+
+    /**
+     * @description:售后退货流程 插入订单销售表
+     * @param orderInfoDO 订单信息
+     * @param afterSaleType 售后类型
+     * @param cancelOrderAfterSaleStatus 取消订单售后状态
+     * @param afterSaleInfoDO 售后信息
+     * @return  java.lang.String
+     * @author Long
+     * @date: 2022/4/4 13:57
+     */
+    private String insertReturnGoodsAfterSaleInfoTable(OrderInfoDO orderInfoDO, Integer afterSaleType, Integer cancelOrderAfterSaleStatus, AfterSaleInfoDO afterSaleInfoDO) {
+
+        //1 生成售后订单号
+        String afterSaleId = orderNoManager.genOrderId(OrderNoTypeEnum.AFTER_SALE.getCode(), orderInfoDO.getUserId());
+        afterSaleInfoDO.setAfterSaleId(Long.valueOf(afterSaleId));
+        afterSaleInfoDO.setBusinessIdentifier(orderInfoDO.getBusinessIdentifier());
+        afterSaleInfoDO.setOrderId(orderInfoDO.getOrderId());
+        afterSaleInfoDO.setOrderSourceChannel(BusinessIdentifierEnum.SELF_MALL.getCode());
+        afterSaleInfoDO.setUserId(orderInfoDO.getUserId());
+        afterSaleInfoDO.setOrderType(OrderTypeEnum.NORMAL.getCode());
+        afterSaleInfoDO.setApplyTime(LocalDateTime.now());
+        afterSaleInfoDO.setAfterSaleStatus(cancelOrderAfterSaleStatus);
+
+        // 用户售后退货的业务值
+        afterSaleInfoDO.setApplySource(AfterSaleApplySourceEnum.USER_RETURN_GOODS.getCode());
+        afterSaleInfoDO.setRemark(ReturnGoodsTypeEnum.AFTER_SALE_RETURN_GOODS.getMsg());
+        afterSaleInfoDO.setApplyReasonCode(AfterSaleReasonEnum.USER.getCode());
+        afterSaleInfoDO.setApplyReason(AfterSaleReasonEnum.USER.getMsg());
+        afterSaleInfoDO.setAfterSaleTypeDetail(AfterSaleTypeDetailEnum.PART_REFUND.getCode());
+
+        // 退货流程 只退订单 一笔条目
+
+        if (AfterSaleTypeEnum.RETURN_GOODS.getCode().equals(afterSaleType)){
+            afterSaleInfoDO.setAfterSaleType(AfterSaleTypeEnum.RETURN_GOODS.getCode());
+        }
+
+        // 退货 流程 退订单的全部条目 后续 按照 整笔退款逻辑 处理
+
+        if (AfterSaleTypeEnum.RETURN_MONEY.getCode().equals(afterSaleType)){
+            afterSaleInfoDO.setAfterSaleType(AfterSaleTypeEnum.RETURN_MONEY.getCode());
+        }
+
+        afterSaleInfoDao.save(afterSaleInfoDO);
+
+        log.info("新增订单销售记录, 订单号:{},售后单号：{}，订单售后状态：{}",orderInfoDO.getOrderId(),afterSaleId,orderInfoDO.getOrderStatus());
+
+        return afterSaleId;
     }
 
     /**
@@ -186,7 +383,7 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
         String skuCode = returnGoodsAssembleRequest.getSkuCode();
         String orderId = returnGoodsAssembleRequest.getOrderId();
 
-        List<OrderItemDTO> returnOrderItemDTOS = Lists.newArrayList();
+        List<OrderItemDTO> refundOrderItemDTOS = Lists.newArrayList();
         List<OrderItemDTO> orderItemDTOS = returnGoodsAssembleRequest.getOrderItems();
         List<AfterSaleOrderItemDTO> afterSaleOrderItemDTOS = returnGoodsAssembleRequest.getAfterSaleOrderItems();
 
@@ -211,6 +408,24 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
 
         OrderItemDO orderItemDO = orderItemDao.getOrderItemBySkuAndOrderId(orderId,skuCode);
 
+        // 该笔订单条目数 = 已存的售后订单条目数 + 本次退货的条目 （每次退1条）
+        if(orderItemNum == afterSaleItemNum + 1){
+            // 当前条目是订单的最后一笔
+            returnGoodsAssembleRequest = calculateWholeOrderFefundAmount(orderId,
+                    orderItemDO.getPayAmount(),
+                    orderItemDO.getOriginAmount(),
+                    returnGoodsAssembleRequest);
+
+        }else {
+                // 只退当前
+            returnGoodsAssembleRequest.setReturnGoodsAmount(orderItemDO.getPayAmount());
+            returnGoodsAssembleRequest.setApplyRefundAmount(orderItemDO.getOriginAmount());
+            returnGoodsAssembleRequest.setLastReturnGoods(true);
+        }
+        refundOrderItemDTOS.add(orderItemDO.clone(OrderItemDTO.class));
+        returnGoodsAssembleRequest.setOrderItems(refundOrderItemDTOS);
+
+        return returnGoodsAssembleRequest;
 
     }
 
@@ -228,7 +443,7 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
 
         OrderAmountDO deliverAmount = orderAmountDao.getByIdAndAmountType(orderId, AmountTypeEnum.SHIPPING_AMOUNT.getCode());
 
-        BigDecimal freightAmount =(deliverAmount == null || deliverAmount.getAmount() == null) ? 0 : deliverAmount.getAmount();
+        BigDecimal freightAmount =(deliverAmount == null || deliverAmount.getAmount() == null) ? BigDecimal.ZERO : deliverAmount.getAmount();
 
         /**
          * 最终退款

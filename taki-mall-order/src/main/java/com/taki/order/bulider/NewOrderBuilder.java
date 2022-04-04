@@ -80,10 +80,10 @@ public class NewOrderBuilder {
         orderInfo.setOrderId(createOrderRequest.getOrderId());
         orderInfo.setParentOrderId(null);
         orderInfo.setBusinessOrderId(null);
-        orderInfo.setCannelTime(null);
+        orderInfo.setCancelTime(null);
         orderInfo.setOrderType(OrderTypeEnum.NORMAL.getCode());
         orderInfo.setOrderStatus(OrderStatusEnum.CREATED.getCode());
-        orderInfo.setCannelType(null);
+        orderInfo.setCancelType(null);
         orderInfo.setSellerId(createOrderRequest.getSellerId());
         orderInfo.setUserId(createOrderRequest.getUserId());
 
@@ -114,7 +114,7 @@ public class NewOrderBuilder {
 
         orderInfo.setDeleteStatus(DeleteStatusEnum.NO.getCode());
 
-        orderInfo.setCommentStauts(CommentStatusEnum.NO.getCode());
+        orderInfo.setCommentStatus(CommentStatusEnum.NO.getCode());
         fullOrderData.setOrderInfo(orderInfo);
         return this;
     }

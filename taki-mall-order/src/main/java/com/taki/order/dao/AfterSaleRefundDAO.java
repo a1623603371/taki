@@ -2,9 +2,12 @@ package com.taki.order.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.taki.common.BaseDAO;
+import com.taki.order.domain.entity.AfterSaleInfoDO;
 import com.taki.order.domain.entity.AfterSaleRefundDO;
 import com.taki.order.mapper.AfterSaleRefundMapper;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * @ClassName AfterSaleRefundDAO
@@ -20,5 +23,17 @@ public class AfterSaleRefundDAO extends BaseDAO<AfterSaleRefundMapper, AfterSale
 
     public AfterSaleRefundDO getByAfterSaleId(Long afterSaleId) {
         return this.getOne(new QueryWrapper<AfterSaleRefundDO>().eq(AfterSaleRefundDO.AFTER_SALE_ID,afterSaleId));
+    }
+
+    /**
+     * @description: 根据 售后单Id 查询 售后退款信息集合
+     * @param afterSaleId
+     * @return 售后退款信息集合
+     * @author Long
+     * @date: 2022/4/4 23:01
+     */
+    public List<AfterSaleRefundDO> listByAfterSaleId(Long afterSaleId) {
+            return this.list(new QueryWrapper<AfterSaleRefundDO>().eq(AfterSaleInfoDO.AFTER_SALE_ID,afterSaleId));
+
     }
 }

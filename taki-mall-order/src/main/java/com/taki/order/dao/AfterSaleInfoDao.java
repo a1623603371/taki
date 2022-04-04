@@ -7,10 +7,14 @@ import com.taki.common.BaseDAO;
 import com.taki.order.domain.dto.AfterSaleListQueryDTO;
 import com.taki.order.domain.dto.AfterSaleOrderListDTO;
 import com.taki.order.domain.entity.AfterSaleInfoDO;
+import com.taki.order.domain.entity.AfterSaleRefundDO;
 import com.taki.order.mapper.AfterSaleInfoMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @ClassName AfterSaleInfoDao
@@ -54,5 +58,12 @@ public class AfterSaleInfoDao extends BaseDAO<AfterSaleInfoMapper, AfterSaleInfo
     public AfterSaleInfoDO getByAfterSaleId(Long afterSaleId) {
 
         return this.getOne(new QueryWrapper<AfterSaleInfoDO>().eq(AfterSaleInfoDO.AFTER_SALE_ID,afterSaleId));
+    }
+
+
+    public List<AfterSaleInfoDO> listBy(String orderId, ArrayList<Integer> newArrayList) {
+
+        return this.list(new QueryWrapper<AfterSaleInfoDO>().eq(AfterSaleInfoDO.ORDER_ID,orderId).in(AfterSaleInfoDO.AFTER_SALE_TYPE_DETAIL
+        ,newArrayList));
     }
 }

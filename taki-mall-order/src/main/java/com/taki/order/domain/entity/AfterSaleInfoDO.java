@@ -4,6 +4,7 @@ import com.taki.common.core.AbstractObject;
 import com.taki.common.domin.BaseEntity;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @Builder
+@NoArgsConstructor
 public class AfterSaleInfoDO extends BaseEntity implements Serializable {
 
 
@@ -130,4 +132,8 @@ public class AfterSaleInfoDO extends BaseEntity implements Serializable {
 
 
     public static final String AFTER_SALE_ID = "after_sale_id";
+
+    public static  final  String ORDER_ID ="order_id";
+
+    public  static  final  String AFTER_SALE_TYPE_DETAIL = "after_sale_type_detail";
 }

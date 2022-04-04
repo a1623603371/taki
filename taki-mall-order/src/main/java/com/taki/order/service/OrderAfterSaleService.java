@@ -1,7 +1,9 @@
 package com.taki.order.service;
 
 import com.taki.common.utlis.ResponseData;
+import com.taki.order.domain.dto.LackDTO;
 import com.taki.order.domain.request.CancelOrderRequest;
+import com.taki.order.domain.request.LackRequest;
 import com.taki.order.domain.request.ReturnGoodsOrderRequest;
 
 /**
@@ -35,4 +37,5 @@ public interface OrderAfterSaleService {
      * @date: 2022/4/3 15:32
      */ 
     Boolean processApplyAfterSale(ReturnGoodsOrderRequest request);
+
 }

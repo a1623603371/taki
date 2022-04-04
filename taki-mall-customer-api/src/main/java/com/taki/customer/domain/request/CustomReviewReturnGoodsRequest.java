@@ -1,4 +1,4 @@
-package com.taki.order.domain.request;
+package com.taki.customer.domain.request;
 
 import com.taki.common.core.AbstractObject;
 import lombok.Data;
@@ -43,4 +43,9 @@ public class CustomReviewReturnGoodsRequest extends AbstractObject implements Se
      * 订单Id
      */
     private String orderId;
+
+    /**
+     * 客户审核结果 描述信息
+     */
+    private String auditResultDesc;
 }

@@ -183,7 +183,7 @@ public class OrderLackServiceImpl implements OrderLackService {
         // 构造售后单
         AfterSaleRefundDO afterSaleRefund = AfterSaleRefundDO
                 .builder()
-                .afterSaleId(String.valueOf(afterSaleInfo.getAfterSaleId()))
+                .afterSaleId(afterSaleInfo.getAfterSaleId())
                 .orderId(orderInfo.getOrderId())
                 .accountType(AccountTypeEnum.THIRD.getCode())
                 .payType(orderInfo.getPayType())

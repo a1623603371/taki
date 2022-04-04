@@ -1,6 +1,7 @@
 package com.taki.order.api.impl;
 
 import com.taki.common.utlis.ResponseData;
+import com.taki.customer.domain.request.CustomReviewReturnGoodsRequest;
 import com.taki.order.api.AfterSaleApi;
 import com.taki.order.domain.dto.CheckLackDTO;
 import com.taki.order.domain.dto.LackDTO;
@@ -69,7 +70,7 @@ public class AfterSaleApiImpl implements AfterSaleApi {
     }
 
     @Override
-    public ResponseData<Boolean> receiveCustomerAuditResult(CustomReviewReturnGoodsRequest customReviewReturnGoodsRequest) {
+    public ResponseData<Boolean> receiveCustomerAuditResult(CustomerAuditAssembleRequest customerAuditAssembleRequest) {
         return null;
     }
 

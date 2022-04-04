@@ -69,4 +69,6 @@ public class AfterSaleItemDO extends AbstractObject implements Serializable {
     public   static final  String ORDER_ID = "order_id";
 
     public   static  final  String SKU_CODE = "sku_code";
+
+    public static  final  String  AFTER_SALE_ID = "after_Sale_id";
 }

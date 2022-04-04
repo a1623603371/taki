@@ -19,12 +19,19 @@
 
 
     <dependencies>
+        <!--核心包-->
         <dependency>
             <groupId>com.taki</groupId>
             <artifactId>taki-mall-common</artifactId>
             <version>1.0-SNAPSHOT</version>
             <exclusions>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.taki</groupId>
+            <artifactId>taki-mall-customer-api</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <!--风控API-->
@@ -55,25 +62,26 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
+        <!--支付 API-->
         <dependency>
             <groupId>com.taki</groupId>
             <artifactId>taki-mall-pay-api</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
-
+        <!--地址API-->
         <dependency>
             <groupId>com.taki</groupId>
             <artifactId>taki-mall-address-api</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-
+        <!--订单API-->
         <dependency>
             <groupId>com.taki</groupId>
             <artifactId>taki-mall-order-api</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-
+        <!--履约API-->
         <dependency>
             <groupId>com.taki</groupId>
             <artifactId>taki-mall-fulfill-api</artifactId>
