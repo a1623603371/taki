@@ -8,6 +8,7 @@ import com.taki.common.constants.RedisLockKeyConstants;
 import com.taki.common.constants.RocketMQConstant;
 import com.taki.common.enums.*;
 import com.taki.common.exception.ServiceException;
+import com.taki.common.message.ActualRefundMessage;
 import com.taki.common.redis.RedisLock;
 import com.taki.common.utlis.ObjectUtil;
 import com.taki.common.utlis.ParamCheckUtil;
@@ -17,6 +18,7 @@ import com.taki.customer.api.CustomerApi;
 import com.taki.customer.domain.request.CustomReviewReturnGoodsRequest;
 import com.taki.fulfill.api.FulFillApi;
 import com.taki.fulfill.domain.request.CancelFulfillRequest;
+import com.taki.market.request.CancelOrderReleaseUserCouponRequest;
 import com.taki.order.dao.*;
 import com.taki.order.domain.dto.*;
 import com.taki.order.domain.entity.*;
@@ -27,6 +29,8 @@ import com.taki.order.exception.OrderErrorCodeEnum;
 import com.taki.order.manager.OrderNoManager;
 import com.taki.order.mq.producer.DefaultProducer;
 import com.taki.order.service.OrderAfterSaleService;
+import com.taki.pay.api.PayApi;
+import com.taki.pay.domian.rquest.PayRefundRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -92,11 +96,18 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
     private OrderNoManager orderNoManager;
 
 
+    @Autowired
+    private AfterSaleOperateLogFactory afterSaleOperateLogFactory;
+
+
     @DubboReference
     private FulFillApi fulFillApi;
 
-    @Autowired
+    @DubboReference
     private CustomerApi customerApi;
+
+    @DubboReference
+    private PayApi payApi;
 
     private Integer returnGoodsItemNum = 1;
 
@@ -194,6 +205,184 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
         return true;
     }
 
+    @Override
+    public  ResponseData<Boolean> refundMoney(ActualRefundMessage actualRefundMessage) {
+        Long afterSaleId = actualRefundMessage.getAfterSaleId();
+        String key = RedisLockKeyConstants.REFUND_KEY + afterSaleId;
+        try {
+            Boolean lock = redisLock.lock(key);
+            if (!lock){
+                throw new OrderBizException(OrderErrorCodeEnum.REFUND_MONEY_REPEAT);
+            }
+            AfterSaleInfoDO afterSaleInfoDO = afterSaleInfoDao.getByAfterSaleId(afterSaleId);
+            Long afterSaleRefundId = actualRefundMessage.getAfterSaleRefundId();
+            AfterSaleRefundDO afterSaleRefundDO = afterSaleRefundDAO.getById(afterSaleRefundId);
+
+            //1.封装调用支付退款接口数据
+            PayRefundRequest payRefundRequest = buildPayRefundRequest(actualRefundMessage,afterSaleRefundDO);
+
+            //2.执行退款
+            if(!payApi.executeRefund(payRefundRequest)){
+                throw new OrderBizException(OrderErrorCodeEnum.ORDER_REFUND_AMOUNT_FAILED);
+            }
+
+            //3 售后记录状态
+            // 执行退款信息更新售后信息
+            updateAfterSaleStatus(afterSaleInfoDO,AfterSaleStatusEnum.REVIEW_PASS.getCode(),AfterSaleStatusEnum.REFUNDING.getCode());
+
+            // 4.退款的最后一笔退优惠券
+            if (actualRefundMessage.isLastReturnGoods()){
+                //释放优惠券权益
+                String orderId = actualRefundMessage.getOrderId();
+                OrderInfoDO orderInfoDO = orderInfoDao.getByOrderId(orderId);
+                CancelOrderReleaseUserCouponRequest cancelOrderReleaseUserCouponRequest =orderInfoDO.clone(CancelOrderReleaseUserCouponRequest.class);
+
+                defaultProducer.sendMessage(RocketMQConstant.CANCEL_RELEASE_PROPERTY_TOPIC,
+                        JSONObject.toJSONString(cancelOrderReleaseUserCouponRequest),"释放优惠券权益");
+            }
+        }finally {
+
+            redisLock.unLock(key);
+        }
+
+        return ResponseData.success(true);
+    }
+
+    @Override
+    public ResponseData<Boolean> processCancelOrder(CancelOrderAssembleRequest cancelOrderAssembleRequest) {
+
+        String orderId = cancelOrderAssembleRequest.getOrderId();
+
+        String key = RedisLockKeyConstants.REFUND_KEY + orderId;
+
+        try {
+            Boolean lock = redisLock.lock(key);
+            if (!lock){
+                throw new OrderBizException(OrderErrorCodeEnum.PROCESS_REFUND_FAILED);
+            }
+
+            // 执行退款 准备工作
+            // 1 计算 取消订单 退款金额
+            CancelOrderRefundAmountDTO cancelOrderRefundAmountDTO = calculateCancelOrderRefundAmount(cancelOrderAssembleRequest);
+            cancelOrderAssembleRequest.setCancelOrderRefundAmount(cancelOrderRefundAmountDTO);
+
+            //2 取消 订单操作 记录售后信息
+            insertCancelOrderAfterSale(cancelOrderAssembleRequest,AfterSaleStatusEnum.REVIEW_PASS.getCode());
+        }finally {
+
+        }
+
+
+        return null;
+    }
+    /**
+     * @description: 插入取消订单售后信息
+     * @param cancelOrderAssembleRequest 取消订单 数据集合请求
+     * @param afterSaleStatus 售后单状态
+     * @return  void
+     * @author Long
+     * @date: 2022/4/5 20:03
+     */
+    private void insertCancelOrderAfterSale(CancelOrderAssembleRequest cancelOrderAssembleRequest, Integer afterSaleStatus) {
+        OrderInfoDTO orderInfoDTO = cancelOrderAssembleRequest.getOrderInfo();
+        OrderInfoDO orderInfoDO = orderInfoDTO.clone(OrderInfoDO.class);
+        Integer afterSaleType = cancelOrderAssembleRequest.getAfterSaleType();
+        Integer cancelOrderAfterSaleStatus = AfterSaleStatusEnum.REVIEW_PASS.getCode();
+
+        //取消订单过程中的 申请退款金额 和实际金额 都是实际退款金额 金额相同
+        AfterSaleInfoDO afterSaleInfoDO = new AfterSaleInfoDO();
+        afterSaleInfoDO.setRealRefundAmount(orderInfoDO.getPayAmount());
+        afterSaleInfoDO.setApplyRefundAmount(orderInfoDO.getPayAmount());
+
+        //1.新增售后条目
+      String afterSaleId =   insertCancelOrderAfterSaleInfoTable(orderInfoDO,afterSaleType,cancelOrderAfterSaleStatus,afterSaleInfoDO);
+    }
+
+    /**
+     * @description: 新增售后条目
+     * @param orderInfoDO 订单信息
+     * @param afterSaleType 售后类型
+     * @param cancelOrderAfterSaleStatus 取消订单售后单 状态
+     * @param afterSaleInfoDO  售后 单 信息
+     * @return  void
+     * @author Long
+     * @date: 2022/4/5 20:08
+     */
+    private String insertCancelOrderAfterSaleInfoTable(OrderInfoDO orderInfoDO, Integer afterSaleType, Integer cancelOrderAfterSaleStatus, AfterSaleInfoDO afterSaleInfoDO) {
+
+        // 生成售后订单号
+        String afterSaleId = orderNoManager.genOrderId(OrderNoTypeEnum.AFTER_SALE.getCode(),orderInfoDO.getUserId());
+        afterSaleInfoDO.setAfterSaleId(Long.valueOf(afterSaleId));
+        afterSaleInfoDO.setBusinessIdentifier(BusinessIdentifierEnum.SELF_MALL.getCode());
+        afterSaleInfoDO.setOrderId(orderInfoDO.getOrderId());
+        afterSaleInfoDO.setOrderSourceChannel(BusinessIdentifierEnum.SELF_MALL.getCode());
+        afterSaleInfoDO.setUserId(orderInfoDO.getUserId());
+        afterSaleInfoDO.setOrderType(OrderTypeEnum.NORMAL.getCode());
+        afterSaleInfoDO.setApplyTime(LocalDateTime.now());
+        afterSaleInfoDO.setAfterSaleStatus(cancelOrderAfterSaleStatus);
+
+        afterSaleInfoDO.setRealRefundAmount();
+
+    }
+
+    /**
+     * @description: 计算 取消订单 退款金额
+     * @param cancelOrderAssembleRequest 取消订单 数据集合 请求
+     * @return  取消订单退款信息
+     * @author Long
+     * @date: 2022/4/5 19:58
+     */
+    private CancelOrderRefundAmountDTO calculateCancelOrderRefundAmount(CancelOrderAssembleRequest cancelOrderAssembleRequest) {
+        OrderInfoDTO orderInfoDTO = cancelOrderAssembleRequest.getOrderInfo();
+        CancelOrderRefundAmountDTO cancelOrderRefundAmountDTO = new CancelOrderRefundAmountDTO();
+
+        // 退款 整笔订单的实际支付金额
+        cancelOrderRefundAmountDTO.setOrderId(orderInfoDTO.getOrderId());
+        cancelOrderRefundAmountDTO.setTotalAmount(orderInfoDTO.getTotalAmount());
+        cancelOrderRefundAmountDTO.setReturnGoodAmount(orderInfoDTO.getPayAmount());
+
+        return cancelOrderRefundAmountDTO;
+
+    }
+
+    /**
+     * @description: 执行退款信息更新售后信息
+     * @param afterSaleInfoDO 售后单信息
+     * @param fromStatus 上个状态
+     * @param toStatus 变更状态
+     * @return  void
+     * @author Long
+     * @date: 2022/4/5 18:04
+     */
+    private void updateAfterSaleStatus(AfterSaleInfoDO afterSaleInfoDO, Integer fromStatus, Integer toStatus) {
+        // 更新 订单售后表
+        afterSaleInfoDao.updateStatus(afterSaleInfoDO.getAfterSaleId(),fromStatus,toStatus);
+
+        // 新增 售后 变更表
+        AfterSaleLogDO afterSaleLogDO = afterSaleOperateLogFactory.get(afterSaleInfoDO,AfterSaleStatusChannelEnum.getBy(fromStatus,toStatus));
+        afterSaleLogDAO.save(afterSaleLogDO);
+        log.info("保存售后变更记录，售后单:{},fromStatus:{},toStatus:{}",afterSaleInfoDO.getAfterSaleId(),fromStatus,toStatus);
+
+    }
+
+    /**
+     * @description:  构造 支付退款请求
+     * @param actualRefundMessage 退款消息
+     * @param afterSaleRefundDO 售后退款消息
+     * @return  支付退款请求
+     * @author Long
+     * @date: 2022/4/5 17:58
+     */
+    private PayRefundRequest buildPayRefundRequest(ActualRefundMessage actualRefundMessage, AfterSaleRefundDO afterSaleRefundDO) {
+        String  orderId = actualRefundMessage.getOrderId();
+        PayRefundRequest payRefundRequest = new PayRefundRequest();
+        payRefundRequest.setOrderId(orderId);
+        payRefundRequest.setRefundAmount(afterSaleRefundDO.getRefundAmount());
+        payRefundRequest.setAfterSaleId(afterSaleRefundDO.getAfterSaleId());
+
+        return payRefundRequest;
+    }
+
 
     /**
      * @description: 插入客服审核 退货 申请
@@ -282,7 +471,7 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
      */
     private void insertReturnGoodsAfterSaleLogTable(String afterSaleId, Integer preAfterSaleStatus, Integer currentAfterSaleStatus) {
         AfterSaleLogDO afterSaleLogDO = new AfterSaleLogDO();
-        afterSaleLogDO.setAfterSaleId(afterSaleId);
+        afterSaleLogDO.setAfterSaleId(Long.valueOf(afterSaleId));
         afterSaleLogDO.setPreStatus(preAfterSaleStatus);
         afterSaleLogDO.setCurrentStatus(currentAfterSaleStatus);
 

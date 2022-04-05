@@ -1,7 +1,9 @@
 package com.taki.order.service;
 
+import com.taki.common.message.ActualRefundMessage;
 import com.taki.common.utlis.ResponseData;
 import com.taki.order.domain.dto.LackDTO;
+import com.taki.order.domain.request.CancelOrderAssembleRequest;
 import com.taki.order.domain.request.CancelOrderRequest;
 import com.taki.order.domain.request.LackRequest;
 import com.taki.order.domain.request.ReturnGoodsOrderRequest;
@@ -38,4 +40,21 @@ public interface OrderAfterSaleService {
      */ 
     Boolean processApplyAfterSale(ReturnGoodsOrderRequest request);
 
+    /**
+     * @description: 退款
+     * @param actualRefundMessage 实际退款 消息
+     * @return  处理结果
+     * @author Long
+     * @date: 2022/4/5 14:56
+     */
+   ResponseData<Boolean>  refundMoney(ActualRefundMessage actualRefundMessage);
+
+    /** 
+     * @description:  取消订单/超时未支付订单 执行退款 计算 金额，记录 售后信息 等准备工作
+     * @param cancelOrderAssembleRequest 取消订单 数据集合 请求
+     * @return 处理结果
+     * @author Long
+     * @date: 2022/4/5 18:48
+     */
+    ResponseData<Boolean> processCancelOrder(CancelOrderAssembleRequest cancelOrderAssembleRequest);
 }

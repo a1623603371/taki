@@ -136,4 +136,6 @@ public class AfterSaleInfoDO extends BaseEntity implements Serializable {
     public static  final  String ORDER_ID ="order_id";
 
     public  static  final  String AFTER_SALE_TYPE_DETAIL = "after_sale_type_detail";
+
+    public static final String AFTER_SALE_STATUS ="after_sale_status";
 }

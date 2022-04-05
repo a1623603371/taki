@@ -23,7 +23,7 @@ public class AfterSaleLogDO extends BaseEntity implements Serializable {
     /**
      * 售后单号
      */
-    private String afterSaleId;
+    private Long afterSaleId;
 
     /**
      * 前一个状态
