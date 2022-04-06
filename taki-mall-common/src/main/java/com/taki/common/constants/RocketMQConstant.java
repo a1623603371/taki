@@ -50,6 +50,11 @@ public class RocketMQConstant {
     public  static final  String CANCEL_RELEASE_PROPERTY_TOPIC = "release_property_topic";
 
     /**
+     * 取消 订单 发送退款 请求 topic
+     */
+    public static final  String CANCEL_REFUND_REQUEST_TOPIC = "cancel_refund_request_topic";
+
+    /**
      * 实际 退款 topic
      */
     public static  final  String ACTUAL_REFUND_TOPIC = "actual_refund_topic";

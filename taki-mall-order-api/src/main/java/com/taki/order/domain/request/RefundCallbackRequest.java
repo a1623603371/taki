@@ -4,6 +4,7 @@ import com.taki.common.core.AbstractObject;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * @ClassName RefundCallbackRequest
@@ -26,10 +27,41 @@ public class RefundCallbackRequest extends AbstractObject implements Serializabl
     /**
      *退款批次号
      */
-    private String batchOn;
+    private String batchNo;
 
     /**
      * 支付接口返回 退款 结果 10未退款 20退款成功 30退款失败
      */
     private Integer refundStatus;
+
+
+    /**
+     * 退款费用
+     */
+    private Integer refundFee;
+
+    /**
+     * 退款总金额
+     */
+    private Integer totalFee;
+
+    /**
+     * 支付退款 签名
+     */
+    private String sign;
+
+    /**
+     * 交易号流水
+     */
+    private String tradeNo;
+
+    /**
+     * 退款时间
+     */
+    private LocalDateTime refundTime;
+
+    /**
+     * 售后单Id
+     */
+    private String afterSaleId;
 }

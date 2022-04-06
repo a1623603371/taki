@@ -106,17 +106,17 @@ public class ReceiveFulFillRequest  implements Serializable {
     /**
      *  付款总金额
      */
-    private Integer payAmount;
+    private BigDecimal payAmount;
 
     /**
      * 交易总金额
      */
-    private Integer totalAmount;
+    private BigDecimal totalAmount;
 
     /**
      * 运费
      */
-    private Integer deliveryAmount;
+    private BigDecimal deliveryAmount;
 
     /**
      * 订单商品明细

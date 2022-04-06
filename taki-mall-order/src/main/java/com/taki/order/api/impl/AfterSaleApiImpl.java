@@ -12,6 +12,7 @@ import com.taki.order.service.OrderLackService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.support.SimpleTriggerContext;
 
 /**
  * @ClassName AfterSaleApiImpl
@@ -66,12 +67,16 @@ public class AfterSaleApiImpl implements AfterSaleApi {
 
     @Override
     public ResponseData<Boolean> refundCallback(RefundCallbackRequest refundCallbackRequest) {
-        return null;
+        String orderId = refundCallbackRequest.getOrderId();
+
+        log.info("接受到取消订单支付退款回调，orderId：{}",orderId);
+
+        return ResponseData.success(orderAfterSaleService.receivePaymentRefundCallback(refundCallbackRequest));
     }
 
     @Override
     public ResponseData<Boolean> receiveCustomerAuditResult(CustomerAuditAssembleRequest customerAuditAssembleRequest) {
-        return null;
+        return ResponseData.success(orderAfterSaleService.receiveCustomerAuditResult(customerAuditAssembleRequest));
     }
 
     @Override

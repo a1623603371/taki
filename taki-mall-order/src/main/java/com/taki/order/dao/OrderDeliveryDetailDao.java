@@ -9,6 +9,8 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+
 /**
  * @ClassName OrderDeliveryDetailDao
  * @Description 订单地址信息 DAO 组件
@@ -56,5 +58,37 @@ public class OrderDeliveryDetailDao extends BaseDAO<OrderDeliveryDetailMapper, O
                 .eq(OrderDeliveryDetailDO.ID,id).update();
 
 
+    }
+
+    /**
+     * @description: 更新订单出库时间
+     * @param id 订单Id
+     * @param outStockTime 出库时间
+     * @return  void
+     * @author Long
+     * @date: 2022/4/6 15:56
+     */
+    public Boolean updateOutStockTime(Long id, LocalDateTime outStockTime) {
+
+        return this.update().set(OrderDeliveryDetailDO.OUT_STOCK_TIME,outStockTime).eq(OrderDeliveryDetailDO.ID,id).
+                update();
+    }
+
+    /**
+     * @description: 增加 配送人员信息
+     * @param id 配送信息Id
+     * @param  delivererNo 配送人员编码
+     * @param deliverName 配送人员姓名
+     * @param delivererPhone 配送人员手机
+     * @return  void
+     * @author Long
+     * @date: 2022/4/6 16:02
+     */
+    public Boolean updateDelivery(Long id, String delivererNo, String deliverName, String delivererPhone) {
+
+        return this.update().set(OrderDeliveryDetailDO.DELIVERER_NO,delivererNo)
+                            .set(OrderDeliveryDetailDO.DELIVERER_NAME,delivererNo)
+                            .set(OrderDeliveryDetailDO.DELIVERER_PHONE,delivererNo)
+                            .eq(OrderDeliveryDetailDO.ID,id).update();
     }
 }

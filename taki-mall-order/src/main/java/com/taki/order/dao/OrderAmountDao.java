@@ -44,4 +44,6 @@ public class OrderAmountDao extends BaseDAO<OrderAmountMapper, OrderAmountDO> {
 
         return this.getOne(new QueryWrapper<OrderAmountDO>().eq(OrderAmountDO.ORDER_ID,orderId).eq(OrderAmountDO.AMOUNT_TYPE,amountType));
     }
+
+
 }

@@ -36,4 +36,16 @@ public class AfterSaleRefundDAO extends BaseDAO<AfterSaleRefundMapper, AfterSale
             return this.list(new QueryWrapper<AfterSaleRefundDO>().eq(AfterSaleInfoDO.AFTER_SALE_ID,afterSaleId));
 
     }
+
+    /**
+     * @description: 更新 售后单 状态
+     * @param afterSaleRefundDO 售后单
+     * @return  void
+     * @author Long
+     * @date: 2022/4/6 18:18
+     */
+    public Boolean updateAfterSaleRefundStatus(AfterSaleRefundDO afterSaleRefundDO) {
+
+        return this.update(afterSaleRefundDO,new QueryWrapper<AfterSaleRefundDO>().eq(AfterSaleRefundDO.AFTER_SALE_ID,afterSaleRefundDO.getAfterSaleId()));
+    }
 }

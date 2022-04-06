@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.experimental.Tolerate;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * @ClassName ReceiveOrderItemRequest
@@ -32,7 +33,7 @@ public class ReceiveOrderItemRequest implements Serializable {
     /**
      * 销售单价
      */
-    private Integer salePrice;
+    private BigDecimal salePrice;
 
     /**
      * 销售数量
@@ -47,12 +48,12 @@ public class ReceiveOrderItemRequest implements Serializable {
     /**
      * 付款金额
      */
-    private Integer payAmount;
+    private BigDecimal payAmount;
 
     /**
      * 当前商品支付原总价
      */
-    private Integer originAmount;
+    private BigDecimal originAmount;
 
     @Tolerate
     public ReceiveOrderItemRequest() {

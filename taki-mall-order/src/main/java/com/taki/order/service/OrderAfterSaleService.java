@@ -3,10 +3,7 @@ package com.taki.order.service;
 import com.taki.common.message.ActualRefundMessage;
 import com.taki.common.utlis.ResponseData;
 import com.taki.order.domain.dto.LackDTO;
-import com.taki.order.domain.request.CancelOrderAssembleRequest;
-import com.taki.order.domain.request.CancelOrderRequest;
-import com.taki.order.domain.request.LackRequest;
-import com.taki.order.domain.request.ReturnGoodsOrderRequest;
+import com.taki.order.domain.request.*;
 
 /**
  * @ClassName OrderAfterSaleService
@@ -57,4 +54,22 @@ public interface OrderAfterSaleService {
      * @date: 2022/4/5 18:48
      */
     ResponseData<Boolean> processCancelOrder(CancelOrderAssembleRequest cancelOrderAssembleRequest);
+    
+    /** 
+     * @description: 取消订单支付退款 回调入口
+     * @param refundCallbackRequest 支付退款 回调请求 参数
+     * @return  java.lang.Object
+     * @author Long
+     * @date: 2022/4/6 17:42
+     */ 
+    Boolean receivePaymentRefundCallback(RefundCallbackRequest refundCallbackRequest);
+    
+    /** 
+     * @description:  接受客服审核结果 入口
+     * @param customerAuditAssembleRequest  客户审核组装请求
+     * @return  java.lang.Object
+     * @author Long
+     * @date: 2022/4/6 18:24
+     */ 
+    Boolean receiveCustomerAuditResult(CustomerAuditAssembleRequest customerAuditAssembleRequest);
 }

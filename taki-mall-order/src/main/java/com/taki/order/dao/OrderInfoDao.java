@@ -88,9 +88,25 @@ public class OrderInfoDao extends BaseDAO<OrderInfoMapper, OrderInfoDO> {
      * @author Long
      * @date: 2022/3/11 17:42
      */ 
-    public void updateOrderExJson(String orderId, OrderExtJsonDTO lackExJson) {
+    public Boolean updateOrderExJson(String orderId, OrderExtJsonDTO lackExJson) {
         String exJsonStr = JSONObject.toJSONString(lackExJson);
 
-        this.update().set(OrderInfoDO.EXT_JSON,exJsonStr).eq(OrderInfoDO.ORDER_ID,orderId).update();
+       return this.update().set(OrderInfoDO.EXT_JSON,exJsonStr).eq(OrderInfoDO.ORDER_ID,orderId).update();
+    }
+
+    /**
+     * @description: 更新订单状态
+     * @param orderId 订单Id
+     * @param preStatus 变更前的状态
+     * @param currentStatus 当改变的状态
+     * @return  void
+     * @author Long
+     * @date: 2022/4/6 15:18
+     */
+    public Boolean updateOrderStatus(String orderId, Integer preStatus, Integer currentStatus) {
+
+      return   this.update().set(OrderInfoDO.ORDER_STATUS,currentStatus)
+                .eq(OrderInfoDO.ORDER_ID,orderId)
+                .eq(OrderInfoDO.ORDER_STATUS,preStatus).update();
     }
 }

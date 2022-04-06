@@ -32,7 +32,7 @@ public class PayRefundRequest implements Serializable {
     /**
      *售后 单号
      */
-    private Long afterSaleId;
+    private String afterSaleId;
 
     /**
      * 交易流水号
