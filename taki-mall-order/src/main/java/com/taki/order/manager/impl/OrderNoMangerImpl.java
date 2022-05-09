@@ -1,4 +1,4 @@
-package com.taki.order.manager;
+package com.taki.order.manager.impl;
 
 import com.taki.common.exception.ServiceException;
 import com.taki.common.utlis.DateFormatUtils;
@@ -8,6 +8,7 @@ import com.taki.order.dao.OrderAutoNoDao;
 import com.taki.order.domain.entity.OrderAutoNoDO;
 import com.taki.order.enums.OrderAutoTypeEnum;
 import com.taki.order.exception.OrderErrorCodeEnum;
+import com.taki.order.manager.OrderNoManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

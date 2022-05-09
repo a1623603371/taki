@@ -175,12 +175,6 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
         // 5.验证订单实付金额
         checkRealPayAmount(createOrderRequest,calculateOrderAmount);
-
-        //6. 锁定优惠券
-        lockUserCoupon(createOrderRequest);
-
-        //7. 锁定商品库存
-        lockProductStock(createOrderRequest);
         //8. 生成订单到数据库
         addNewOrder(createOrderRequest,productSkus,calculateOrderAmount);
 
@@ -1098,7 +1092,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         return addressBuilder.toString();
     }
 
-    /** 
+    /**
      * @description: 锁定商品库存
      * @param createOrderRequest  生单请求
      * @return  void
@@ -1126,31 +1120,6 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
     }
 
-    /**
-     * @description: 锁定优惠券
-     * @param createOrderRequest 生单请求
-     * @return  void
-     * @author Long
-     * @date: 2022/1/6 9:42
-     */
-    private void lockUserCoupon(CreateOrderRequest createOrderRequest) {
-
-        String coupon = createOrderRequest.getCouponId();
-
-        if (StringUtils.isBlank(coupon)){
-                return;
-        }
-
-        LockUserCouponRequest lockUserCouponRequest = createOrderRequest.clone(LockUserCouponRequest.class);
-
-        ResponseData<Boolean> responseResult = marketApi.lockUserCoupon(lockUserCouponRequest);
-
-        if (!responseResult.getSuccess()){
-            log.error("锁定优惠券失败,订单号:{},优惠券Id:{},用户Id:{}",lockUserCouponRequest.getOrderId(),lockUserCouponRequest.getCouponId(),lockUserCouponRequest.getUserId());
-            throw new OrderBizException(responseResult.getCode(),responseResult.getMessage());
-        }
-
-    }
 
     /**
      * @description: 验证订单实付金额

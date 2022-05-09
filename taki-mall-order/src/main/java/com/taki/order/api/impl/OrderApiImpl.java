@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +60,7 @@ public class OrderApiImpl implements OrderApi {
     }
 
     @Override
+    @Transactional
     public ResponseData<CreateOrderDTO> createOrder(CreateOrderRequest createOrderRequest) {
 
         try {

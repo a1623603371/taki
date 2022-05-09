@@ -1,6 +1,7 @@
 package com.taki.order.domain.request;
 
 import com.taki.common.core.AbstractObject;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;

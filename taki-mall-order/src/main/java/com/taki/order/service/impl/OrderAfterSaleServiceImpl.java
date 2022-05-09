@@ -29,7 +29,6 @@ import com.taki.order.exception.OrderErrorCodeEnum;
 import com.taki.order.manager.OrderNoManager;
 import com.taki.order.mq.producer.DefaultProducer;
 import com.taki.order.service.OrderAfterSaleService;
-import com.taki.order.service.amount.AfterSaleAmountService;
 import com.taki.pay.api.PayApi;
 import com.taki.pay.domian.rquest.PayRefundRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -91,6 +90,7 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
 
     @Autowired
     private AfterSaleLogDAO afterSaleLogDAO;
+
     @Autowired
     private DefaultProducer defaultProducer;
 
