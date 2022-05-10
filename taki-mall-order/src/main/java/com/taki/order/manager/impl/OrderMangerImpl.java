@@ -3,6 +3,7 @@ package com.taki.order.manager.impl;
 import com.taki.common.utlis.ObjectUtil;
 import com.taki.common.utlis.ResponseData;
 import com.taki.inventory.api.InventoryApi;
+import com.taki.inventory.domain.request.DeductProductStockRequest;
 import com.taki.inventory.domain.request.LockProductStockRequest;
 import com.taki.market.api.MarketApi;
 import com.taki.market.domain.dto.CalculateOrderAmountDTO;
@@ -52,8 +53,9 @@ public class OrderMangerImpl implements OrderManager {
         lockUserCoupon(createOrderRequest);
 
         // 2.锁定库存
-        //7. 锁定商品库存
-        lockProductStock(createOrderRequest);
+
+        //7. 扣减商品库存
+        deductProductStock(createOrderRequest);
 
 
         // 2 创建订单
@@ -73,17 +75,17 @@ public class OrderMangerImpl implements OrderManager {
      * @author Long
      * @date: 2022/1/6 10:12
      */
-    private void lockProductStock(CreateOrderRequest createOrderRequest) {
+    private void deductProductStock(CreateOrderRequest createOrderRequest) {
 
         String orderId = createOrderRequest.getOrderId();
 
-        List<LockProductStockRequest.OrderItemRequest> orderItemRequests = ObjectUtil.convertList(createOrderRequest.getOrderItemRequests(), LockProductStockRequest.OrderItemRequest.class);
+        List<DeductProductStockRequest.OrderItemRequest> orderItemRequests = ObjectUtil.convertList(createOrderRequest.getOrderItemRequests(), LockProductStockRequest.OrderItemRequest.class);
 
-        LockProductStockRequest lockProductStockRequest = createOrderRequest.clone(LockProductStockRequest.class);
+        DeductProductStockRequest  deductProductStockRequest= createOrderRequest.clone(DeductProductStockRequest.class);
 
-        lockProductStockRequest.setOrderItemRequests(orderItemRequests);
+        deductProductStockRequest.setOrderItemRequests(orderItemRequests);
 
-        ResponseData<Boolean> responseResult = inventoryApi.lockProductStock(lockProductStockRequest);
+        ResponseData<Boolean> responseResult = inventoryApi.deductProductStock(lockProductStockRequest);
 
         if (!responseResult.getSuccess()) {
             log.error("锁定商品仓库失败,订单号：{}", orderId);

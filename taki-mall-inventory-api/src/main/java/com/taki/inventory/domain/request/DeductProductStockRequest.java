@@ -8,13 +8,13 @@ import java.util.List;
 
 /**
  * @ClassName LockProductStockRequest
- * @Description 锁定商品库存请求
+ * @Description 扣减商品库存请求
  * @Author Long
  * @Date 2022/1/6 10:19
  * @Version 1.0
  */
 @Data
-public class LockProductStockRequest extends AbstractObject implements Serializable {
+public class DeductProductStockRequest extends AbstractObject implements Serializable {
 
 
     private static final long serialVersionUID = -7314327971204092932L;

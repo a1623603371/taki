@@ -1,5 +1,6 @@
 package com.taki.inventory.service;
 
+import com.taki.inventory.domain.request.DeductProductStockRequest;
 import com.taki.inventory.domain.request.LockProductStockRequest;
 import com.taki.inventory.domain.request.ReleaseProductStockRequest;
 
@@ -12,14 +13,14 @@ import com.taki.inventory.domain.request.ReleaseProductStockRequest;
  */
 public interface InventoryService {
 
-    /**
-     * @description: 锁定商品库存
-     * @param lockProductStockRequest 锁定商品库存请求参数
-     * @return 结果
-     * @author Long
-     * @date: 2022/2/17 10:16
-     */
-    Boolean lockProductStock(LockProductStockRequest lockProductStockRequest);
+//    /**
+//     * @description: 锁定商品库存
+//     * @param lockProductStockRequest 锁定商品库存请求参数
+//     * @return 结果
+//     * @author Long
+//     * @date: 2022/2/17 10:16
+//     */
+//    Boolean lockProductStock(LockProductStockRequest lockProductStockRequest);
 
 
 
@@ -31,4 +32,13 @@ public interface InventoryService {
      * @date: 2022/2/17 10:24
      */
     Boolean releaseProductStock(ReleaseProductStockRequest releaseProductStockRequest);
+
+    /**
+     * @description:  扣减 库存
+     * @param deductProductStockRequest 扣减商品库存请求
+     * @return  处理结果
+     * @author Long
+     * @date: 2022/5/10 17:37
+     */
+    Boolean deductProductStock(DeductProductStockRequest deductProductStockRequest);
 }

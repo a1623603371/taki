@@ -2,6 +2,7 @@ package com.taki.inventory.api;
 
 import com.taki.common.utlis.ResponseData;
 import com.taki.inventory.domain.request.CancelOrderReleaseProductStockRequest;
+import com.taki.inventory.domain.request.DeductProductStockRequest;
 import com.taki.inventory.domain.request.LockProductStockRequest;
 import com.taki.inventory.domain.request.ReleaseProductStockRequest;
 import com.taki.inventory.exception.InventoryBizException;
@@ -26,12 +27,27 @@ public class InventoryApiImpl implements InventoryApi {
     private InventoryService inventoryService;
 
 
-    @Override
-    public ResponseData<Boolean> lockProductStock(LockProductStockRequest lockProductStockRequest) {
+//    @Override
+//    public ResponseData<Boolean> lockProductStock(LockProductStockRequest lockProductStockRequest) {
+//
+//        try {
+//            Boolean result = inventoryService.lockProductStock(lockProductStockRequest);
+//            return ResponseData.success(result);
+//        }catch (InventoryBizException e){
+//            log.error("biz error",e);
+//            return ResponseData.error(e.getErrorCode(),e.getErrorMessage());
+//        }catch (Exception e){
+//            log.error("system error",e);
+//            return ResponseData.error(e.getMessage());
+//        }
+//    }
 
+    @Override
+    public ResponseData<Boolean> cancelOrderReleaseProductStock(CancelOrderReleaseProductStockRequest cancelOrderReleaseProductStockRequest) {
         try {
-            Boolean result = inventoryService.lockProductStock(lockProductStockRequest);
-            return ResponseData.success(result);
+        log.info("回滚 库存 ,orderId:{}",cancelOrderReleaseProductStockRequest.getOrderId());
+         //   Boolean result = inventoryService.releaseProductStock(releaseProductStockRequest);
+            return ResponseData.success(true);
         }catch (InventoryBizException e){
             log.error("biz error",e);
             return ResponseData.error(e.getErrorCode(),e.getErrorMessage());
@@ -42,11 +58,10 @@ public class InventoryApiImpl implements InventoryApi {
     }
 
     @Override
-    public ResponseData<Boolean> cancelOrderReleaseProductStock(CancelOrderReleaseProductStockRequest cancelOrderReleaseProductStockRequest) {
+    public ResponseData<Boolean> deductProductStock(DeductProductStockRequest deductProductStockRequest) {
         try {
-        log.info("回滚 库存 ,orderId:{}",cancelOrderReleaseProductStockRequest.getOrderId());
-         //   Boolean result = inventoryService.releaseProductStock(releaseProductStockRequest);
-            return ResponseData.success(true);
+            Boolean result = inventoryService.deductProductStock(deductProductStockRequest);
+            return ResponseData.success(result);
         }catch (InventoryBizException e){
             log.error("biz error",e);
             return ResponseData.error(e.getErrorCode(),e.getErrorMessage());

@@ -2,6 +2,7 @@ package com.taki.inventory.api;
 
 import com.taki.common.utlis.ResponseData;
 import com.taki.inventory.domain.request.CancelOrderReleaseProductStockRequest;
+import com.taki.inventory.domain.request.DeductProductStockRequest;
 import com.taki.inventory.domain.request.LockProductStockRequest;
 import com.taki.inventory.domain.request.ReleaseProductStockRequest;
 
@@ -21,17 +22,27 @@ public interface InventoryApi {
      * @return  执行结果数据
      * @author Long
      * @date: 2022/1/6 10:18
-     */
-    ResponseData<Boolean> lockProductStock(LockProductStockRequest lockProductStockRequest);
 
+    @Deprecated
+   // ResponseData<Boolean> lockProductStock(LockProductStockRequest lockProductStockRequest);
+ */
 
 
     /**
      * @description:  取消订单 释放库存
-     * @param releaseProductStockRequest
-     * @return  com.taki.common.utlis.ResponseData<java.lang.Boolean>
+     * @param cancelOrderReleaseProductStockRequest 取消订单释放商品库存 请求参数
+     * @return 处理结果
      * @author Long
      * @date: 2022/2/17 10:28
      */
     ResponseData<Boolean> cancelOrderReleaseProductStock(CancelOrderReleaseProductStockRequest cancelOrderReleaseProductStockRequest);
+
+    /** 
+     * @description: 扣减库存
+     * @param deductProductStockRequest 扣减商品库存 请求
+     * @return  处理结果
+     * @author Long
+     * @date: 2022/5/10 15:03
+     */ 
+    ResponseData<Boolean> deductProductStock(DeductProductStockRequest deductProductStockRequest);
 }

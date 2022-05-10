@@ -35,6 +35,7 @@ import com.taki.order.dao.*;
 import com.taki.order.domain.dto.*;
 import com.taki.order.domain.request.*;
 import com.taki.order.domain.entity.*;
+import com.taki.order.manager.OrderManager;
 import com.taki.order.mq.producer.DefaultProducer;
 import com.taki.pay.api.PayApi;
 import com.taki.pay.domian.dto.PayOrderDTO;
@@ -107,6 +108,10 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     @Autowired
     private OrderNoManager orderNoManager;
 
+
+    @Autowired
+    private OrderManager orderManager;
+
     @Autowired
     private OrderProperties orderProperties;
 
@@ -175,10 +180,14 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
         // 5.验证订单实付金额
         checkRealPayAmount(createOrderRequest,calculateOrderAmount);
-        //8. 生成订单到数据库
+
+        //6. 生成订单到数据库
+        createOrder(createOrderRequest,productSkus,calculateOrderAmount);
+
+
         addNewOrder(createOrderRequest,productSkus,calculateOrderAmount);
 
-        // 9.发送延时订单消息用于支付超时自动关单
+        // 7.发送延时订单消息用于支付超时自动关单
         sendPayOrderTimeoutDelayMessage(createOrderRequest);
         // 返回订单数据
         CreateOrderDTO createOrderDTO = new CreateOrderDTO();
@@ -746,6 +755,22 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
         }
     }
+
+    /***
+     * @description: 创建订单
+     * @param createOrderRequest 创建订单请求 数据
+     * @param productSkus 商品SKU 集合
+     *  @param calculateOrderAmount    计算 订单金额 数据
+     * @return  void
+     * @author Long
+     * @date: 2022/5/10 14:42
+     */
+    private void createOrder(CreateOrderRequest createOrderRequest,List<ProductSkuDTO> productSkus,CalculateOrderAmountDTO calculateOrderAmount ){
+
+
+        orderManager.createOrder(createOrderRequest,productSkus, calculateOrderAmount );
+    }
+
 
     /**
      * @param fullOrderData 完整订单数据
