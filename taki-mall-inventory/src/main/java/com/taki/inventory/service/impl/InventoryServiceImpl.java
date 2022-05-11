@@ -1,8 +1,15 @@
 package com.taki.inventory.service.impl;
 
+import com.taki.common.constants.RedisLockKeyConstants;
+import com.taki.common.redis.RedisCache;
+import com.taki.common.redis.RedisLock;
 import com.taki.common.utlis.ParamCheckUtil;
+import com.taki.inventory.cache.CacheSupport;
 import com.taki.inventory.dao.ProductStockDao;
+import com.taki.inventory.dao.ProductStockLogDao;
+import com.taki.inventory.domain.dto.DeductStockDTO;
 import com.taki.inventory.domain.entity.ProductStockDO;
+import com.taki.inventory.domain.entity.ProductStockLogDO;
 import com.taki.inventory.domain.request.DeductProductStockRequest;
 import com.taki.inventory.domain.request.LockProductStockRequest;
 import com.taki.inventory.domain.request.ReleaseProductStockRequest;
@@ -11,12 +18,15 @@ import com.taki.inventory.exception.InventoryErrorCodeEnum;
 import com.taki.inventory.service.InventoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.config.CacheManagementConfigUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import org.w3c.dom.stylesheets.LinkStyle;
 
+import java.text.MessageFormat;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName InventoryServiceImpl
@@ -32,6 +42,18 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Autowired
     private ProductStockDao productStockDao;
+
+    @Autowired
+    private ProductStockLogDao productStockLogDao;
+
+    @Autowired
+    private RedisCache redisCache;
+
+    @Autowired
+    private RedisLock redisLock;
+
+    @Autowired
+    private AddProductStockProcessor addProductStockProcessor;
 
 //    @Transactional(rollbackFor = Exception.class)
 //    @Override
@@ -110,7 +132,7 @@ public class InventoryServiceImpl implements InventoryService {
 
         // 检查入参
         checkLockProductStockRequest(deductProductStockRequest);
-
+        String orderId = deductProductStockRequest.getOrderId();
         List<DeductProductStockRequest.OrderItemRequest> orderItemRequests = deductProductStockRequest.getOrderItemRequests();
 
         orderItemRequests.forEach(orderItemRequest -> {
@@ -123,27 +145,47 @@ public class InventoryServiceImpl implements InventoryService {
             }
 
             //2 查询 redis 缓存数据
-            String productStockKey = CacheSu
+            String productStockKey = CacheSupport.buildProductStockKey(skuCode);
 
+            Map<String,String> productStockValue = redisCache.hGetAll(productStockKey);
 
-
-
-
-
-
-
-
-
-
-
-            Integer saleQuantity = orderItemRequest.getSaleQuantity();
-
-            Boolean result = productStockDao.lockProductStock(skuCode,saleQuantity);
-
-            if (!result){
-                throw new InventoryBizException(InventoryErrorCodeEnum.LOCK_PRODUCT_SKU_EXISTED_ERROR);
+            if (productStockValue.isEmpty()){
+                //如果缓存中的数据为空 就将 mysql 数据库 的 数据设置 放入缓存中 已 mysql 数据为准
+                addProductStockProcessor.addStockToRedis(productStockDO);
             }
 
+            //3.添加redis 锁 ，防止 bingfa
+
+            String lockKey = MessageFormat.format(RedisLockKeyConstants.RELEASE_PRODUCT_STOCK_KEY,orderId,skuCode);
+
+            Boolean result = redisLock.lock(lockKey);
+
+            if (!result){
+                log.error("无法获取扣减库存锁，orderId = {},skuCode={}",orderId,skuCode);
+                throw new InventoryBizException(InventoryErrorCodeEnum.DEDUCT_PRODUCT_SKU_STOCK_ERROR);
+            }
+
+
+            try {
+
+            //4.查询库存扣减日志
+            ProductStockLogDO productStockLogDO = productStockLogDao.getLog(orderId,skuCode);
+
+            if (!ObjectUtils.isEmpty(productStockDO)){
+                log.error("已扣减，扣减库存日志已存在，orderId={}，skuCode={}",orderId,skuCode);
+            }
+                Integer saleQuantity = orderItemRequest.getSaleQuantity();
+                Integer originSaleStock =  productStockDO.getSaleStockQuantity().intValue();
+                Integer originSaledStock = productStockDO.getSaledStockQuantity().intValue();
+
+                // 5.执行库存扣减
+                DeductStockDTO deductStockDTO = new DeductStockDTO(orderId,skuCode,saleQuantity,originSaleStock,originSaledStock);
+
+                deductProductProcessor
+
+            }finally {
+                redisLock.unLock(lockKey);
+            }
         });
         return true;
     }

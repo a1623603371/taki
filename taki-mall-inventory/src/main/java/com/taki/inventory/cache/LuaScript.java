@@ -72,13 +72,43 @@ public interface LuaScript {
             "local saleQuantity = tonumber(ARGV[1]);" +
             "local originSaledStock = tonumber(ARGV[2]);" +
             "local saledStock = tonumber(redis.call('hget',productStockKey,saledStockKey))" +
-            "if sale" +
-            "" +
-            "" +
-            "" +
-            "" +
-            "" +
-            "" +
-            "" +
-            "";
+            "if saleStock ~= originSaledStock then" +
+            "   return -1;" +
+            "end;" +
+            "redis.call('hset',productStockKey,saledStockKey,saledStock + saleQuantity)" +
+            "return 1;";
+
+    /**
+     * 释放销售库存
+     */
+    String RELEASE_SALE_STOCK =
+            "local productStockKey = KEYS[1];" +
+            "local saleStockKey = KEYS[2];" +
+            "local saleQuantity = tonumber(ARGV(1));" +
+            "local originSaleStock = tonumer(ARGV(2));" +
+            "local saleStock = tonumer(redis.call('hget',productStockKey,saleStockKey))" +
+            "if saleStock ~= originSaleStock then" +
+            "   return -1;" +
+            "end;" +
+            "redis.call('hset',productStockKey,saleStockKey,saleStock + saleQuantity)" +
+            "return 1;";
+
+
+    /**
+     *
+     * 恢复已售库存
+     */
+    String _PRODUCT_STOCK =
+            "local productStockKey =KEYS[1];" +
+            "local saleStockKey =KEYS[2];" +
+            "local saledStockKey =  KEYS[3];" +
+            "local saleQuantity = tonumer(ARGV(1));" +
+            "local saleStock = tonumer(redis.call('hget',prodcutStockKey,saleStockKey))" +
+            "local saledStock = tonumer(redis.call('hget',productStockKey,saledStockKey));" +
+            "if saledStock < saleQuantity then" +
+            "   return -1;" +
+            "end;" +
+            "redis.call('hset',productStockKey,saleStockKey,saleStock + saleQuantity);" +
+            "redis.call('hset',productStockKey,saledStockKey,saledStock - saleQuantity);" +
+            "return 1;";
 }
