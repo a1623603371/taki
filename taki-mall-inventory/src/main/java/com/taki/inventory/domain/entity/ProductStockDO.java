@@ -33,7 +33,7 @@ public class ProductStockDO extends BaseEntity  implements Serializable {
 
 
     /**
-     * 锁定库存
+     * 已销售
      */
     public Long saledStockQuantity;
 

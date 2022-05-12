@@ -11,7 +11,6 @@ import com.taki.inventory.domain.dto.DeductStockDTO;
 import com.taki.inventory.domain.entity.ProductStockDO;
 import com.taki.inventory.domain.entity.ProductStockLogDO;
 import com.taki.inventory.domain.request.DeductProductStockRequest;
-import com.taki.inventory.domain.request.LockProductStockRequest;
 import com.taki.inventory.domain.request.ReleaseProductStockRequest;
 import com.taki.inventory.exception.InventoryBizException;
 import com.taki.inventory.exception.InventoryErrorCodeEnum;
@@ -54,6 +53,10 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Autowired
     private AddProductStockProcessor addProductStockProcessor;
+
+
+    @Autowired
+    private DeductProductStockProcessor deductProductProcessor;
 
 //    @Transactional(rollbackFor = Exception.class)
 //    @Override
@@ -181,7 +184,7 @@ public class InventoryServiceImpl implements InventoryService {
                 // 5.执行库存扣减
                 DeductStockDTO deductStockDTO = new DeductStockDTO(orderId,skuCode,saleQuantity,originSaleStock,originSaledStock);
 
-                deductProductProcessor
+                deductProductProcessor.deduct(deductStockDTO);
 
             }finally {
                 redisLock.unLock(lockKey);

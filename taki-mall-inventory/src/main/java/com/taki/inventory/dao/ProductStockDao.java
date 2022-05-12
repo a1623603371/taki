@@ -61,4 +61,45 @@ public class ProductStockDao extends BaseDAO<ProductStockMapper, ProductStockDO>
         return productStockMapper.releaseProductStock(skuCode,saleQuantity);
     }
 
+    /** 
+     * @description:  扣减销售库存
+     * @param skuCode 商品 sku 编码
+     * @param saleQuantity 销售数量
+     * @param originSaleStock 当前销售库存
+     * @return  int
+     * @author Long
+     * @date: 2022/5/12 15:29
+     */ 
+    public Boolean deductSaleStock(String skuCode, Integer saleQuantity, Integer originSaleStock) {
+
+        return productStockMapper.deductSaleStock(skuCode,saleQuantity,originSaleStock);
+    }
+
+    /**
+     * @description:  增加已销售库存
+     * @param skuCode 商品 sku 编码
+     * @param  saleQuantity 销售库存
+     * @param originSaledQuantity 当前 已销售库存
+     * @return  void
+     * @author Long
+     * @date: 2022/5/12 15:57
+     */
+    public Boolean increaseSaledStock(String skuCode, Integer saleQuantity, Integer originSaledQuantity) {
+
+        return productStockMapper.increaseSaledStock(skuCode,saleQuantity,originSaledQuantity);
+    }
+
+    /**
+     * @description:  还原销售库存
+     * @param skuCode 商品 sku 编码
+     * @param  saleQuantity 销售库存
+     * @param originSaleStock 当前 销售库存
+     * @return  void
+     * @author Long
+     * @date: 2022/5/12 15:57
+     */
+    public Boolean restoreSaleStock(String skuCode, Integer saleQuantity, int originSaleStock) {
+
+        return productStockMapper.restoreSaleStock(skuCode,saleQuantity,originSaleStock);
+    }
 }

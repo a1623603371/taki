@@ -22,24 +22,24 @@
             <artifactId>taki-mall-common</artifactId>
             <version>1.0-SNAPSHOT</version>
 
-            <exclusions>
+<!--            <exclusions>-->
 
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-data-redis</artifactId>
-                </exclusion>
+<!--                <exclusion>-->
+<!--                    <groupId>org.springframework.boot</groupId>-->
+<!--                    <artifactId>spring-boot-starter-data-redis</artifactId>-->
+<!--                </exclusion>-->
 
-                <exclusion>
-                    <groupId>org.redisson</groupId>
-                    <artifactId>redisson</artifactId>
-                </exclusion>
+<!--                <exclusion>-->
+<!--                    <groupId>org.redisson</groupId>-->
+<!--                    <artifactId>redisson</artifactId>-->
+<!--                </exclusion>-->
 
-                <exclusion>
-                    <groupId>redis.clients</groupId>
-                    <artifactId>jedis</artifactId>
-                </exclusion>
+<!--                <exclusion>-->
+<!--                    <groupId>redis.clients</groupId>-->
+<!--                    <artifactId>jedis</artifactId>-->
+<!--                </exclusion>-->
 
-            </exclusions>
+<!--            </exclusions>-->
 
 
         </dependency>

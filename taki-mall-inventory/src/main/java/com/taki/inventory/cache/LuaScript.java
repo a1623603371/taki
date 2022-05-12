@@ -98,7 +98,7 @@ public interface LuaScript {
      *
      * 恢复已售库存
      */
-    String _PRODUCT_STOCK =
+    String RELEASE_PRODUCT_STOCK =
             "local productStockKey =KEYS[1];" +
             "local saleStockKey =KEYS[2];" +
             "local saledStockKey =  KEYS[3];" +

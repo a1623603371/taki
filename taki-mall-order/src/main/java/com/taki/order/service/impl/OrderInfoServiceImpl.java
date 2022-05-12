@@ -1,6 +1,7 @@
 package com.taki.order.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
 import com.taki.address.api.AddressApi;
 import com.taki.address.domian.dto.AddressDTO;
 import com.taki.address.domian.request.AddressQuery;
@@ -21,7 +22,6 @@ import com.taki.common.utlis.ObjectUtil;
 import com.taki.common.utlis.ParamCheckUtil;
 import com.taki.common.utlis.ResponseData;
 import com.taki.inventory.api.InventoryApi;
-import com.taki.inventory.domain.request.LockProductStockRequest;
 import com.taki.market.api.MarketApi;
 import com.taki.market.domain.dto.CalculateOrderAmountDTO;
 import com.taki.market.domain.dto.UserCouponDTO;
@@ -58,6 +58,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.rocketmq.client.producer.LocalTransactionState;
+import org.apache.rocketmq.client.producer.TransactionListener;
+import org.apache.rocketmq.client.producer.TransactionMQProducer;
+import org.apache.rocketmq.common.message.Message;
+import org.apache.rocketmq.common.message.MessageExt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -85,22 +90,11 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     private OrderInfoDao orderInfoDao;
 
     @Autowired
-    private OrderItemDao orderItemDao;
-
-    @Autowired
     private OrderDeliveryDetailDao orderDeliveryDetailDao;
 
     @Autowired
     private OrderOperateLogDao orderOperateLogDao;
 
-    @Autowired
-    private OrderAmountDao orderAmountDao;
-
-    @Autowired
-    private OrderAmountDetailDao orderAmountDetailDao;
-
-    @Autowired
-    private OrderSnapshotDao orderSnapshotDao;
 
     @Autowired
     private OrderPaymentDetailDao orderPaymentDetailDao;
@@ -112,8 +106,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     @Autowired
     private OrderManager orderManager;
 
-    @Autowired
-    private OrderProperties orderProperties;
+
 
 
     @Autowired
@@ -123,6 +116,19 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     @Autowired
     private RedisLock redisLock;
 
+
+    /**
+     * 库存服务
+     */
+    @DubboReference(version ="1.0.0" ,retries = 0)
+    private InventoryApi inventoryApi;
+
+    /**
+     * 营销服务
+     */
+    @DubboReference(version = "1.0.0" ,retries = 0)
+    private MarketApi marketApi;
+
     @DubboReference
     private RiskApi riskApi;
 
@@ -130,21 +136,11 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     @DubboReference
     private ProductApi productApi;
 
-
-    @DubboReference
-    private MarketApi marketApi;
-
-
-    @DubboReference
-    private InventoryApi inventoryApi;
-
-
     @DubboReference
     private AddressApi addressApi;
 
     @DubboReference
     private PayApi payApi;
-
 
 
     @Override
@@ -185,7 +181,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         createOrder(createOrderRequest,productSkus,calculateOrderAmount);
 
 
-        addNewOrder(createOrderRequest,productSkus,calculateOrderAmount);
+        //addNewOrder(createOrderRequest,productSkus,calculateOrderAmount);
 
         // 7.发送延时订单消息用于支付超时自动关单
         sendPayOrderTimeoutDelayMessage(createOrderRequest);
@@ -249,9 +245,19 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
         Integer payType = payCallbackRequest.getPayType();
 
-        String lockKey =  RedisLockKeyConstants.ORDER_PAY_KEY + orderId;
+        List<String> redisKeyList = Lists.newArrayList();
 
-        boolean lock = redisLock.lock(lockKey);
+
+        String orderPayKey = RedisLockKeyConstants.ORDER_PAY_KEY + orderId;
+
+        String cancelOrderPayKey = RedisLockKeyConstants.CANCEL_KEY + orderId;
+
+        redisKeyList.add(orderPayKey);
+        redisKeyList.add(cancelOrderPayKey);
+
+
+
+        boolean lock = redisLock.multiLock(redisKeyList);
 
         if (!lock){
             throw new OrderBizException(OrderErrorCodeEnum.ORDER_PAY_CALLBACK_ERROR);
@@ -275,8 +281,36 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         Integer orderStatus = orderInfo.getOrderStatus();
 
         if (OrderStatusEnum.CREATED.getCode().equals(orderStatus)){
-            //如果订单状态是 ”已创建“ 直接更新订单状态为已支付
-            updateOrderStatusPaid(payCallbackRequest,orderInfo,orderPaymentDetail);
+            //如果订单状态是 ”已创建“ 直接更新订单状态为已支付，并发送事务消息
+
+            TransactionMQProducer transactionMQProducer = defaultProducer.getProducer();
+
+            transactionMQProducer.setTransactionListener(new TransactionListener() {
+                @Override
+                public LocalTransactionState executeLocalTransaction(Message message, Object o) {
+                    try {
+                    orderManager.updateOrderStatusPaid(payCallbackRequest,orderInfo,orderPaymentDetail);
+
+                    return LocalTransactionState.COMMIT_MESSAGE;
+                    }catch (OrderBizException e){
+                        throw e;
+                    }catch (Exception e){
+
+                        log.error("system error:{}",e);
+
+                        return LocalTransactionState.ROLLBACK_MESSAGE;
+                    }
+
+                }
+
+                @Override
+                public LocalTransactionState checkLocalTransaction(MessageExt messageExt) {
+                        // 检查
+
+                    return null;
+                }
+            });
+
             // 发送 “订单已完成支付” 消息
             sendPaidOrderSuccessMessage(orderInfo);
         }else {
@@ -311,7 +345,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         }
 
         }finally {
-            redisLock.unLock(lockKey);
+            redisLock.unMultiLock(redisKeyList);
         }
 
 
@@ -412,87 +446,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         defaultProducer.sendMessage(RocketMQConstant.PAID_ORDER_SUCCESS_TOPIC,msgJson,"订单已完成支付");
     }
 
-    /** 
-     * @description: 修改订单状态
-     * @param payCallbackRequest 支付回调请求
-     * @param  orderInfo 订单
-     * @param   orderPaymentDetail 订单支付详情
-     * @return  void
-     * @author Long
-     * @date: 2022/1/17 16:34
-     */ 
-    private void updateOrderStatusPaid(PayCallbackRequest payCallbackRequest, OrderInfoDO orderInfo, OrderPaymentDetailDO orderPaymentDetail) {
 
-        // 主单信息
-        String orderId = payCallbackRequest.getOrderId();
-        // 预支付订单状态
-        Integer preOrderStatus = orderInfo.getOrderStatus();
-        orderInfo.setOrderStatus(OrderStatusEnum.PAID.getCode());
-        orderInfoDao.updateById(orderInfo);
-
-        // 主单支付信息
-        orderPaymentDetail.setPayStatus(OrderStatusEnum.PAID.getCode());
-        orderPaymentDetailDao.updateById(orderPaymentDetail);
-
-        // 新增 订单状态 变更日志
-        OrderOperateLogDO orderOperateLog = new OrderOperateLogDO();
-        orderOperateLog.setOrderId(orderId);
-        orderOperateLog.setOperateType(OrderOperateTypeEnum.PAID_ORDER.getCode());
-        orderOperateLog.setPreStatus(preOrderStatus);
-        orderOperateLog.setCurrentStatus(orderInfo.getOrderStatus());
-        orderOperateLog.setRemark("订单支付回调操作" + orderOperateLog.getPreStatus() + "-" + orderOperateLog.getCurrentStatus());
-        orderOperateLogDao.save(orderOperateLog);
-
-        // 判断是否有子订单
-        List<OrderInfoDO> suborderInfoDOList = orderInfoDao.listByParentOrderId(orderId);
-
-        if(!ObjectUtils.isEmpty(suborderInfoDOList) && !suborderInfoDOList.isEmpty()){
-            // 先将主订单 状态设置 为无效订单
-            Integer newPerOrderStatus = orderInfo.getOrderStatus();
-            orderInfo.setOrderStatus(OrderStatusEnum.INVALID.getCode());
-            orderInfoDao.updateById(orderInfo);
-
-            // 新增订单状态变更日志
-            OrderOperateLogDO newOrderOperateLog = new OrderOperateLogDO();
-            newOrderOperateLog.setOrderId(orderId);
-            newOrderOperateLog.setOperateType(OrderOperateTypeEnum.PAID_ORDER.getCode());
-            orderOperateLog.setPreStatus(newPerOrderStatus);
-            orderOperateLog.setCurrentStatus(OrderStatusEnum.INVALID.getCode());
-            orderOperateLog.setRemark("订单支付回调操作,主订单状态变更" + newOrderOperateLog.getPreStatus()
-                    + "-" + newOrderOperateLog.getCurrentStatus());
-            orderOperateLogDao.save(orderOperateLog);
-
-            // 更新 子订单状态
-            suborderInfoDOList.forEach(suborderInfo ->{
-
-                Integer subOrderStatus = suborderInfo.getOrderStatus();
-                suborderInfo.setOrderStatus(OrderStatusEnum.PAID.getCode());
-                orderInfoDao.updateById(suborderInfo);
-
-                //更新子订单的支付明细状态
-                String subOrderId = suborderInfo.getOrderId();
-
-                OrderPaymentDetailDO subOrderPaymentDetail = orderPaymentDetailDao.getPaymentDetailByOrderId(subOrderId);
-
-                if(!ObjectUtils.isEmpty(subOrderPaymentDetail)){
-                    subOrderPaymentDetail.setPayStatus(OrderStatusEnum.PAID.getCode());
-                    orderPaymentDetailDao.updateById(subOrderPaymentDetail);
-                }
-                // 新增订单状态变更日志
-                OrderOperateLogDO subOrderOperateLog = new OrderOperateLogDO();
-                subOrderOperateLog.setOrderId(subOrderId);
-                subOrderOperateLog.setOperateType(OrderOperateTypeEnum.PAID_ORDER.getCode());
-                subOrderOperateLog.setPreStatus(subOrderStatus);
-                subOrderOperateLog.setCurrentStatus(OrderStatusEnum.PAID.getCode());
-                subOrderOperateLog.setRemark("订单支付回调操作，子订单状态变跟:"
-                        + subOrderOperateLog.getPreStatus() + "-" + subOrderOperateLog.getCurrentStatus());
-                orderOperateLogDao.save(subOrderOperateLog);
-            });
-
-        }
-
-
-    }
 
     /**
      * @description: 检查支付回调请求参数
@@ -668,93 +622,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
     }
 
-    /**
-     * @description: 添加订单到数据库
-     * @param createOrderRequest 创建订单请求
-     * @param productSkus 商品SKU 集合
-     * @param calculateOrderAmount 订单费用
-     * @return  void
-     * @author Long
-     * @date: 2022/1/6 10:39
-     */
-    private void addNewOrder(CreateOrderRequest createOrderRequest, List<ProductSkuDTO> productSkus, CalculateOrderAmountDTO calculateOrderAmount) {
 
-        // 封装订单数据
-        NewOrderDataHolder newOrderDataHolder = new NewOrderDataHolder();
-
-        // 生成主订单
-        FullOrderData fullOrderData = addNewMasterOrder(createOrderRequest,productSkus,calculateOrderAmount);
-
-
-        //封装主订单数据到NewOrderData对象中
-        newOrderDataHolder.appendOrderData(fullOrderData);
-
-        // 多商品进行拆单
-        Map<Integer,List<ProductSkuDTO>> productTypeMap = productSkus.stream().collect(Collectors.groupingBy(ProductSkuDTO::getProductType));
-
-        if (productTypeMap.keySet().size() >  1){
-
-            productTypeMap.keySet().forEach(productType ->{
-                // 生成子订单
-                FullOrderData fullSubOrderData = addNewSubOrder(fullOrderData,productType);
-
-                // 进行封装
-                newOrderDataHolder.appendOrderData(fullSubOrderData);
-            });
-
-            // 保存 订单到数据库
-            List<OrderInfoDO> orderInfoDOList = newOrderDataHolder.getOrderInfos();
-
-            if (!orderInfoDOList.isEmpty()){
-                orderInfoDao.saveBatch(orderInfoDOList);
-            }
-
-            // 保存订单 条目 到数据库
-            List<OrderItemDO> orderItemDOList = newOrderDataHolder.getOrderItems();
-            if (! orderItemDOList.isEmpty()){
-                orderItemDao.saveBatch(orderItemDOList);
-            }
-
-            //保存订单地址详情到数据库
-            List<OrderDeliveryDetailDO> orderDeliveryDetailList = newOrderDataHolder.getOrderDeliveryDetails();
-            if (!orderDeliveryDetailList.isEmpty()){
-                orderDeliveryDetailDao.saveBatch(orderDeliveryDetailList);
-            }
-
-            // 保存 支付信息
-            List<OrderPaymentDetailDO> orderPaymentDetailList = newOrderDataHolder.getOrderPaymentDetails();
-            if (!orderDeliveryDetailList.isEmpty()){
-                orderPaymentDetailDao.saveBatch(orderPaymentDetailList);
-            }
-
-            // 保存订单费用信息
-            List<OrderAmountDO> orderAmountList = newOrderDataHolder.getOrderAmounts();
-
-            if (!orderAmountList.isEmpty()){
-                orderAmountDao.saveBatch(orderAmountList);
-            }
-
-            // 保存订单费用详细信息
-            List<OrderAmountDetailDO> orderAmountDetailList = newOrderDataHolder.getOrderAmountDetails();
-
-            if (!orderAmountDetailList.isEmpty()){
-                orderAmountDetailDao.saveBatch(orderAmountDetailList);
-            }
-
-            //保存订单操作日志
-            List<OrderOperateLogDO> orderOperateLogList = newOrderDataHolder.getOrderOperateLogs();
-            if (!orderOperateLogList.isEmpty()){
-                orderOperateLogDao.saveBatch(orderOperateLogList);
-            }
-            // 保存订单快照信息
-            List<OrderSnapshotDO> orderSnapshotList = newOrderDataHolder.getOrderSnapshots();
-
-            if (!orderSnapshotList.isEmpty()){
-                orderSnapshotDao.saveBatch(orderSnapshotList);
-            }
-
-        }
-    }
 
     /***
      * @description: 创建订单
@@ -772,350 +640,11 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     }
 
 
-    /**
-     * @param fullOrderData 完整订单数据
-     * @param productType   商品类型
-     * @return
-     * @description: 添加子订单
-     * @author Long
-     * @date: 2022/1/10 12:00
-     */
-    private FullOrderData addNewSubOrder(FullOrderData fullOrderData, Integer productType) {
 
-        // 订单
-        OrderInfoDO orderInfo = fullOrderData.getOrderInfo();
 
-        // 订单条目
-        List<OrderItemDO> orderItems = fullOrderData.getOrderItems();
 
-        // 订单配送信息
-        OrderDeliveryDetailDO orderDeliveryDetail = fullOrderData.getOrderDeliveryDetailDO();
-        // 主订单 支付信息
-        List<OrderPaymentDetailDO> orderPaymentDetails = fullOrderData.getOrderPaymentDetails();
-        // 主订单费用信息
-        List<OrderAmountDO> orderAmounts = fullOrderData.getOrderAmounts();
-        // 主订单费用详情
-        List<OrderAmountDetailDO> orderAmountDetails = fullOrderData.getOrderAmountDetails();
-        // 订单操作日志
-        OrderOperateLogDO operateLog = fullOrderData.getOrderOperateLog();
-        // 订单快照 日志
-        List<OrderSnapshotDO> orderSnapshots = fullOrderData.getOrderSnapshots();
 
-        // 父订单号
-        String parentOrderId = orderInfo.getOrderId();
 
-        // 用户Id
-        String userId = orderInfo.getUserId();
-
-        // 生成子订单号
-        String subOrderId = orderNoManager.genOrderId(productType, userId);
-
-        //字订单全量数据
-        FullOrderData subFullOrderData = new FullOrderData();
-
-        // 过滤出当前商品类型的订单条目信息
-
-        List<OrderItemDO> subOrderItems = orderItems.stream().filter(orderItemDO -> productType.equals(orderItemDO.getProductType())).collect(Collectors.toList());
-
-        // 统计子订单 金额
-
-        BigDecimal subOrderAmount = BigDecimal.ZERO;
-
-        BigDecimal subRealPayAmount = BigDecimal.ZERO;
-
-        for (OrderItemDO subOrderItem : subOrderItems) {
-            subOrderAmount = subOrderAmount.add(subOrderItem.getOriginAmount());
-            subRealPayAmount = subRealPayAmount.add(subOrderItem.getPayAmount());
-        }
-
-        // 订单信息 主信息
-        OrderInfoDO newSubOrder = orderInfo.clone(OrderInfoDO.class);
-        newSubOrder.setId(null);
-        newSubOrder.setOrderId(subOrderId);
-        newSubOrder.setParentOrderId(parentOrderId);
-        newSubOrder.setOrderStatus(OrderStatusEnum.INVALID.getCode());
-        newSubOrder.setTotalAmount(subOrderAmount);
-        newSubOrder.setPayAmount(subRealPayAmount);
-        subFullOrderData.setOrderInfo(newSubOrder);
-
-        // 订单条目
-        List<OrderItemDO> newSubOrderItems = new ArrayList<>();
-
-        subOrderItems.forEach(subOrderItem -> {
-            OrderItemDO orderItemDO = subOrderItem.clone(OrderItemDO.class);
-            orderItemDO.setId(null);
-            orderItemDO.setOrderId(subOrderId);
-            String subOrderItemId = getSubOrderItemId(orderItemDO.getOrderItemId(), subOrderId);
-            orderItemDO.setOrderItemId(subOrderItemId);
-            newSubOrderItems.add(subOrderItem);
-        });
-        subFullOrderData.setOrderItems(newSubOrderItems);
-
-        // 订单配送地址信息
-        OrderDeliveryDetailDO newOrderDeliveryDetail = orderDeliveryDetail.clone(OrderDeliveryDetailDO.class);
-        newOrderDeliveryDetail.setId(null);
-        newOrderDeliveryDetail.setOrderId(subOrderId);
-        subFullOrderData.setOrderDeliveryDetailDO(newOrderDeliveryDetail);
-
-        Map<String, OrderItemDO> subOrderItemMap = subOrderItems.stream().collect(Collectors.toMap(OrderItemDO::getOrderItemId, Function.identity()));
-
-        // 子订单 总支付金额
-        BigDecimal subTotalOriginPayAmount = BigDecimal.ZERO;
-        // 子订单优惠券抵扣金额
-        BigDecimal subTotalCouponDiscountAmount = BigDecimal.ZERO;
-        // 子订单 实际支付金额
-        BigDecimal subTotalRealPayAmount = BigDecimal.ZERO;
-
-        List<OrderAmountDetailDO> subOrderAmountDetailList = new ArrayList<>();
-
-
-        for (OrderAmountDetailDO orderAmountDetail : orderAmountDetails) {
-
-            String orderItemId = orderAmountDetail.getOrderItemId();
-
-            if (!subOrderItemMap.containsKey(orderItemId)) {
-                continue;
-            }
-
-            OrderAmountDetailDO subOrderAmountDetail = orderAmountDetail.clone(OrderAmountDetailDO.class);
-            subOrderAmountDetail.setId(null);
-            subOrderAmountDetail.setOrderId(subOrderId);
-            String subOrderItemId = getSubOrderItemId(orderItemId, subOrderId);
-            subOrderAmountDetail.setOrderItemId(subOrderItemId);
-            subOrderAmountDetailList.add(subOrderAmountDetail);
-
-            Integer amountType = orderAmountDetail.getAmountType();
-            BigDecimal amount = orderAmountDetail.getAmount();
-
-            if (AmountTypeEnum.ORIGIN_PAY_AMOUNT.getCode().equals(amountType)) {
-                subTotalOriginPayAmount = subTotalOriginPayAmount.add(amount);
-            }
-
-            if (AmountTypeEnum.REAL_PAY_AMOUNT.getCode().equals(amountType)) {
-                subTotalRealPayAmount = subTotalRealPayAmount.add(amount);
-            }
-
-            if (AmountTypeEnum.COUPON_DISCOUNT_AMOUNT.getCode().equals(amountType)) {
-                subTotalCouponDiscountAmount = subTotalCouponDiscountAmount.add(amount);
-            }
-
-        }
-
-        subFullOrderData.setOrderAmountDetails(subOrderAmountDetailList);
-
-
-        // 订单费用
-        List<OrderAmountDO> subOrderAmountList = new ArrayList<>();
-
-
-        for (OrderAmountDO orderAmountDO : orderAmounts) {
-
-            Integer amountType = orderAmountDO.getAmountType();
-
-            OrderAmountDO subOrderAmountDO = orderAmountDO.clone(OrderAmountDO.class);
-
-            subOrderAmountDO.setId(null);
-            subOrderAmountDO.setOrderId(subOrderId);
-
-            if (amountType.equals(AmountTypeEnum.ORIGIN_PAY_AMOUNT.getCode())) {
-                subOrderAmountDO.setAmount(subTotalOriginPayAmount);
-                subOrderAmountList.add(subOrderAmountDO);
-            }
-
-            if (amountType.equals(AmountTypeEnum.REAL_PAY_AMOUNT.getCode())) {
-                subOrderAmountDO.setAmount(subRealPayAmount);
-                subOrderAmountList.add(subOrderAmountDO);
-            }
-
-            if (amountType.equals(AmountTypeEnum.COUPON_DISCOUNT_AMOUNT.getCode())) {
-                subOrderAmountDO.setAmount(subTotalCouponDiscountAmount);
-                subOrderAmountList.add(subOrderAmountDO);
-            }
-
-        }
-
-        subFullOrderData.setOrderAmounts(subOrderAmountList);
-
-        // 订单支付信息
-        List<OrderPaymentDetailDO> subOrderPaymentDetails = new ArrayList<>();
-
-        for (OrderPaymentDetailDO orderPaymentDetailDO : orderPaymentDetails) {
-            OrderPaymentDetailDO subOrderPaymentDetailDO = orderPaymentDetailDO.clone(OrderPaymentDetailDO.class);
-            subOrderPaymentDetailDO.setId(null);
-            subOrderPaymentDetailDO.setOrderId(subOrderId);
-            subOrderPaymentDetailDO.setPayAmount(subTotalRealPayAmount);
-            subOrderPaymentDetails.add(subOrderPaymentDetailDO);
-        }
-
-        // 订单状态变更
-        OrderOperateLogDO suborderOperateLogDO = operateLog.clone(OrderOperateLogDO.class);
-        suborderOperateLogDO.setId(null);
-        suborderOperateLogDO.setOrderId(subOrderId);
-        subFullOrderData.setOrderOperateLog(suborderOperateLogDO);
-
-        // 订单商品快照
-        List<OrderSnapshotDO> subOrderSnapshotList = new ArrayList<>();
-        orderSnapshots.forEach(orderSnapshotDO -> {
-            OrderSnapshotDO subOrderSnapshotDO = orderSnapshotDO.clone(OrderSnapshotDO.class);
-            subOrderSnapshotDO.setId(null);
-            subOrderSnapshotDO.setOrderId(subOrderId);
-            if (SnapshotTypeEnum.ORDER_AMOUNT.equals(orderSnapshotDO.getSnapshotType())){
-                subOrderSnapshotDO.setSnapshotJson(JsonUtil.object2Json(subOrderAmountList));
-            }
-            if (SnapshotTypeEnum.ORDER_ITEM.equals(orderSnapshotDO.getSnapshotType())){
-                subOrderSnapshotDO.setSnapshotJson(JsonUtil.object2Json(subOrderItems));
-            }
-
-            subOrderSnapshotList.add(subOrderSnapshotDO);
-
-        });
-        subFullOrderData.setOrderSnapshots(subOrderSnapshotList);
-
-        return subFullOrderData;
-    }
-    /** 
-     * @description: 获取子订单的orderItemId
-     * @param 
-     * @return  java.lang.String
-     * @author Long
-     * @date: 2022/1/10 13:58
-     */ 
-    private String getSubOrderItemId(String orderItemId ,String  subOrderId) {
-        String postfix = orderItemId.substring(orderItemId.indexOf("_"));
-        return subOrderId + postfix;
-    }
-
-    /**
-     * @description: 生成主订单
-     * @param createOrderRequest 创建订单请求
-     * @param productSkus 商品SKU
-     * @param calculateOrderAmount 订单费用
-     * @return  主订单数据
-     * @author Long
-     * @date: 2022/1/8 13:51
-     */
-    private FullOrderData addNewMasterOrder(CreateOrderRequest createOrderRequest, List<ProductSkuDTO> productSkus, CalculateOrderAmountDTO calculateOrderAmount) {
-
-        NewOrderBuilder  newOrderBuilder = new NewOrderBuilder(createOrderRequest,productSkus,calculateOrderAmount,orderProperties);
-        FullOrderData fullOrderData = newOrderBuilder.builder()
-                .buildOrderItems()
-                .buildOrderAmount()
-                .buildOrderAmountDetail()
-                .buildOrderDeliveryDetail()
-                .buildOrderPaymentDetail()
-                .buildOperateLog()
-                .buildOrderSnapsShot()
-                .build();
-
-        // 订单信息
-        OrderInfoDO orderInfo =fullOrderData.getOrderInfo();
-        
-        // 订单条目
-        List<OrderItemDO> orderItems = fullOrderData.getOrderItems();
-
-        // 订单费用信息
-        List<OrderAmountDO> orderAmounts = fullOrderData.getOrderAmounts();
-
-        //补全地址信息
-        OrderDeliveryDetailDO orderDeliveryDetail = fullOrderData.getOrderDeliveryDetailDO();
-        String detailAddress = getDeliveryDetail(orderDeliveryDetail);
-        orderDeliveryDetail.setDetailAddress(detailAddress);
-
-        //补全订单状态变更日志
-
-        OrderOperateLogDO orderOperateLog = fullOrderData.getOrderOperateLog();
-
-        String remark = "创建订单操作0-10";
-        orderOperateLog.setRemark(remark);
-
-        //补全商品快照信息
-
-        List<OrderSnapshotDO> orderSnapshots = fullOrderData.getOrderSnapshots();
-
-        orderSnapshots.forEach(orderSnapshotDO -> {
-
-            // 优惠券信息
-            if (orderSnapshotDO.getSnapshotType().equals(SnapshotTypeEnum.ORDER_COUPON.getCode())){
-                String couponId = orderInfo.getCouponId();
-                String userId = orderInfo.getUserId();
-                UserCouponQuery userCouponQuery = new UserCouponQuery();
-                userCouponQuery.setCouponId(couponId);
-                userCouponQuery.setUserId(userId);
-
-                ResponseData<UserCouponDTO> responseResult = marketApi.queryUserCoupon(userCouponQuery);
-
-                if (responseResult.getSuccess()){
-                    UserCouponDTO userCoupon = responseResult.getData();
-                    if (userCoupon != null){
-                            orderSnapshotDO.setSnapshotJson(JsonUtil.object2Json(userCoupon));
-
-                    }
-
-                }else {
-                    orderSnapshotDO.setSnapshotJson(JsonUtil.object2Json(couponId));
-                }
-            }
-
-            // 订单费用
-
-            if(orderSnapshotDO.getSnapshotType().equals(SnapshotTypeEnum.ORDER_AMOUNT.getCode())){
-
-                orderSnapshotDO.setSnapshotJson(JsonUtil.object2Json(orderAmounts));
-            }
-
-            // 订单条目
-            if (orderSnapshotDO.getSnapshotType().equals(SnapshotTypeEnum.ORDER_ITEM.getCode())){
-                orderSnapshotDO.setSnapshotJson(JsonUtil.object2Json(orderItems));
-            }
-
-        });
-
-        return fullOrderData;
-    }
-
-    /**
-     * 获取手收货地址详细地址
-     * @param orderDeliveryDetail 订单地址信息
-     * @return
-     */
-    private String getDeliveryDetail(OrderDeliveryDetailDO orderDeliveryDetail) {
-
-        String provinceCode = orderDeliveryDetail.getProvince();
-        String cityCode = orderDeliveryDetail.getCity();
-        String areaCode = orderDeliveryDetail.getArea();
-        String streetCode = orderDeliveryDetail.getStreet();
-        AddressQuery addressQuery = new AddressQuery();
-
-        addressQuery.setProvinceCode(provinceCode);
-        addressQuery.setCityCode(cityCode);
-        addressQuery.setAreaCode(areaCode);
-        addressQuery.setStreetCode(streetCode);
-        ResponseData<AddressDTO> responseResult = addressApi.queryAddress(addressQuery);
-
-        if (!responseResult.getSuccess()  || ObjectUtils.isEmpty(responseResult.getData())){
-            return orderDeliveryDetail.getDetailAddress();
-        }
-        AddressDTO address = responseResult.getData();
-
-        StringBuilder addressBuilder = new StringBuilder();
-
-        if (StringUtils.isNotBlank(address.getProvince())){
-            addressBuilder.append(address.getProvince());
-        }
-
-        if (StringUtils.isNotBlank(address.getCity())){
-            addressBuilder.append(address.getCity());
-        }
-
-        if (StringUtils.isNotBlank(address.getArea())){
-            addressBuilder.append(address.getArea());
-        }
-
-        if (StringUtils.isNotBlank(address.getStreet())){
-            addressBuilder.append(address.getStreet());
-        }
-        return addressBuilder.toString();
-    }
 
     /**
      * @description: 锁定商品库存
@@ -1124,26 +653,26 @@ public class OrderInfoServiceImpl implements OrderInfoService {
      * @author Long
      * @date: 2022/1/6 10:12
      */ 
-    private void lockProductStock(CreateOrderRequest createOrderRequest) {
-
-    String orderId = createOrderRequest.getOrderId();
-
-    List<LockProductStockRequest.OrderItemRequest> orderItemRequests = ObjectUtil.convertList(createOrderRequest.getOrderItemRequests(),LockProductStockRequest.OrderItemRequest.class);
-
-    LockProductStockRequest lockProductStockRequest = createOrderRequest.clone(LockProductStockRequest.class);
-
-    lockProductStockRequest.setOrderItemRequests(orderItemRequests);
-
-    ResponseData<Boolean> responseResult = inventoryApi.lockProductStock(lockProductStockRequest);
-
-    if (!responseResult.getSuccess()){
-        log.error("锁定商品仓库失败,订单号：{}",orderId);
-
-        throw  new OrderBizException(responseResult.getCode(),responseResult.getMessage());
-    }
-
-
-    }
+//    private void lockProductStock(CreateOrderRequest createOrderRequest) {
+//
+//    String orderId = createOrderRequest.getOrderId();
+//
+//    List<LockProductStockRequest.OrderItemRequest> orderItemRequests = ObjectUtil.convertList(createOrderRequest.getOrderItemRequests(),LockProductStockRequest.OrderItemRequest.class);
+//
+//    LockProductStockRequest lockProductStockRequest = createOrderRequest.clone(LockProductStockRequest.class);
+//
+//    lockProductStockRequest.setOrderItemRequests(orderItemRequests);
+//
+//    ResponseData<Boolean> responseResult = inventoryApi.lockProductStock(lockProductStockRequest);
+//
+//    if (!responseResult.getSuccess()){
+//        log.error("锁定商品仓库失败,订单号：{}",orderId);
+//
+//        throw  new OrderBizException(responseResult.getCode(),responseResult.getMessage());
+//    }
+//
+//
+//    }
 
 
     /**

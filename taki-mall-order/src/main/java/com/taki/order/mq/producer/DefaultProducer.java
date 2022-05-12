@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.client.producer.SendResult;
 import org.apache.rocketmq.client.producer.SendStatus;
+import org.apache.rocketmq.client.producer.TransactionMQProducer;
 import org.apache.rocketmq.common.message.Message;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * @ClassName DefaultProducer
- * @Description 默认的普通的mq 生产者 （只发送普通消息，不能发送事务消息）
+ * @Description 发送事务消息
  * @Author Long
  * @Date 2022/1/12 10:18
  * @Version 1.0
@@ -25,12 +26,12 @@ import java.nio.charset.StandardCharsets;
 public class DefaultProducer {
 
 
-    private final DefaultMQProducer producer;
+    private final TransactionMQProducer producer;
 
 
     public DefaultProducer(RocketMQProperties rocketMQProperties) {
      //   this.producer =
-        this.producer = new DefaultMQProducer(RocketMQConstant.ORDER_DEFAULT_PRODUCER_GROUP);
+        this.producer = new TransactionMQProducer(RocketMQConstant.ORDER_DEFAULT_PRODUCER_GROUP);
         producer.setNamespace(rocketMQProperties.getNameServer());
         start();
     }
@@ -105,5 +106,11 @@ public class DefaultProducer {
             throw new OrderBizException(OrderErrorCodeEnum.SEND_MQ_FAILED);
         }
 
+    }
+
+
+    public TransactionMQProducer getProducer() {
+
+        return producer;
     }
 }

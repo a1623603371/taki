@@ -1,5 +1,7 @@
 package com.taki.inventory.tcc;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -61,6 +63,53 @@ public class TccResultHolder {
  }
 
 
+ /*** 
+  * @description:
+  * @param 
+  * @return  boolean
+  * @author Long
+  * @date: 2022/5/12 12:55
+  */ 
+ public static boolean isTrgNull(Class<?> tccClass,String bizKey,String xid){
+        String v = getResult(tccClass,bizKey,xid);
+
+        if (StringUtils.isBlank(v)){
+            return true;
+        }
+        
+        return false;
+ }
+
+ /**
+  * @description: 判断 try阶段是否执行成功
+  * @param tccClass
+  * @param bizKey
+  * @param xid
+  * @return  boolean
+  * @author Long
+  * @date: 2022/5/12 12:59
+  */
+ public static boolean isTrySuccess(Class<?> tccClass,String bizKey,String  xid){
+        String v = getResult(tccClass,bizKey,xid);
+        if (StringUtils.isNotBlank(v) && TRY_SUCCESS.equals(v)){
+            return true;
+        }
+
+        return false;
+ }
+
+
+    private static String getResult(Class<?> tccClass, String bizKey, String xid) {
+     Map<String,String> results = map.get(tccClass);
+
+     if (results != null){
+        return results.get(getTccExecution(bizKey,xid));
+     }
+
+    return null;
+    }
+
+
     private static void setResult(Class<?> tccClass, String bizKey,String xid,String v) {
         Map<String,String> results = map.get(tccClass);
 
@@ -76,6 +125,16 @@ public class TccResultHolder {
         results.put(getTccExecution(xid,bizKey),v); // 保存当前分布式事务Id
 
 
+
+    }
+
+
+    public static void removeResult(Class<?> tccClass,String bizKey,String  xid){
+        Map<String,String> results = map.get(tccClass);
+
+        if (results!=null){
+            results.remove(getTccExecution(xid,bizKey));
+        }
 
     }
 

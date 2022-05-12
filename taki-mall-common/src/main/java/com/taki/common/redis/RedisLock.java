@@ -4,6 +4,7 @@ package com.taki.common.redis;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -75,5 +76,53 @@ public class RedisLock {
         if (redisLock.isLocked()) {
             redisLock.unlock();
         }
+    }
+
+    /** 
+     * @description:
+     * @param redisKeyList
+     * @return  boolean
+     * @author Long
+     * @date: 2022/5/12 20:55
+     */ 
+    public boolean multiLock(List<String> redisKeyList) {
+
+        try {
+            RLock multiLock = getMultiLock(redisKeyList);
+
+            return multiLock.tryLock();
+        }catch (Exception e){
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    /*** 
+     * @description:  联锁解锁
+     * @param redisKeyList
+     * @return  void
+     * @author Long
+     * @date: 2022/5/12 21:07
+     */ 
+    public void unMultiLock(List<String>  redisKeyList){
+        RLock rLock = getMultiLock(redisKeyList);
+        rLock.unlock();
+    }
+    
+    /** 
+     * @description:
+     * @param redisKeyList
+     * @return  org.redisson.api.RLock
+     * @author Long
+     * @date: 2022/5/12 20:59
+     */ 
+    private RLock getMultiLock(List<String> redisKeyList) {
+        RLock[] locks = new RLock[redisKeyList.size()];
+
+        for (int i = 0; i < redisKeyList.size(); i++) {
+            RLock rLock = redissonClient.getLock(redisKeyList.get(i));
+            locks[i] = rLock;
+        }
+
+        return redissonClient.getMultiLock(locks);
     }
 }
