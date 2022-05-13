@@ -1,8 +1,6 @@
 package com.taki.inventory.service;
 
-import com.taki.inventory.domain.request.DeductProductStockRequest;
-import com.taki.inventory.domain.request.LockProductStockRequest;
-import com.taki.inventory.domain.request.ReleaseProductStockRequest;
+import com.taki.inventory.domain.request.*;
 
 /**
  * @ClassName InventoryService
@@ -41,4 +39,31 @@ public interface InventoryService {
      * @date: 2022/5/10 17:37
      */
     Boolean deductProductStock(DeductProductStockRequest deductProductStockRequest);
+
+    /**
+     * @description: 添加商品库存
+     * @param addProductStockRequest 添加商品库存 请求
+     * @return 处理结果
+     * @author Long
+     * @date: 2022/5/13 17:52
+     */
+    Boolean addProductStock(AddProductStockRequest addProductStockRequest);
+
+    /**
+     * @description: 修改商品库存
+     * @param modifyProductStockRequest 修改 商品库存请求
+     * @return  处理结果
+     * @author Long
+     * @date: 2022/5/13 18:33
+     */
+    Boolean modifyProductStock(ModifyProductStockRequest modifyProductStockRequest);
+
+    /**
+     * @description: 同步 数据库 与 缓存 的 库存
+     * @param syncStockToCacheRequest 同步 数据库 与 缓存请求
+     * @return
+     * @author Long
+     * @date: 2022/5/13 19:11
+     */
+    Boolean syncStockToCache(SyncStockToCacheRequest syncStockToCacheRequest);
 }

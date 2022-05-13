@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.taki.common.utlis.ResponseData;
 import com.taki.inventory.api.InventoryApi;
 import com.taki.inventory.domain.request.CancelOrderReleaseProductStockRequest;
+import com.taki.inventory.domain.request.ReleaseProductStockRequest;
 import com.taki.inventory.exception.InventoryBizException;
 import com.taki.inventory.exception.InventoryErrorCodeEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -40,8 +41,8 @@ public class ReleaseInventoryListener  implements MessageListenerConcurrently {
             String context = new String(msg.getBody(), StandardCharsets.UTF_8);
 
             log.info("ReleaseInventoryConsumer  message:{}",context);
-            CancelOrderReleaseProductStockRequest cancelOrderReleaseProductStockRequest = JSONObject.parseObject(context,CancelOrderReleaseProductStockRequest.class);
-                ResponseData<Boolean> responseData =  inventoryApi.cancelOrderReleaseProductStock(cancelOrderReleaseProductStockRequest);
+            ReleaseProductStockRequest releaseProductStockRequest = JSONObject.parseObject(context,ReleaseProductStockRequest.class);
+                ResponseData<Boolean> responseData =  inventoryApi.cancelOrderReleaseProductStock(releaseProductStockRequest);
             if (!responseData.getSuccess()){
                 throw new InventoryBizException(InventoryErrorCodeEnum.CONSUME_MQ_FAILED);
             }

@@ -98,7 +98,7 @@ public class ParamCheckUtil {
         }
     }
     
-    /** 
+    /**
      * @description: 比较基本数字大小
      * @param i 比较基本数字
      * @param min 对比的最小基本数字
@@ -107,8 +107,24 @@ public class ParamCheckUtil {
      * @return  void
      * @author Long
      * @date: 2022/1/2 20:18
-     */ 
-    public  static void checkIntMin(Integer i,int min,BaseErrorCodeEnum errorCodeEnum,Object args){
+     */
+    public  static void checkIntMin(Integer i,int min,BaseErrorCodeEnum errorCodeEnum,Object... args){
+
+        if (Objects.isNull(i) || i < min ){
+            throw new ServiceException(errorCodeEnum.getErrorCode(), errorCodeEnum.getErrorMsg(), args);
+        }
+    }
+    /**
+     * @description: 比较LOng数字大小
+     * @param i 比较基本数字
+     * @param min 对比的最小基本数字
+     * @param errorCodeEnum 错误枚举
+     * @param args 参数
+     * @return  void
+     * @author Long
+     * @date: 2022/1/2 20:18
+     */
+    public static void checkLongMin(Long i, long min, BaseErrorCodeEnum errorCodeEnum,Object... args) {
 
         if (Objects.isNull(i) || i < min ){
             throw new ServiceException(errorCodeEnum.getErrorCode(), errorCodeEnum.getErrorMsg(), args);
@@ -193,4 +209,6 @@ public class ParamCheckUtil {
 
         return result;
     }
+
+
 }

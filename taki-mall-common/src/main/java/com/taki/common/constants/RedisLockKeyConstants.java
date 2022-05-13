@@ -67,4 +67,7 @@ public class RedisLockKeyConstants {
      * 释放优惠券锁
      */
     public static   final String RELEASE_COUPON_KEY = "#RELEASE_COUPON_KEY:";
+
+
+    public static final String ADD_PRODUCT_STOCK_KEY = "#ADD_PRODCUT_STOCK_KEY:" ;
 }

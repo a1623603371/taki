@@ -305,9 +305,14 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
                 @Override
                 public LocalTransactionState checkLocalTransaction(MessageExt messageExt) {
-                        // 检查
+                        // 检查订单是否是已支付
+                    OrderInfoDO orderInfoDO = orderInfoDao.getByOrderId(orderId);
+                    if (ObjectUtils.isNotEmpty(orderInfoDO) && OrderStatusEnum.PAID.getCode().equals(orderInfoDO.getOrderStatus())){
 
-                    return null;
+                        return LocalTransactionState.COMMIT_MESSAGE;
+
+                    }
+                        return LocalTransactionState.ROLLBACK_MESSAGE;
                 }
             });
 
@@ -343,7 +348,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
                 }
             }
         }
-
+        }catch (Exception e){
+            throw new OrderBizException(e.getMessage());
         }finally {
             redisLock.unMultiLock(redisKeyList);
         }

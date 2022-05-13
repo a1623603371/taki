@@ -101,13 +101,13 @@ public class OrderFulFillServiceImpl implements OrderFulFillService {
             return;
         }
 
-        // 3.推送订单至履约
-        ResponseData<Boolean> result = fulFillApi.receiveOrderFulFill(builderReceiveFulFillRequest(orderInfoDO));
-
-        if (!result.getSuccess()){
-            log.error("push  order  to fulfill-system error ,orderId={}",orderId);
-            throw new OrderBizException(OrderErrorCodeEnum.ORDER_FULFILL_ERROR);
-        }
+//        // 3.推送订单至履约
+//        ResponseData<Boolean> result = fulFillApi.receiveOrderFulFill(builderReceiveFulFillRequest(orderInfoDO));
+//
+//        if (!result.getSuccess()){
+//            log.error("push  order  to fulfill-system error ,orderId={}",orderId);
+//            throw new OrderBizException(OrderErrorCodeEnum.ORDER_FULFILL_ERROR);
+//        }
 
         //4.更新订单状态 为：“已履约”
         orderInfoDao.updateOrderStatus(orderId,OrderStatusEnum.PAID.getCode(), OrderStatusEnum.FULFILL.getCode());
@@ -117,7 +117,9 @@ public class OrderFulFillServiceImpl implements OrderFulFillService {
 
          //todo 分布式 解决：推送履约系统成功，但是执行本地事物失败的场景(存在问题)
     }
-    
+
+
+
     /** 
      * @description: 构造接受订单履约请求
      * @param orderInfoDO 订单信息
@@ -125,12 +127,13 @@ public class OrderFulFillServiceImpl implements OrderFulFillService {
      * @author Long
      * @date: 2022/4/6 16:34
      */ 
-    private ReceiveFulFillRequest builderReceiveFulFillRequest(OrderInfoDO orderInfoDO) {
+    @Override
+    public ReceiveFulFillRequest builderReceiveFulFillRequest(OrderInfoDO orderInfoDO) {
         OrderDeliveryDetailDO orderDeliveryDetail = orderDeliveryDetailDao.getByOrderId(orderInfoDO.getOrderId());
 
         List<OrderItemDO> orderItems = orderItemDao.listByOrderId(orderInfoDO.getOrderId());
 
-        OrderAmountDO orderAmountDO = orderAmountDao.getByIdAndAmountType(orderInfoDO.getOrderId(), AmountTypeEnum.SHIPPING_AMOUNT.getCode());
+        OrderAmountDO deliveryAmount = orderAmountDao.getByIdAndAmountType(orderInfoDO.getOrderId(), AmountTypeEnum.SHIPPING_AMOUNT.getCode());
 
         //构造请求
         ReceiveFulFillRequest request = ReceiveFulFillRequest.builder()
@@ -152,6 +155,11 @@ public class OrderFulFillServiceImpl implements OrderFulFillService {
                 .totalAmount(orderInfoDO.getTotalAmount())
                 .receiveOrderItems(buildReceiveOrderItemRequest(orderItems))
                 .build();
+
+
+        if (ObjectUtils.isNotEmpty(deliveryAmount)){
+            request.setDeliveryAmount(deliveryAmount.getAmount());
+        }
 
         return request;
     }

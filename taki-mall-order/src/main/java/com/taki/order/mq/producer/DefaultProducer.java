@@ -1,6 +1,7 @@
 package com.taki.order.mq.producer;
 
 import com.taki.common.constants.RocketMQConstant;
+import com.taki.order.domain.entity.OrderInfoDO;
 import com.taki.order.exception.OrderBizException;
 import com.taki.order.exception.OrderErrorCodeEnum;
 import com.taki.order.mq.config.RocketMQProperties;
@@ -113,4 +114,6 @@ public class DefaultProducer {
 
         return producer;
     }
+
+
 }

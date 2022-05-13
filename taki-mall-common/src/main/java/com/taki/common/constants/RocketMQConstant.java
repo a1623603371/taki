@@ -9,6 +9,17 @@ package com.taki.common.constants;
  */
 public class RocketMQConstant {
 
+
+    /**
+     * 完成订单创建发送事务消息topic
+     */
+    public static  final  String CREATE_ORDER_SUCCESS_TOPIC = "create_order_success_topic";
+
+    /**
+     * 完成订单创建 consumer 分组
+     */
+    public static  final String CREATE_ORDER_SUCCESS_CONSUMER_GROUP = "create_order_success_consumer_group";
+
     /**
      * 默认的producer 分组
      */
@@ -25,7 +36,7 @@ public class RocketMQConstant {
     public static  final String PAY_ORDER_TIME_DELAY_CONSUMER_GROUP = "pay_order_time_delay_consumer_group";
 
     /**
-     *完成订单支付 consumer 分组
+     *完成订单支付 consumer topic
      */
     public static  final   String PAID_ORDER_SUCCESS_TOPIC = "paid_order_success_topic";
 
@@ -33,6 +44,19 @@ public class RocketMQConstant {
      * 完成订单支付 consumer 分组
      */
     public static  final    String PAID_ORDER_SUCCESS_CONSUMER_GROUP = "paid_order_success_consumer_group";
+
+    /**
+     * 触发订单履约发送事务消息topic
+     */
+    public static  final  String TRIGGER_ORDER_FULFILL_TOPIC = "trigger_order_fulfill_topic";
+
+    /**
+     * 触发订单履约发送事务消息 consumer 分组
+     */
+    public  static final String TRIGGER_ORDER_FULFILL_CONSUMER_GROUP = "trigger_order_fulfill_consumer_group";
+
+
+
 
     /**
      *取消订单 发送释放 权益 topic
@@ -93,4 +117,35 @@ public class RocketMQConstant {
      *正向订单物流配送结果 consumer 分组
      */
     public static  final  String      ORDER_WMS_SHIP_RESULT_CONSUMER_GROUP = "order_wms_ship_result_consumer_group";
+
+    /**
+     * 取消履约 topic
+     */
+    public static  final  String CANCEL_FULFILL_TOPIC = "cancel_fulfill_topic";
+
+    /**
+     * 取消 履约 consumer 分组
+     */
+    public static  final    String CANCEL_FULFILL_CONSUMER_GROUP = "cancel_fulfill_consumer_group";
+
+    /**
+     *售后申请发送给客户 审核 topic
+     */
+    public  static  final  String AFTER_SALE_CUSTOMER_AUDIT_TOPIC = "after_sale_customer_audit_topic";
+
+    /**
+     * 监听客服审核申请分组
+     */
+    public static  final String AFTER_SALE_CUSTOMER_AUDIT_GROUP = "after_sale_customer_audit_group";
+
+    /**
+     *客服审核通过后发送释放资产topic
+     */
+    public static   final String CUSTOMER_AUDIT_PASS_RELEASE_ASSETS_TOPIC = "customer_audit_pass_release_assets_topic";
+
+    /**
+     * 监听客服审核通过发送释放资产分组
+     */
+    public static  final  String CUSTOMER_AUDIT_PASS_RELEASE_ASSETS_CONSUMER_GROUP = "customer_audit_pass_release_assets_consumer_group";
 }
+

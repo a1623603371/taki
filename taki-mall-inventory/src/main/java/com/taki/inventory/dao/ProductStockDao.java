@@ -102,4 +102,18 @@ public class ProductStockDao extends BaseDAO<ProductStockMapper, ProductStockDO>
 
         return productStockMapper.restoreSaleStock(skuCode,saleQuantity,originSaleStock);
     }
+
+    /**
+     * @description:  调整 商品库存
+     * @param skuCode 商品sku 编码
+     * @param originSaleStockQuantity 当前 销售库存数量
+     * @param  stockIncremental 库存 调整数量
+     * @return  java.lang.Boolean
+     * @author Long
+     * @date: 2022/5/13 19:05
+     */
+    public Boolean modifyProductStock(String skuCode, Long originSaleStockQuantity, Long stockIncremental) {
+
+       return productStockMapper.modifyProductStock(skuCode,originSaleStockQuantity,stockIncremental);
+    }
 }

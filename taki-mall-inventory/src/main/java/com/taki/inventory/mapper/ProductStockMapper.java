@@ -78,5 +78,18 @@ public interface ProductStockMapper extends BaseMapper<ProductStockDO> {
      */
     @Update("UPDATE inventory_prodcut_stock set sale_stock_quantity = sale_stock_quantity + #{saleQuantity}" +
             " WHERE sku_code=#{skucode} AND sale_stock_quantity = #{originSaleStock}")
-    Boolean restoreSaleStock(String skuCode, Integer saleQuantity, int originSaleStock);
+    Boolean restoreSaleStock(@Param("skuCode")String skuCode, @Param("saleQuantity")Integer saleQuantity,@Param("originSaleStock") int originSaleStock);
+
+    /**
+     * @description:  调整 商品库存
+     * @param skuCode 商品sku 编码
+     * @param originSaleStockQuantity 当前 销售库存数量
+     * @param  stockIncremental 库存 调整数量
+     * @return  java.lang.Boolean
+     * @author Long
+     * @date: 2022/5/13 19:05
+     */
+    @Update("UPDATE inventory_prodcut_stock set sale_stock_quantity = sale_stock_quantity + #{stockIncremental}" +
+            " WHERE sku_code=#{skucode} AND sale_stock_quantity = #{originSaleStockQuantity}")
+    Boolean modifyProductStock(@Param("skuCode")String skuCode,@Param("originSaleStockQuantity") Long originSaleStockQuantity,@Param("stockIncremental") Long stockIncremental);
 }
