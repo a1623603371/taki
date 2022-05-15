@@ -1,6 +1,7 @@
 package com.taki.fulfill.api.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.taki.common.bean.SpringApplicationContext;
 import com.taki.common.constants.RocketMQConstant;
 import com.taki.common.enums.OrderStatusChangEnum;
 import com.taki.common.utlis.ResponseData;
@@ -8,7 +9,14 @@ import com.taki.fulfill.api.FulFillApi;
 import com.taki.fulfill.domain.evnet.*;
 import com.taki.fulfill.domain.request.CancelFulfillRequest;
 import com.taki.fulfill.domain.request.ReceiveFulFillRequest;
+import com.taki.fulfill.domain.request.TriggerOrderWmsShipEventRequest;
+import com.taki.fulfill.exection.FulfillBizException;
 import com.taki.fulfill.mq.producer.DefaultProducer;
+import com.taki.fulfill.service.FulfillService;
+import com.taki.fulfill.service.OrderWmsShipEventProcessor;
+import com.taki.fulfill.service.impl.OrderDeliveredWmsEventProcessor;
+import com.taki.fulfill.service.impl.OrderOutStockWmsEventProcessor;
+import com.taki.fulfill.service.impl.OrderSignedWmsEventProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.dubbo.config.annotation.DubboService;
@@ -41,81 +49,83 @@ public class FulFillApiImpl implements FulFillApi {
     private DefaultProducer defaultProducer;
 
 
+
+    @Autowired
+    SpringApplicationContext springApplicationContext;
+
+    @Autowired
+    private FulfillService fulfillService;
+
+
     @Override
     public ResponseData<Boolean> receiveOrderFulFill(ReceiveFulFillRequest request) {
         log.info("接受到订单履约请求，request={}", JSONObject.toJSONString(request));
+
+        try {
+        Boolean result = fulfillService.receiveOrderFulFill(request);
+
+        return ResponseData.success(result);
+        }catch (FulfillBizException e){
+            log.error("biz error",e);
+        }catch (Exception e){
+            log.error("system error",e);
+        }
+
         return ResponseData.success(true);
     }
 
     @Override
-    public ResponseData<Boolean> triggerOrderWmsShipEvent(String orderId, OrderStatusChangEnum orderStatusChang, BaseWmsShipEvent event) {
-        log.info("触发订单物流配送结果事件，order={},orderStatusChange={},wmsEvent",orderId,orderStatusChang,JSONObject.toJSONString(event));
-        Message message = null;
-        String body = null;
+    public ResponseData<Boolean> triggerOrderWmsShipEvent(TriggerOrderWmsShipEventRequest request) {
+        log.info("触发订单物流配送结果事件，order={},orderStatusChange={},wmsEvent",request.getOrderId(),request.getOrderStatusChang(),JSONObject.toJSONString(request.getWmsShipEvent()));
 
-        if (OrderStatusChangEnum.ORDER_OUT_STOCKED.equals(orderStatusChang)) {
-            // 订单出库事件
-            OrderOutStockWmsEvent outStockWmsEvent = (OrderOutStockWmsEvent) event;
-            outStockWmsEvent.setOrderId(orderId);
 
-            //构建 订单已出库消息体
+    // 1获取处理器
+    OrderStatusChangEnum orderStatusChang = request.getOrderStatusChang();
 
-            OrderEvent<OrderOutStockWmsEvent> orderEvent = buildOrderEvent(orderId,
-                    OrderStatusChangEnum.ORDER_OUT_STOCKED, outStockWmsEvent, OrderOutStockWmsEvent.class);
+    OrderWmsShipEventProcessor processor = getWmsShipEventProcessor(orderStatusChang);
 
-            body = JSONObject.toJSONString(orderEvent);
-        }else if (OrderStatusChangEnum.ORDER_DELIVERED.equals(orderStatusChang)){
-            message = new Message();
+    // 2.执行
+    if(ObjectUtils.isNotEmpty(processor)){
 
-            // 订单配送 事件
-            OrderDeliveredWmsEvent deliveredWmsEvent = (OrderDeliveredWmsEvent) event;
-            deliveredWmsEvent.setOrderId(orderId);
-
-            // 构建订单已配送消息体
-        OrderEvent<OrderDeliveredWmsEvent> orderEvent = buildOrderEvent(orderId,OrderStatusChangEnum.ORDER_DELIVERED,deliveredWmsEvent,OrderDeliveredWmsEvent.class);
-
-        body = JSONObject.toJSONString(orderEvent);
-        }else if (OrderStatusChangEnum.ORDER_SIGNED.equals(orderStatusChang)){
-            message = new Message();
-            //订单已签收
-            OrderSignedWmsEvent signedWmsEvent = (OrderSignedWmsEvent) event;
-            signedWmsEvent.setOrderId(orderId);
-
-            // 构建 订单已签收消息体
-            OrderEvent<OrderSignedWmsEvent> orderEvent = buildOrderEvent(orderId,OrderStatusChangEnum.ORDER_SIGNED,signedWmsEvent,OrderSignedWmsEvent.class);
-
-            body = JSONObject.toJSONString(orderEvent);
-        }
-        if (ObjectUtils.isNotEmpty(message)){
-            message.setTopic(RocketMQConstant.ORDER_WMS_SHIP_RESULT_TOPIC);
-            message.setBody(body.getBytes(StandardCharsets.UTF_8));
-
-            DefaultMQProducer producer = defaultProducer.getProducer();
-
-            try {
-                SendResult sendResult = producer.send(message, new MessageQueueSelector() {
-                    @Override
-                    public MessageQueue select(List<MessageQueue> list, Message message, Object arg) {
-                        // 根据订单Id 选择 发送的queue
-                            String orderId = (String) arg;
-                            long index = hash(orderId) % list.size();
-                        return list.get((int) index);
-                    }
-                },orderId);
-                log.info("send order wms  ship result message finished ,SendResult  status:%s ,queueId:%s,queueId:%d body:%s "
-                ,sendResult.getSendStatus(),sendResult.getMessageQueue().getQueueId(),body);
-            } catch (Exception e) {
-             log.error("send order wms ship result message  error,orderId={},err={}",orderId,e.getMessage(),e);
-            }
-
-        }
+        processor.execute(request);
+    }
         return ResponseData.success(true);
+    }
+    
+    /** 
+     * @description:  订单物流 配送结果处理器
+     * @param orderStatusChang
+     * @return  com.taki.fulfill.service.OrderWmsShipEventProcessor
+     * @author Long
+     * @date: 2022/5/15 18:13
+     */ 
+    private OrderWmsShipEventProcessor getWmsShipEventProcessor(OrderStatusChangEnum orderStatusChang) {
+
+        if (OrderStatusChangEnum.ORDER_OUT_STOCKED.equals(orderStatusChang)){
+            // 订单已出库事件
+            return  springApplicationContext.getBean(OrderOutStockWmsEventProcessor.class);
+        }else if (OrderStatusChangEnum.ORDER_DELIVERED.equals(orderStatusChang)){
+            // 订单已配送
+
+            return springApplicationContext.getBean(OrderDeliveredWmsEventProcessor.class);
+        }else if (OrderStatusChangEnum.ORDER_SIGNED.equals(orderStatusChang)){
+
+            return springApplicationContext.getBean(OrderSignedWmsEventProcessor.class);
+
+        }
+
+        return null;
+
+
     }
 
 
     @Override
     public ResponseData<Boolean> cancelFulfill(CancelFulfillRequest cancelFulfillRequest) {
-        log.info("告知仓库 不要配送，物流不要取货");
+        log.info("取消履约：request={}",JSONObject.toJSONString(cancelFulfillRequest));
+        // 发送取消履约消息
+        defaultProducer.sendMessage(RocketMQConstant.CANCEL_FULFILL_TOPIC,JSONObject.toJSONString(cancelFulfillRequest),"取消履约");
+
         return ResponseData.success(true);
     }
     /**

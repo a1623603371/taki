@@ -5,6 +5,7 @@ import com.taki.common.utlis.ResponseData;
 import com.taki.fulfill.domain.evnet.BaseWmsShipEvent;
 import com.taki.fulfill.domain.request.CancelFulfillRequest;
 import com.taki.fulfill.domain.request.ReceiveFulFillRequest;
+import com.taki.fulfill.domain.request.TriggerOrderWmsShipEventRequest;
 
 
 /**
@@ -29,14 +30,13 @@ public interface FulFillApi {
 
     /**
      * @description: 触发订单物流配送结果事件接口
-     * @param orderId 订单Id
-     * @param orderStatusChang 订单状态
-     * @param event 物流结果事件
+     * @param request 订单物流配送结果事件请求参数
+
      * @return  结果
      * @author Long
      * @date: 2022/3/4 11:55
      */
-    ResponseData<Boolean> triggerOrderWmsShipEvent(String orderId, OrderStatusChangEnum orderStatusChang, BaseWmsShipEvent event);
+    ResponseData<Boolean> triggerOrderWmsShipEvent(TriggerOrderWmsShipEventRequest request);
 
 
     /** 

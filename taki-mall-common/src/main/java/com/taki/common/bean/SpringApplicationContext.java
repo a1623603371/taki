@@ -39,4 +39,16 @@ public class SpringApplicationContext{
   public <T> T getBean(Class<? extends T> clazz) {
     return applicationContext.getBean(clazz);
   }
+
+
+    /**
+     * @description:
+     * @param: clazz
+     * @return: T
+     * @author Long
+     * @date: 2021/12/13 14:39
+     */
+    public Object getBean(String className) {
+        return  applicationContext.getBean(className);
+    }
 }

@@ -18,7 +18,7 @@ import java.util.List;
  */
 @Data
 @Builder
-public class ReceiveFulFillRequest  implements Serializable {
+public class ReceiveFulFillRequest  extends AbstractObject implements Serializable {
 
 
     private static final long serialVersionUID = -3267101977830300294L;
