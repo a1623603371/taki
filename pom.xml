@@ -37,6 +37,9 @@
         <module>taki-mall-fulfill</module>
         <module>taki-mall-customer-api</module>
         <module>taki-mall-customer</module>
+        <module>taki-mall-wms-api</module>
+        <module>taki-mall-tms-api</module>
+        <module>taki-mall-tms</module>
     </modules>
 
 

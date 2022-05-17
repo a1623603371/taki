@@ -118,6 +118,22 @@ public class ReceiveFulFillRequest  extends AbstractObject implements Serializab
      */
     private BigDecimal deliveryAmount;
 
+
+    /**
+     * 模拟 履约服务异常
+     */
+    private String fulfillException;
+
+    /**
+     * 模拟 wms服务异常
+     */
+    private String wmsException;
+
+    /**
+     * 模拟 tms服务异常
+     */
+    private String tmsException;
+
     /**
      * 订单商品明细
      */

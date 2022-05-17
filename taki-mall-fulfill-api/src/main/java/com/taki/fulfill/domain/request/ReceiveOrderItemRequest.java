@@ -1,5 +1,6 @@
 package com.taki.fulfill.domain.request;
 
+import com.taki.common.core.AbstractObject;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Tolerate;
@@ -16,7 +17,7 @@ import java.math.BigDecimal;
  */
 @Data
 @Builder
-public class ReceiveOrderItemRequest implements Serializable {
+public class ReceiveOrderItemRequest extends AbstractObject implements Serializable {
 
 
     private static final long serialVersionUID = -3155004658227291612L;
