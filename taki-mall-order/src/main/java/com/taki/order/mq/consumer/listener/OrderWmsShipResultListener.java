@@ -13,9 +13,7 @@ import com.taki.order.exception.OrderBizException;
 import com.taki.order.exception.OrderErrorCodeEnum;
 import com.taki.order.service.OrderFulFillService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
-import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
-import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
+import org.apache.rocketmq.client.consumer.listener.*;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,14 +22,14 @@ import java.util.List;
 
 /**
  * @ClassName OrderWmsShipResultListener
- * @Description TODO
+ * @Description 监听 物流 配送 结果 消息
  * @Author Long
  * @Date 2022/4/6 14:24
  * @Version 1.0
  */
 @Component
 @Slf4j
-public class OrderWmsShipResultListener implements MessageListenerConcurrently {
+public class OrderWmsShipResultListener implements MessageListenerOrderly {
 
     @Autowired
     private RedisLock redisLock;
@@ -39,32 +37,30 @@ public class OrderWmsShipResultListener implements MessageListenerConcurrently {
     @Autowired
     private OrderFulFillService orderFulFillService;
 
-
     @Override
-    public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> list, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
-
+    public ConsumeOrderlyStatus consumeMessage(List<MessageExt> list, ConsumeOrderlyContext consumeOrderlyContext) {
         OrderEvent orderEvent;
 
         try {
             for (MessageExt msg : list) {
 
-            String message = new String(msg.getBody());
-            log.info("received orderWmsShopResult  message:{}",msg);
-            orderEvent = JSONObject.parseObject(message,OrderEvent.class);
-            // 1.解析信息
-            WmsShipDTO wmsShipDTO = buildWmsShip(orderEvent);
+                String message = new String(msg.getBody());
+                log.info("received orderWmsShopResult  message:{}",msg);
+                orderEvent = JSONObject.parseObject(message,OrderEvent.class);
+                // 1.解析信息
+                WmsShipDTO wmsShipDTO = buildWmsShip(orderEvent);
 
-            // 2.加分布式锁  防止前置状态 效验防止 消息重复消费
-            String key = RedisLockKeyConstants.ORDER_WMS_RESULT_KEY + wmsShipDTO.getOrderId();
-            boolean lock = redisLock.lock(key);
-            if (!lock){
-                log.error(" order  has  not  acquired lock, cannot inform order  wms result  orderId={}",wmsShipDTO.getOrderId());
+                // 2.加分布式锁  防止前置状态 效验防止 消息重复消费
+                String key = RedisLockKeyConstants.ORDER_WMS_RESULT_KEY + wmsShipDTO.getOrderId();
+                boolean lock = redisLock.lock(key);
+                if (!lock){
+                    log.error(" order  has  not  acquired lock, cannot inform order  wms result  orderId={}",wmsShipDTO.getOrderId());
 
-                throw new OrderBizException(OrderErrorCodeEnum.ORDER_NOT_ALLOW_INFORM_WMS_RESULT);
-            }
+                    throw new OrderBizException(OrderErrorCodeEnum.ORDER_NOT_ALLOW_INFORM_WMS_RESULT);
+                }
 
-            // 3.通知 订单物流配送
-            //
+                // 3.通知订单物流配送
+                //
                 try {
                     orderFulFillService.informOrderWmsShipResult(wmsShipDTO);
                 }finally {
@@ -75,15 +71,11 @@ public class OrderWmsShipResultListener implements MessageListenerConcurrently {
 
             }
 
-
-
-
-            return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+            return ConsumeOrderlyStatus.SUCCESS;
         }catch (Exception e){
-
-            return ConsumeConcurrentlyStatus.RECONSUME_LATER;
+            // 处理业务逻辑失败！ Suspend current queue a moment
+            return ConsumeOrderlyStatus.SUSPEND_CURRENT_QUEUE_A_MOMENT;
         }
-
     }
 
 
@@ -112,4 +104,6 @@ public class OrderWmsShipResultListener implements MessageListenerConcurrently {
 
         return wmsShipDTO;
     }
+
+
 }

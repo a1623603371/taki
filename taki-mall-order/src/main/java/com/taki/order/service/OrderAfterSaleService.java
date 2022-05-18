@@ -27,7 +27,18 @@ public interface OrderAfterSaleService {
      * @date: 2022/3/8 17:04
      */
     Boolean cancelOrder(CancelOrderRequest cancelOrderRequest);
-    
+
+
+    /**
+     * @description: z执行取消订单
+     * @param cancelOrderRequest 取消订单请求
+     * @param orderId 订单Id
+     * @return  void
+     * @author Long
+     * @date: 2022/3/9 10:44
+     */
+    Boolean executeCancelOrder(CancelOrderRequest cancelOrderRequest,String orderId);
+
     /** 
      * @description: 处理售后 申请
      * @param request 退货申请请求 参数
@@ -71,5 +82,7 @@ public interface OrderAfterSaleService {
      * @author Long
      * @date: 2022/4/6 18:24
      */ 
-    Boolean receiveCustomerAuditResult(CustomerAuditAssembleRequest customerAuditAssembleRequest);
+    Boolean receiveCustomerAuditAccept(CustomerAuditAssembleRequest customerAuditAssembleRequest);
+
+
 }

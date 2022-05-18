@@ -19,6 +19,7 @@ import com.taki.customer.domain.request.CustomReviewReturnGoodsRequest;
 import com.taki.fulfill.api.FulFillApi;
 import com.taki.fulfill.domain.request.CancelFulfillRequest;
 import com.taki.market.request.CancelOrderReleaseUserCouponRequest;
+import com.taki.market.request.ReleaseUserCouponRequest;
 import com.taki.order.dao.*;
 import com.taki.order.domain.dto.*;
 import com.taki.order.domain.entity.*;
@@ -28,18 +29,27 @@ import com.taki.order.exception.OrderBizException;
 import com.taki.order.exception.OrderErrorCodeEnum;
 import com.taki.order.manager.OrderNoManager;
 import com.taki.order.mq.producer.DefaultProducer;
+import com.taki.order.service.AfterSaleManager;
 import com.taki.order.service.OrderAfterSaleService;
 import com.taki.pay.api.PayApi;
 import com.taki.pay.domian.rquest.PayRefundRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.apache.rocketmq.client.producer.LocalTransactionState;
+import org.apache.rocketmq.client.producer.TransactionListener;
+import org.apache.rocketmq.client.producer.TransactionMQProducer;
+import org.apache.rocketmq.client.producer.TransactionSendResult;
+import org.apache.rocketmq.common.message.Message;
+import org.apache.rocketmq.common.message.MessageExt;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.objenesis.ObjenesisException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -103,6 +113,10 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
     private AfterSaleOperateLogFactory afterSaleOperateLogFactory;
 
 
+    @Autowired
+    private AfterSaleManager afterSaleManager;
+
+
     @DubboReference
     private FulFillApi fulFillApi;
 
@@ -133,9 +147,8 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
             }
 
             // 执行取消订单
-            executeCancelOrder(cancelOrderRequest,orderId);
+          return   executeCancelOrder(cancelOrderRequest,orderId);
 
-            return true;
         }catch (Exception e){
             throw new OrderBizException(e.getMessage());
         }
@@ -143,7 +156,17 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
             redisLock.unLock(key);
         }
     }
-
+    /**
+     * 当前业务限制说明：
+     * 目前业务限定，一笔订单包含多笔订单条目，每次手动售后只能退一笔条目,不支持单笔条目多次退不同数量
+     * <p>
+     * 举例：
+     * 一笔订单包含订单条目A（购买数量10）和订单条目B（购买数量1），每一次可单独发起 售后订单条目A or 售后订单条目B，
+     * 如果是售后订单条目A，那么就是把A中购买数量10全部退掉
+     * 如果是售后订单条目B，那么就是把B中购买数量1全部退款
+     * <p>
+     * 暂不支持第一次退A中的3条，第二次退A中的2条，第三次退A中的5条这种退法
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean processApplyAfterSale(ReturnGoodsOrderRequest request) {
@@ -198,7 +221,7 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
             // 5. 发起客服审核
             CustomReviewReturnGoodsRequest customReviewReturnGoodsRequest = returnGoodsAssembleRequest.clone(CustomReviewReturnGoodsRequest.class);
 
-            customerApi.customerAudit(customReviewReturnGoodsRequest);
+           defaultProducer.sendMessage(RocketMQConstant.AFTER_SALE_CUSTOMER_AUDIT_TOPIC,JSONObject.toJSONString(customReviewReturnGoodsRequest),"售后申请发送给客服审核");
         }catch (ServiceException e){
             log.error("system error",e);
             return false;
@@ -228,30 +251,105 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
             PayRefundRequest payRefundRequest = buildPayRefundRequest(actualRefundMessage,afterSaleRefundDO);
 
             //2.执行退款
-            if(!payApi.executeRefund(payRefundRequest)){
+
+            ResponseData<Boolean> result = payApi.executeRefund(payRefundRequest);
+            if(!result.getSuccess()){
                 throw new OrderBizException(OrderErrorCodeEnum.ORDER_REFUND_AMOUNT_FAILED);
             }
 
-            //3 售后记录状态
-            // 执行退款信息更新售后信息
-            updateAfterSaleStatus(afterSaleInfoDO,AfterSaleStatusEnum.REVIEW_PASS.getCode(),AfterSaleStatusEnum.REFUNDING.getCode());
+            //3 本次售后的订单条目是当前订单的最好一笔，发送事务MQ退优惠券，此时isLastReturnGoods标识是true
+            if(actualRefundMessage.isLastReturnGoods()){
+            TransactionMQProducer producer = defaultProducer.getProducer();
 
-            // 4.退款的最后一笔退优惠券
-            if (actualRefundMessage.isLastReturnGoods()){
-                //释放优惠券权益
-                String orderId = actualRefundMessage.getOrderId();
-                OrderInfoDO orderInfoDO = orderInfoDao.getByOrderId(orderId);
-                CancelOrderReleaseUserCouponRequest cancelOrderReleaseUserCouponRequest =orderInfoDO.clone(CancelOrderReleaseUserCouponRequest.class);
 
-                defaultProducer.sendMessage(RocketMQConstant.CANCEL_RELEASE_PROPERTY_TOPIC,
-                        JSONObject.toJSONString(cancelOrderReleaseUserCouponRequest),"释放优惠券权益");
+            //组装 事务MQ 消息体
+
+                ReleaseUserCouponRequest  releaseUserCouponRequest = buildLastOrderReleasesCouponMessage(producer,afterSaleInfoDO,afterSaleId,actualRefundMessage);
+
+                try {
+                Message message = new Message(RocketMQConstant.CANCEL_RELEASE_PROPERTY_TOPIC,JSONObject.toJSONString(releaseUserCouponRequest).getBytes(StandardCharsets.UTF_8));
+
+                TransactionSendResult transactionSendResult = producer.sendMessageInTransaction(message,releaseUserCouponRequest);
+
+                if(!transactionSendResult.getLocalTransactionState().equals(LocalTransactionState.COMMIT_MESSAGE)){
+
+                    throw new OrderBizException(OrderErrorCodeEnum.REFUND_MONEY_RELEASE_COUPON_FAILED);
+                }
+
+
+
+
+                }catch (Exception e){
+                    throw new OrderBizException(OrderErrorCodeEnum.SEND_TRANSACTION_MQ_FAILED);
+                }
+            }else {
+                // 当售后条目非本订单最后一笔 和 取消 订单 ，在此g更新售后状态流程结束
+                updateAfterSaleStatus(afterSaleInfoDO,AfterSaleStatusEnum.REVIEW_PASS.getCode(), AfterSaleStatusEnum.REFUNDING.getCode());
             }
+
+        }catch (Exception e){
+            log.error("system error",e);
+
+            return ResponseData.error(e.getMessage());
+
         }finally {
 
             redisLock.unLock(key);
         }
 
         return ResponseData.success(true);
+    }
+    
+    /** 
+     * @description: 构造释放优惠券信息
+     * @param producer 生产者
+     * @param afterSaleInfoDO 售后订单信息
+     * @param afterSaleId 售后单Id
+     * @param actualRefundMessage 实际退款信息
+     * @return
+     * @author Long
+     * @date: 2022/5/18 18:38
+     */ 
+    private ReleaseUserCouponRequest buildLastOrderReleasesCouponMessage(TransactionMQProducer producer, AfterSaleInfoDO afterSaleInfoDO, Long afterSaleId, ActualRefundMessage actualRefundMessage) {
+
+        producer.setTransactionListener(new TransactionListener() {
+            @Override
+            public LocalTransactionState executeLocalTransaction(Message message, Object o) {
+                try {
+                // 更新售后单状态
+                updateAfterSaleStatus(afterSaleInfoDO,AfterSaleStatusEnum.REVIEW_PASS.getCode(),AfterSaleStatusEnum.REFUNDING.getCode());
+
+                return LocalTransactionState.COMMIT_MESSAGE;
+                }catch (Exception e){
+                    log.error("system error",e);
+                    return LocalTransactionState.ROLLBACK_MESSAGE;
+                }
+            }
+
+            @Override
+            public LocalTransactionState checkLocalTransaction(MessageExt messageExt) {
+
+                // 查询售后状态是 退款中
+                AfterSaleInfoDO afterSaleInfoDO = afterSaleInfoDao.getByAfterSaleId(afterSaleId);
+                if(AfterSaleStatusEnum.REFUNDING.getCode().equals(afterSaleInfoDO.getAfterSaleStatus())){
+                    return LocalTransactionState.COMMIT_MESSAGE;
+                }else {
+                  return LocalTransactionState.ROLLBACK_MESSAGE;
+                }
+
+            }
+        });
+
+        // 组装释放优惠券权益消息数据
+        String orderId = actualRefundMessage.getOrderId();
+
+        OrderInfoDO orderInfoDO = orderInfoDao.getByOrderId(orderId);
+        ReleaseUserCouponRequest request = new ReleaseUserCouponRequest();
+        request.setCouponId(orderId);
+        request.setCouponId(orderInfoDO.getCouponId());
+
+        return request;
+
     }
 
     @Override
@@ -262,6 +360,8 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
 
         String key = RedisLockKeyConstants.REFUND_KEY + orderId;
 
+
+
         try {
             Boolean lock = redisLock.lock(key);
             if (!lock){
@@ -269,24 +369,82 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
             }
 
             // 执行退款 准备工作
+
+            OrderInfoDTO orderInfoDTO =cancelOrderAssembleRequest.getOrderInfo();
+            // 生成售后单id
+            String afterSaleId = orderNoManager.genOrderId(OrderNoTypeEnum.AFTER_SALE.getCode(), orderInfoDTO.getUserId());
             // 1 计算 取消订单 退款金额
             CancelOrderRefundAmountDTO cancelOrderRefundAmountDTO = calculateCancelOrderRefundAmount(cancelOrderAssembleRequest);
             cancelOrderAssembleRequest.setCancelOrderRefundAmount(cancelOrderRefundAmountDTO);
 
-            //2 取消 订单操作 记录售后信息
-            insertCancelOrderAfterSale(cancelOrderAssembleRequest,AfterSaleStatusEnum.REVIEW_PASS.getCode());
 
-            // 3.发送退款MQ
-            ActualRefundMessage actualRefundMessage = new ActualRefundMessage();
-            actualRefundMessage.setAfterSaleRefundId(cancelOrderAssembleRequest.getAfterSaleRefundId());
-            actualRefundMessage.setOrderId(orderId);
-            actualRefundMessage.setLastReturnGoods(cancelOrderAssembleRequest.isLastReturnGoods());
-            actualRefundMessage.setAfterSaleId(Long.valueOf(cancelOrderAssembleRequest.getAfterSaleId()));
 
-            defaultProducer.sendMessage(RocketMQConstant.ACTUAL_REFUND_TOPIC,JSONObject.toJSONString(actualRefundMessage),"实际退款");
-        }catch (Exception e){
-            log.error(e.getMessage());
-            throw new OrderBizException(OrderErrorCodeEnum.PROCESS_REFUND_FAILED);
+            TransactionMQProducer producer = defaultProducer.getProducer();
+
+            producer.setTransactionListener(new TransactionListener() {
+                @Override
+                public LocalTransactionState executeLocalTransaction(Message message, Object o) {
+                    try {
+                        // 2.取消订单操作 记录售后信息
+                        afterSaleManager.insertCancelOrderAfterSale(cancelOrderAssembleRequest,AfterSaleStatusEnum.REFUNDING.getCode(), orderInfoDTO,afterSaleId);
+                        return LocalTransactionState.COMMIT_MESSAGE;
+                    }catch (Exception e){
+                        log.error("system error",e);
+                        return LocalTransactionState.ROLLBACK_MESSAGE;
+                    }
+
+                }
+
+                @Override
+                public LocalTransactionState checkLocalTransaction(MessageExt messageExt) {
+                    
+                    //查询 售后数据是否插入成功
+                    AfterSaleInfoDO afterSaleInfoDO = afterSaleInfoDao.getOneByAfterSaleId(Long.valueOf(afterSaleId));
+
+                    List<AfterSaleItemDO> afterSaleItems = afterSaleItemDao.listByAfterSaleId(Long.valueOf(afterSaleId));
+
+                    List<AfterSaleLogDO> afterSaleLogs = afterSaleLogDAO.listByAfterSaleId(Long.valueOf(afterSaleId));
+
+                    List<AfterSaleRefundDO> afterSaleRefunds = afterSaleRefundDAO.listByAfterSaleId(Long.valueOf(afterSaleId));
+
+
+                    if(afterSaleInfoDO != null
+                       && afterSaleItems.isEmpty()
+                            && afterSaleLogs.isEmpty()
+                        && afterSaleRefunds.isEmpty()
+                    ){
+                    return LocalTransactionState.COMMIT_MESSAGE;
+                    }
+
+
+
+                    return LocalTransactionState.ROLLBACK_MESSAGE;
+                }
+            });
+
+            try {
+                //3.组装 事务MQ消息
+                ActualRefundMessage actualRefundMessage = new ActualRefundMessage();
+
+                actualRefundMessage.setOrderId(cancelOrderAssembleRequest.getOrderId());
+                actualRefundMessage.setLastReturnGoods(cancelOrderAssembleRequest.isLastReturnGoods());
+                actualRefundMessage.setAfterSaleId(Long.valueOf(afterSaleId));
+
+                Message message = new Message(RocketMQConstant.ACTUAL_REFUND_TOPIC,JSONObject.toJSONString(actualRefundMessage).getBytes(StandardCharsets.UTF_8));
+
+                //4. 发送事务MQ 消息
+
+                TransactionSendResult result = producer.sendMessageInTransaction(message,actualRefundMessage);
+
+                if(!result.getLocalTransactionState().equals(LocalTransactionState.COMMIT_MESSAGE)){
+                        throw new OrderBizException(OrderErrorCodeEnum.PROCESS_REFUND_FAILED);
+                }
+
+
+            }catch (Exception e){
+                throw new OrderBizException(OrderErrorCodeEnum.SEND_TRANSACTION_MQ_FAILED);
+            }
+
         }
         finally {
             redisLock.unLock(key);
@@ -332,13 +490,54 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
 
         // 4. 发送短信
 
+        sendRefundMobileMessage(orderId);
+
         // 5. 发送 APP 通知
+        sendRefundAppMessage(orderId);
         return true;
     }
+    /**
+     * @description: 发送 退款信息 到APP
+     * @param orderId 订单号Id
+     * @return  void
+     * @author Long
+     * @date: 2022/5/18 20:32
+     */
+    private void sendRefundAppMessage(String orderId) {
+        log.info("发送退款通知APP 信息订单号：{}",orderId);
+    }
+
+    /**
+     * @description: 发送退款短信通知
+     * @param orderId 订单号Id
+     * @return  void
+     * @author Long
+     * @date: 2022/5/18 20:31
+     */
+    private void sendRefundMobileMessage(String orderId) {
+        log.info("发送退款通知短信:{}",orderId);
+    }
+
+
 
     @Override
     public Boolean receiveCustomerAuditResult(CustomerAuditAssembleRequest customerAuditAssembleRequest) {
-        return null;
+            AfterSaleInfoDO afterSaleInfoDO = afterSaleInfoDao.getByAfterSaleId(customerAuditAssembleRequest.getAfterSaleId());
+
+            if(afterSaleInfoDO.getAfterSaleStatus() > AfterSaleStatusEnum.COMMITED.getCode()){
+                    throw new OrderBizException(OrderErrorCodeEnum.CUSTOMER_AUDIT_CANNOT_REPEAT);
+            }
+
+            //更新售后信息
+        customerAuditAssembleRequest.setReviewReason(CustomerAuditResult.ACCEPT.getMsg());
+        afterSaleInfoDao.updateCustomerAuditAfterSaleResult(AfterSaleStatusEnum.REVIEW_PASS.getCode(),customerAuditAssembleRequest);
+
+        //记录 售后 日志信息
+
+        AfterSaleLogDO afterSaleLogDO = afterSaleOperateLogFactory.get(afterSaleInfoDO,AfterSaleStatusChannelEnum.AFTER_SALE_CUSTOMER_AUDIT_PASS);
+
+        afterSaleLogDAO.save(afterSaleLogDO);
+        return true;
     }
 
     /**
@@ -425,79 +624,9 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
 
     }
 
-    /**
-     * @description: 插入取消订单售后信息
-     * @param cancelOrderAssembleRequest 取消订单 数据集合请求
-     * @param afterSaleStatus 售后单状态
-     * @return  void
-     * @author Long
-     * @date: 2022/4/5 20:03
-     */
-    private void insertCancelOrderAfterSale(CancelOrderAssembleRequest cancelOrderAssembleRequest, Integer afterSaleStatus) {
-        OrderInfoDTO orderInfoDTO = cancelOrderAssembleRequest.getOrderInfo();
-        OrderInfoDO orderInfoDO = orderInfoDTO.clone(OrderInfoDO.class);
-        Integer afterSaleType = cancelOrderAssembleRequest.getAfterSaleType();
-        Integer cancelOrderAfterSaleStatus = AfterSaleStatusEnum.REVIEW_PASS.getCode();
-
-        //取消订单过程中的 申请退款金额 和实际金额 都是实际退款金额 金额相同
-        AfterSaleInfoDO afterSaleInfoDO = new AfterSaleInfoDO();
-        afterSaleInfoDO.setRealRefundAmount(orderInfoDO.getPayAmount());
-        afterSaleInfoDO.setApplyRefundAmount(orderInfoDO.getPayAmount());
-
-        //1.新增售后条目
-      String afterSaleId =   insertCancelOrderAfterSaleInfoTable(orderInfoDO,afterSaleType,cancelOrderAfterSaleStatus,afterSaleInfoDO);
-    }
-
-    /**
-     * @description: 新增售后条目
-     * @param orderInfoDO 订单信息
-     * @param afterSaleType 售后类型
-     * @param cancelOrderAfterSaleStatus 取消订单售后单 状态
-     * @param afterSaleInfoDO  售后 单 信息
-     * @return  void
-     * @author Long
-     * @date: 2022/4/5 20:08
-     */
-    private String insertCancelOrderAfterSaleInfoTable(OrderInfoDO orderInfoDO, Integer afterSaleType, Integer cancelOrderAfterSaleStatus, AfterSaleInfoDO afterSaleInfoDO) {
-
-        // 生成售后订单号
-        String afterSaleId = orderNoManager.genOrderId(OrderNoTypeEnum.AFTER_SALE.getCode(),orderInfoDO.getUserId());
-        afterSaleInfoDO.setAfterSaleId(afterSaleId);
-        afterSaleInfoDO.setBusinessIdentifier(BusinessIdentifierEnum.SELF_MALL.getCode());
-        afterSaleInfoDO.setOrderId(orderInfoDO.getOrderId());
-        afterSaleInfoDO.setOrderSourceChannel(BusinessIdentifierEnum.SELF_MALL.getCode());
-        afterSaleInfoDO.setUserId(orderInfoDO.getUserId());
-        afterSaleInfoDO.setOrderType(OrderTypeEnum.NORMAL.getCode());
-        afterSaleInfoDO.setApplyTime(LocalDateTime.now());
-        afterSaleInfoDO.setAfterSaleStatus(cancelOrderAfterSaleStatus);
-
-        // 取消订单整笔退
-        afterSaleInfoDO.setAfterSaleType(AfterSaleTypeEnum.RETURN_MONEY.getCode());
-
-        Integer cancelType = Integer.valueOf(orderInfoDO.getCancelType());
-
-        if(OrderCancelTypeEnum.TIMEOUT_CANCELED.getCode().equals(cancelType)){
-            afterSaleInfoDO.setAfterSaleTypeDetail(AfterSaleTypeDetailEnum.TIMEOUT_NO_PAY.getCode());
-            afterSaleInfoDO.setRemark("超时支付自动取消");
-
-        }
 
 
-        if (OrderCancelTypeEnum.USE_CANCELED.getCode().equals(cancelType)){
-            afterSaleInfoDO.setAfterSaleTypeDetail(AfterSaleTypeDetailEnum.USER_CANCEL.getCode());
-            afterSaleInfoDO.setRemark("用户手动取消");
-        }
-        afterSaleInfoDO.setApplyReasonCode(AfterSaleReasonEnum.CANCEL.getCode());
-        afterSaleInfoDO.setApplyReason(AfterSaleReasonEnum.CANCEL.getMsg());
-        afterSaleInfoDO.setApplySource(AfterSaleApplySourceEnum.SYSTEM.getCode());
-        afterSaleInfoDO.setReviewTime(LocalDateTime.now());
-        afterSaleInfoDao.save(afterSaleInfoDO);
 
-        log.info("新增订单 售后记录 订单号：{}，售后单号:{},订单售后状态：{}",afterSaleInfoDO.getOrderId(),
-                afterSaleInfoDO.getAfterSaleId(),afterSaleInfoDO.getAfterSaleStatus());
-
-        return afterSaleId;
-    }
 
     /**
      * @description: 计算 取消订单 退款金额
@@ -888,89 +1017,71 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
      * @return  void
      * @author Long
      * @date: 2022/3/9 10:44
-     */ 
-    private void executeCancelOrder(CancelOrderRequest cancelOrderRequest, String orderId) {
-        //1.组装数据
-        CancelOrderAssembleRequest request = buildAssembleRequest(orderId,cancelOrderRequest);
-
-        // 2 幂等效验 防止多线程同时操作取消同一订单
-        if (OrderStatusEnum.CREATED.getCode().equals(request.getOrderInfo().getOrderStatus())){
-            return;
-        }
-        // 3.更新订单状态 和记录 订单操作
-        updateOrderStatusAndSaveOperationLog(request);
-
-        //4.超时未支付的订单不用继续在执行取消
-        if (OrderStatusEnum.PAID.getCode() > request.getOrderInfo().getOrderStatus()){
-          return;
-        }
-
-        // 4. 履约取消
-        cancelFulfill(request);
-
-        // 5. 释放资产
-        defaultProducer.sendMessage(RocketMQConstant.RELEASE_ASSETS_TOPIC, JSONObject.toJSONString(cancelOrderRequest),"释放资产");
-    }
-
-    /** 
-     * @description: 履约取消
-     * @param request 取消组装数据请求
-     * @return  void
-     * @author Long
-     * @date: 2022/3/9 14:15
-     */ 
-    private void cancelFulfill(CancelOrderAssembleRequest request) {
-        OrderInfoDTO orderInfoDTO = request.getOrderInfo();
-        CancelFulfillRequest cancelFulfillRequest = orderInfoDTO.clone(CancelFulfillRequest.class);
-
-        ResponseData<Boolean> response = fulFillApi.cancelFulfill(cancelFulfillRequest);
-
-        if (!response.getSuccess()){
-            throw new OrderBizException(OrderErrorCodeEnum.CANCEL_ORDER_FULFILL_ERROR);
-        }
-    }
-
-    /**
-     * @description: 修改订单状态并记录订单操作
-     * @param request 取消订单请求
-     * @return  void
-     * @author Long
-     * @date: 2022/3/9 11:42
      */
-    private void updateOrderStatusAndSaveOperationLog(CancelOrderAssembleRequest request) {
-        // 更新表
-        OrderInfoDO orderInfoDO =request.getOrderInfo().clone(OrderInfoDO.class);
-        orderInfoDO.setCancelType(request.getCancelType());
-        orderInfoDO.setOrderStatus(OrderStatusEnum.CANCELED.getCode());
-        orderInfoDO.setCancelTime(LocalDateTime.now());
-        orderInfoDao.updateById(orderInfoDO);
-        log.info("更新订单信息OrderInfo状态：orderId:{},status:{}",orderInfoDO.getOrderId(),orderInfoDO.getOrderStatus() );
+    @Override
+    public Boolean executeCancelOrder(CancelOrderRequest cancelOrderRequest, String orderId) {
 
-        // 新增订单操作日志表
-        Integer cancelTType = Integer.valueOf(orderInfoDO.getCancelType());
-        String orderId = orderInfoDO.getOrderId();
-        OrderOperateLogDO orderOperateLog = OrderOperateLogDO
-                .builder()
-                .orderId(orderId)
-                .preStatus(request.getOrderInfo().getOrderStatus())
-                .currentStatus(OrderStatusEnum.CREATED.getCode())
-                .operateType(OrderOperateTypeEnum.AUTO_CANCEL_ORDER.getCode()).build();
+        OrderInfoDO orderInfoDO = findOrderInfo(orderId,cancelOrderRequest.getCancelType());
 
-        if (OrderCancelTypeEnum.USE_CANCELED.getCode().equals(cancelTType)){
-            orderOperateLog.setOperateType(OrderOperateTypeEnum.MANUAL_CANCEL_ORDER.getCode());
-            orderOperateLog.setRemark(OrderOperateTypeEnum.MANUAL_CANCEL_ORDER.getSmg() + orderOperateLog.getPreStatus() + "-" + orderOperateLog.getCurrentStatus());
+        //1.组装数据
+        CancelOrderAssembleRequest cancelOrderAssembleRequest = buildAssembleRequest(orderId,cancelOrderRequest,orderInfoDO);
 
+        if (cancelOrderAssembleRequest.getOrderInfo().getOrderStatus() >= OrderStatusEnum.OUT_STOCK.getCode()){
+            throw new OrderBizException(OrderErrorCodeEnum.CUSTOMER_AUDIT_CANNOT_REPEAT);
         }
 
-        if (OrderCancelTypeEnum.TIMEOUT_CANCELED.getCode().equals(cancelTType)){
-            orderOperateLog.setOperateType(OrderOperateTypeEnum.AUTO_CANCEL_ORDER.getCode());
-            orderOperateLog.setRemark(OrderOperateTypeEnum.AUTO_CANCEL_ORDER.getSmg() + orderOperateLog.getPreStatus() + "-" + orderOperateLog.getCurrentStatus());
 
+        TransactionMQProducer producer = defaultProducer.getProducer();
+
+        producer.setTransactionListener(new TransactionListener() {
+            @Override
+            public LocalTransactionState executeLocalTransaction(Message message, Object o) {
+                try {
+                    //2.执行 履约取消，更新订单状态，新增订单日志
+                    afterSaleManager.cancelOrderFulfillmentAndUpdateOrderStatus(cancelOrderAssembleRequest);
+                    return LocalTransactionState.COMMIT_MESSAGE;
+                }catch (Exception e){
+                log.error("system error",e);
+                    return  LocalTransactionState.ROLLBACK_MESSAGE;
+                }
+
+
+            }
+
+            @Override
+            public LocalTransactionState checkLocalTransaction(MessageExt messageExt) {
+                    //查询d订单状态是否更新为 “已取消”
+                OrderInfoDO orderInfoByDatabase = orderInfoDao.getByOrderId(orderId);
+
+                if (OrderStatusEnum.CREATED.getCode().equals(orderInfoByDatabase.getOrderStatus())){
+                    return LocalTransactionState.COMMIT_MESSAGE;
+                }
+
+                return LocalTransactionState.ROLLBACK_MESSAGE;
+            }
+        });
+
+
+        try {
+          Message message = new Message(RocketMQConstant.RELEASE_ASSETS_TOPIC,JSONObject.toJSONString(cancelOrderAssembleRequest).getBytes(StandardCharsets.UTF_8));
+            //3.释放资产
+            TransactionSendResult transactionSendResult = producer.sendMessageInTransaction(message,cancelOrderRequest);
+
+            if (!transactionSendResult.getLocalTransactionState().equals(LocalTransactionState.COMMIT_MESSAGE)){
+
+                throw new OrderBizException(OrderErrorCodeEnum.CANCEL_ORDER_PROCESS_FAILED);
+            }
+            return  true;
+
+        }catch (Exception e){
+            throw new OrderBizException(OrderErrorCodeEnum.SEND_TRANSACTION_MQ_FAILED);
         }
-        orderOperateLogDao.save(orderOperateLog);
-
-        log.info("新增订单操作日志 OrderOperateLog状态，orderId:{},PreStatus:{},CurrentStatus:{}",orderId,orderOperateLog.getPreStatus(),orderOperateLog.getCurrentStatus());
+     //   defaultProducer.sendMessage(RocketMQConstant.RELEASE_ASSETS_TOPIC, JSONObject.toJSONString(cancelOrderRequest),"释放资产");
     }
+
+
+
+
 
     /** 
      * @description: 构建 取消订单 数据
@@ -980,17 +1091,20 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
      * @author Long
      * @date: 2022/3/9 10:58
      */ 
-    private CancelOrderAssembleRequest buildAssembleRequest(String orderId, CancelOrderRequest cancelOrderRequest) {
+    private CancelOrderAssembleRequest buildAssembleRequest(String orderId, CancelOrderRequest cancelOrderRequest,OrderInfoDO orderInfo) {
 
         Integer cancelType = cancelOrderRequest.getCancelType();
 
-        OrderInfoDTO orderInfo =  findOrderInfo(orderId,cancelType);
+        OrderInfoDTO orderInfoDTO =  orderInfo.clone(OrderInfoDTO.class);
+
+        orderInfoDTO.setCancelType(String.valueOf(cancelType));
         List<OrderItemDTO> orderItems = findOrderItems(orderId);
         CancelOrderAssembleRequest request = cancelOrderRequest.clone(CancelOrderAssembleRequest.class);
         request.setOrderId(orderId);
         request.setCancelType(cancelType);
-        request.setOrderInfo(orderInfo);
+        request.setOrderInfo(orderInfoDTO);
         request.setOrderItems(orderItems);
+        request.setAfterSaleType(AfterSaleTypeEnum.RETURN_MONEY.getCode());
         return request;
 
     }
@@ -1022,7 +1136,7 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
      * @author Long
      * @date: 2022/3/9 11:09
      */
-    private OrderInfoDTO findOrderInfo(String orderId, Integer cancelType) {
+    private OrderInfoDO findOrderInfo(String orderId, Integer cancelType) {
 
         OrderInfoDO orderInfo = orderInfoDao.getByOrderId(orderId);
 
@@ -1030,10 +1144,7 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
             throw new OrderBizException(OrderErrorCodeEnum.ORDER_INFO_IS_NULL);
         }
 
-        OrderInfoDTO orderInfoDTO = orderInfo.clone(OrderInfoDTO.class);
-        orderInfoDTO.setCancelType(String.valueOf(cancelType));
-
-        return orderInfoDTO;
+        return orderInfo;
     }
 
     /**

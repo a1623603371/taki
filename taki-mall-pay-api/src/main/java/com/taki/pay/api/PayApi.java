@@ -22,6 +22,10 @@ public interface PayApi {
      */
     ResponseData<PayOrderDTO> payOrder(PayOrderRequest payOrderRequest);
 
+
+
+
+
     /***
      * @description: 执行退款操作
      * @param payRefundRequest 支付退款请求
@@ -29,5 +33,16 @@ public interface PayApi {
      * @author Long
      * @date: 2022/1/18 16:23
      */
-    Boolean executeRefund(PayRefundRequest payRefundRequest);
+    ResponseData< Boolean> executeRefund(PayRefundRequest payRefundRequest);
+
+
+    /** 
+     * @description:  查询支付订单 流水单好
+     * @param orderId 订单Id
+     * @param businessIdentifier 业务标识线
+     * @return
+     * @author Long
+     * @date: 2022/5/18 18:19
+     */ 
+    ResponseData< Boolean> getTradeNoByRealTime(String orderId,Integer businessIdentifier);
 }

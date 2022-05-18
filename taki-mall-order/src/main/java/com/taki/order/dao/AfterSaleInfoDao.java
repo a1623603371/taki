@@ -8,12 +8,16 @@ import com.taki.order.domain.dto.AfterSaleListQueryDTO;
 import com.taki.order.domain.dto.AfterSaleOrderListDTO;
 import com.taki.order.domain.entity.AfterSaleInfoDO;
 import com.taki.order.domain.entity.AfterSaleRefundDO;
+import com.taki.order.domain.request.CustomerAuditAssembleRequest;
 import com.taki.order.mapper.AfterSaleInfoMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -80,5 +84,46 @@ public class AfterSaleInfoDao extends BaseDAO<AfterSaleInfoMapper, AfterSaleInfo
 
         return this.update().set(AfterSaleInfoDO.AFTER_SALE_STATUS,toStatus).eq(AfterSaleInfoDO.AFTER_SALE_ID,afterSaleId)
                 .eq(AfterSaleInfoDO.AFTER_SALE_STATUS,toStatus).update();
+    }
+
+    /**
+     * @description: 根据售后id 查询售后单
+     * @param afterSaleId  售后单Id
+     * @return
+     * @author Long
+     * @date: 2022/5/18 15:34
+     */
+    public AfterSaleInfoDO getOneByAfterSaleId(Long afterSaleId) {
+        return this.getOne(new QueryWrapper<AfterSaleInfoDO>().eq(AfterSaleInfoDO.AFTER_SALE_ID,afterSaleId));
+    }
+
+    /** 
+     * @description:  客服审核售后结果
+     * @param afterSaleStatus 售后单状态
+     * @param  customerAuditAssembleRequest 客服审核售后单请求
+     * @return  void
+     * @author Long
+     * @date: 2022/5/18 20:53
+     */ 
+    public Boolean updateCustomerAuditAfterSaleResult(Integer afterSaleStatus, CustomerAuditAssembleRequest customerAuditAssembleRequest) {
+
+        Long afterSaleId = customerAuditAssembleRequest.getAfterSaleId();
+
+        String reviewReason = customerAuditAssembleRequest.getReviewReason();
+
+        Integer reviewReasonCode = customerAuditAssembleRequest.getReviewReasonCode();
+
+        Integer reviewSource = customerAuditAssembleRequest.getReviewSource();
+
+        Date reviewTime = customerAuditAssembleRequest.getReviewTime();
+
+     return    this.update().set(StringUtils.isNotBlank(reviewReason),AfterSaleInfoDO.REVIEW_REASON,reviewReason)
+                    .set(ObjectUtils.isNotEmpty(reviewReasonCode),AfterSaleInfoDO.REVIEW_REASON_CODE,reviewReasonCode)
+                    .set(ObjectUtils.isNotEmpty(reviewSource),AfterSaleInfoDO.REVIEW_SOURCE,reviewSource)
+                    .set(ObjectUtils.isNotEmpty(reviewTime),AfterSaleInfoDO.REVIEW_TIME,reviewTime)
+                    .set(AfterSaleInfoDO.AFTER_SALE_STATUS,afterSaleStatus)
+                    .eq(AfterSaleInfoDO.AFTER_SALE_ID,afterSaleId).update();
+
+
     }
 }

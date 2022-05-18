@@ -1,23 +1,32 @@
 package com.taki.order.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.taki.common.constants.RocketMQConstant;
 import com.taki.common.enums.OrderStatusChangEnum;
+import com.taki.common.message.PaidOrderSuccessMessage;
 import com.taki.common.page.PagingInfo;
 import com.taki.common.utlis.ResponseData;
 import com.taki.fulfill.api.FulFillApi;
 import com.taki.fulfill.domain.evnet.OrderDeliveredWmsEvent;
 import com.taki.fulfill.domain.evnet.OrderOutStockWmsEvent;
 import com.taki.fulfill.domain.evnet.OrderSignedWmsEvent;
+import com.taki.fulfill.domain.request.ReceiveFulFillRequest;
+import com.taki.fulfill.domain.request.TriggerOrderWmsShipEventRequest;
 import com.taki.order.api.OrderApi;
 import com.taki.order.api.OrderQueryApi;
+import com.taki.order.dao.OrderInfoDao;
 import com.taki.order.domain.dto.*;
+import com.taki.order.domain.entity.OrderInfoDO;
 import com.taki.order.domain.query.OrderQuery;
 import com.taki.order.domain.request.RemoveOrderRequest;
 import com.taki.order.domain.request.*;
+import com.taki.order.mq.producer.DefaultProducer;
+import com.taki.order.service.impl.OrderFulFillServiceImpl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,6 +55,15 @@ public class OrderTestController {
     @DubboReference(version = "1.0.0",retries = 0)
     private FulFillApi fulFillApi;
 
+    @Autowired
+    private DefaultProducer defaultProducer;
+
+
+    @Autowired
+    private OrderInfoDao orderInfoDao;
+
+    @Autowired
+    private OrderFulFillServiceImpl orderFulFillService;
     /**
      * @description: 生成订单Id
      * @param genOrderIdRequest 生成订单Id请求
@@ -169,39 +187,104 @@ public class OrderTestController {
      */
     @ApiOperation("触发订单发货出库事件")
     @PostMapping("/triggerOrderOutStockWmsEvent")
-    public ResponseData<Boolean> triggerOrderOutStockWmsEvent(@RequestBody OrderOutStockWmsEvent event){
-        log.info("orderId={},event",event.getOrderId(), JSONObject.toJSONString(event));
+    public ResponseData<Boolean> triggerOrderOutStockWmsEvent(
+            @RequestParam("orderId")  String orderId,
+            @RequestParam("fulfillId") String fulfillId,
+            @RequestBody OrderOutStockWmsEvent event){
+        log.info("orderId={},fulfillId = {},event={}",event.getOrderId(),fulfillId ,JSONObject.toJSONString(event));
 
-        return fulFillApi.triggerOrderWmsShipEvent(event.getOrderId(), OrderStatusChangEnum.ORDER_OUT_STOCKED,event);
+        TriggerOrderWmsShipEventRequest request = new TriggerOrderWmsShipEventRequest(orderId,fulfillId,OrderStatusChangEnum.ORDER_OUT_STOCKED,event);
+        return fulFillApi.triggerOrderWmsShipEvent(request);
 
     }
 
     /**
-     * @description: 触发订单发货出库事件
-     * @param event 订单发货出库事件
+     * @description: 触发订单配送事件
+     * @param event 订单配送事件
      * @return  处理结果
      * @author Long
      * @date: 2022/3/3 23:25
      */
-    @ApiOperation("触发订单发货出库事件")
+    @ApiOperation("触发订单配送事件")
     @PostMapping("/triggerOrderDeliveredWmsEvent")
-    public  ResponseData<Boolean>  triggerOrderDeliveredWmsEvent (@RequestBody OrderDeliveredWmsEvent event){
+    public  ResponseData<Boolean>  triggerOrderDeliveredWmsEvent (
+            @RequestParam("orderId")  String orderId,
+            @RequestParam("fulfillId") String fulfillId,@RequestBody OrderDeliveredWmsEvent event){
 
-        return fulFillApi.triggerOrderWmsShipEvent(event.getOrderId(),OrderStatusChangEnum.ORDER_DELIVERED,event);
+        log.info("orderId={},fulfillId = {},event={}",event.getOrderId(),fulfillId ,JSONObject.toJSONString(event));
+
+        TriggerOrderWmsShipEventRequest request = new TriggerOrderWmsShipEventRequest(orderId,fulfillId,OrderStatusChangEnum.ORDER_DELIVERED,event);
+
+        return fulFillApi.triggerOrderWmsShipEvent(request);
     }
 
     /**
-     * @description: 触发订单发货出库事件
-     * @param event 订单发货出库事件
+     * @description: 触发订单收货
+     * @param event 订单收货事件
      * @return  处理结果
      * @author Long
      * @date: 2022/3/3 23:25
      */
     @ApiOperation("触发订单收货")
     @PostMapping("/triggerOrderDeliveredWmsEvent")
-    public ResponseData<Boolean> triggerOrderSignedWmsEvent(@RequestBody OrderSignedWmsEvent event){
-        return fulFillApi.triggerOrderWmsShipEvent(event.getOrderId(),OrderStatusChangEnum.ORDER_SIGNED,event);
+    public ResponseData<Boolean> triggerOrderSignedWmsEvent( @RequestParam("orderId")  String orderId,
+                                                             @RequestParam("fulfillId") String fulfillId,@RequestBody OrderSignedWmsEvent event){
+        log.info("orderId={},fulfillId = {},event={}",event.getOrderId(),fulfillId ,JSONObject.toJSONString(event));
+
+        TriggerOrderWmsShipEventRequest request = new TriggerOrderWmsShipEventRequest(orderId,fulfillId,OrderStatusChangEnum.ORDER_SIGNED       ,event);
+
+
+        return fulFillApi.triggerOrderWmsShipEvent(request);
     }
 
+
+    /**
+     * @description: 触发订单已支付时间
+     * @param orderId 订单Id
+     * @return  com.taki.common.utlis.ResponseData<java.lang.Boolean>
+     * @author Long
+     * @date: 2022/5/17 18:47
+     */
+    @PostMapping("/triggerOrderPaidEvent")
+    @ApiOperation("触发订单已支付时间")
+    public ResponseData<Boolean> triggerOrderPaidEvent(@RequestParam("orderId") String orderId){
+
+        log.info("orderId = {}",orderId);
+
+        PaidOrderSuccessMessage paidOrderSuccessMessage = new PaidOrderSuccessMessage();
+        paidOrderSuccessMessage.setOrderId(orderId);
+
+        String message = JSONObject.toJSONString(paidOrderSuccessMessage);
+
+        defaultProducer.sendMessage(RocketMQConstant.PAID_ORDER_SUCCESS_TOPIC,message,"订单支付已完成支付");
+
+        return ResponseData.success(true);
+    }
+
+    /**
+     * @description: 触发订单履约
+     * @param orderId 订单Id
+     * @return
+     * @author Long
+     * @date: 2022/5/17 18:47
+     */
+    @PostMapping("/triggerReceiveOrderFulFill")
+    @ApiOperation("触发订单履约")
+    public ResponseData<Boolean> triggerReceiveOrderFulFill(@RequestParam("orderId") String orderId
+    ,@RequestParam("fulfillException") String  fulfillException,@RequestParam("wmsException") String wmsException,
+                                                            @RequestParam("tmsException")  String tmsException){
+
+        log.info("orderId = {}",orderId);
+
+        OrderInfoDO orderInfo = orderInfoDao.getByOrderId(orderId);
+
+        ReceiveFulFillRequest request = orderFulFillService.builderReceiveFulFillRequest(orderInfo);
+
+        request.setWmsException(wmsException);
+        request.setTmsException(tmsException);
+        request.setFulfillException(fulfillException);
+
+        return  fulFillApi.receiveOrderFulFill(request);
+    }
 
 }

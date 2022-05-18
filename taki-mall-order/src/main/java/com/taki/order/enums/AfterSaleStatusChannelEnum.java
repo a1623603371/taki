@@ -45,6 +45,7 @@ public enum AfterSaleStatusChannelEnum {
                 return channelEnum;
             }
         }
+        return null;
     }
 
 }

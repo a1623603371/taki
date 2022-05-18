@@ -138,4 +138,14 @@ public class AfterSaleInfoDO extends BaseEntity implements Serializable {
     public  static  final  String AFTER_SALE_TYPE_DETAIL = "after_sale_type_detail";
 
     public static final String AFTER_SALE_STATUS ="after_sale_status";
+
+
+    public static final String REVIEW_REASON = "review_reason";
+
+    public static final  String REVIEW_REASON_CODE = "review_reason_code";
+
+
+    public static final  String REVIEW_SOURCE = "review_source";
+
+    public static final  String  REVIEW_TIME = "review_time";
 }

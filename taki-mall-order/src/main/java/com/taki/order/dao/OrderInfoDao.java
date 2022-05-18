@@ -109,4 +109,16 @@ public class OrderInfoDao extends BaseDAO<OrderInfoMapper, OrderInfoDO> {
                 .eq(OrderInfoDO.ORDER_ID,orderId)
                 .eq(OrderInfoDO.ORDER_STATUS,preStatus).update();
     }
+    
+    /** 
+     * @description: 更新 订单
+     * @param orderInfoDO
+     * @return  void
+     * @author Long
+     * @date: 2022/5/18 13:35
+     */ 
+    public Boolean updateOrderInfo(OrderInfoDO orderInfoDO) {
+
+        return this.update(orderInfoDO,new QueryWrapper<OrderInfoDO>().eq(OrderInfoDO.ORDER_ID,orderInfoDO.getOrderId()));
+    }
 }

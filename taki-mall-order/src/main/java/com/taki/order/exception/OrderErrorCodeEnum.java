@@ -122,6 +122,14 @@ public enum OrderErrorCodeEnum implements BaseErrorCodeEnum{
     CUSTOMER_AUDIT_CANNOT_REPEAT(105092, "不能重复发起客服审核"),
     AFTER_SALE_ITEM_CANNOT_NULL(105093, "售后商品信息不能为空"),
 
+    CUSTOMER_AUDIT_RESULT_IS_NULL(105094, "处理客服审核结果不能为空"),
+    INSERT_ORDER_TRANSACTION_MQ_ERROR(105095, "生成订单失败"),
+    CURRENT_ORDER_STATUS_CANNOT_CANCEL(105096, "当前订单状态不允许取消"),
+    SEND_TRANSACTION_MQ_FAILED(105097, "发送MQ事务消息失败"),
+    UPDATE_ORDER_INFO_AND_SAVE_ORDER_LOG_FAILED(105098, "更新订单信息和保存订单操作日志失败"),
+    CANCEL_ORDER_PROCESS_FAILED(105099, "取消订单过程执行失败"),
+    REFUND_MONEY_RELEASE_COUPON_FAILED(105100, "实际退款释放优惠券失败"),
+    SEND_AUDIT_PASS_RELEASE_ASSETS_FAILED(105101, "发送审核通过释放资产topic失败"),
 
     /**
      * 通用异常

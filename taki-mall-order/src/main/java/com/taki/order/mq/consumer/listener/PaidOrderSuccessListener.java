@@ -134,6 +134,7 @@ public class PaidOrderSuccessListener implements MessageListenerConcurrently {
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         }catch (Exception e){
             log.error("consumer  error",e);
+            // 执行失败 触发重新消费
             return ConsumeConcurrentlyStatus.RECONSUME_LATER;
         }
 

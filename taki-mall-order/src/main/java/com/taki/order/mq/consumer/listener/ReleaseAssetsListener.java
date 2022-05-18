@@ -2,6 +2,7 @@ package com.taki.order.mq.consumer.listener;
 
 import com.alibaba.fastjson.JSONObject;
 import com.taki.common.constants.RocketMQConstant;
+import com.taki.common.enums.OrderStatusEnum;
 import com.taki.inventory.domain.request.CancelOrderReleaseProductStockRequest;
 import com.taki.market.request.CancelOrderReleaseUserCouponRequest;
 import com.taki.order.dao.OrderItemDao;
@@ -12,6 +13,7 @@ import com.taki.order.domain.request.CancelOrderAssembleRequest;
 import com.taki.order.domain.request.CancelOrderRequest;
 import com.taki.order.mq.producer.DefaultProducer;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
@@ -48,25 +50,33 @@ public class ReleaseAssetsListener implements MessageListenerConcurrently {
 
                 CancelOrderAssembleRequest cancelOrderAssembleRequest = JSONObject.parseObject(message,CancelOrderAssembleRequest.class);
 
-                // 发送取消 订单退款 请求MQ
+                OrderInfoDTO orderInfo = cancelOrderAssembleRequest.getOrderInfo();
 
-                defaultProducer.sendMessage(RocketMQConstant.CANCEL_REFUND_REQUEST_TOPIC,JSONObject.toJSONString(cancelOrderAssembleRequest),"取消订单退款");
+                if(orderInfo.getOrderStatus() > OrderStatusEnum.CREATED.getCode()){
+                    // 发送取消 订单退款 请求MQ
+
+                    defaultProducer.sendMessage(RocketMQConstant.CANCEL_REFUND_REQUEST_TOPIC,
+                            JSONObject.toJSONString(cancelOrderAssembleRequest),"取消订单退款");
+
+                }
 
 
-                // 发送释放库存 请求MQ
-                OrderInfoDTO  orderInfoDTO = cancelOrderAssembleRequest.getOrderInfo();
+                //3. 发送释放库存 请求MQ
 
-                CancelOrderReleaseProductStockRequest cancelOrderReleaseProductStockRequest = buildSkuList(orderInfoDTO,orderItemDao);
+
+                CancelOrderReleaseProductStockRequest cancelOrderReleaseProductStockRequest = buildSkuList(orderInfo,orderItemDao);
 
                 defaultProducer.sendMessage(RocketMQConstant.CANCEL_RELEASE_INVENTORY_TOPIC,
                         JSONObject.toJSONString(cancelOrderReleaseProductStockRequest),"取消订单释放库存");
 
 
-                // 发送 释放优惠券 MQ
-                CancelOrderReleaseUserCouponRequest cancelOrderReleaseUserCouponRequest =orderInfoDTO.clone(CancelOrderReleaseUserCouponRequest.class);
+                // 4.发送 释放优惠券 MQ
 
-                defaultProducer.sendMessage(RocketMQConstant.CANCEL_RELEASE_PROPERTY_TOPIC,JSONObject.toJSONString(cancelOrderReleaseUserCouponRequest),"取消订单释放优惠券");
+                if (StringUtils.isNotBlank(orderInfo.getCouponId())) {
+                    CancelOrderReleaseUserCouponRequest cancelOrderReleaseUserCouponRequest = orderInfo.clone(CancelOrderReleaseUserCouponRequest.class);
 
+                    defaultProducer.sendMessage(RocketMQConstant.CANCEL_RELEASE_PROPERTY_TOPIC, JSONObject.toJSONString(cancelOrderReleaseUserCouponRequest), "取消订单释放优惠券");
+                }
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             }
 
