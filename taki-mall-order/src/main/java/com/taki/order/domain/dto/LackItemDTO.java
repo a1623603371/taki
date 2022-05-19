@@ -1,6 +1,7 @@
 package com.taki.order.domain.dto;
 
 import com.taki.common.core.AbstractObject;
+import com.taki.product.domian.dto.ProductSkuDTO;
 import lombok.Data;
 
 import java.io.Serializable;

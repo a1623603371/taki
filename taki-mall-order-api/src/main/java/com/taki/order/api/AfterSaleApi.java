@@ -1,6 +1,7 @@
 package com.taki.order.api;
 
 import com.taki.common.utlis.ResponseData;
+import com.taki.customer.domain.request.CustomReviewReturnGoodsRequest;
 import com.taki.order.domain.dto.LackDTO;
 import com.taki.order.domain.request.*;
 
@@ -50,7 +51,7 @@ public interface AfterSaleApi {
      * @author Long
      * @date: 2022/3/9 14:55
      */ 
-    ResponseData<Boolean> receiveCustomerAuditResult(CustomerAuditAssembleRequest customReviewReturnGoodsRequest);
+    ResponseData<Boolean> receiveCustomerAuditResult(CustomReviewReturnGoodsRequest customReviewReturnGoodsRequest);
 
 
     /** 

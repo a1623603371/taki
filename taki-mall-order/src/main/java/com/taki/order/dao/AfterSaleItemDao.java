@@ -57,4 +57,31 @@ public class AfterSaleItemDao extends BaseDAO<AfterSaleItemMapper, AfterSaleItem
     public List<AfterSaleItemDO> listByAfterSaleId(Long afterSaleId) {
         return this.list(new QueryWrapper<AfterSaleItemDO>().eq(AfterSaleItemDO.AFTER_SALE_ID,afterSaleId));
     }
+
+    /**
+     * @description: 根据订单Id 和 售后id查询售后条目
+     * @param orderId 订单Id
+     *
+     * @param afterSaleId 售后单Id
+     * @return
+     * @author Long
+     * @date: 2022/5/19 20:59
+     */
+    public AfterSaleItemDO getOrderIdAndAfterSaleId(String orderId, Long afterSaleId) {
+
+        return this.getOne(new QueryWrapper<AfterSaleItemDO>()
+                .eq(AfterSaleItemDO.ORDER_ID,orderId).eq(AfterSaleItemDO.AFTER_SALE_ID,afterSaleId));
+    }
+    /**
+     * @description: 根据订单Id 和 售后id查询售后条目集合
+     * @param orderId 订单Id
+     * @param afterSaleId 售后单Id
+     * @return
+     * @author Long
+     * @date: 2022/5/19 20:59
+     */
+    public List<AfterSaleItemDO> listNotContainCurrentAfterSaleId(String orderId, Long afterSaleId) {
+        return this.list(new QueryWrapper<AfterSaleItemDO>()
+                .eq(AfterSaleItemDO.ORDER_ID,orderId).eq(AfterSaleItemDO.AFTER_SALE_ID,afterSaleId));
+    }
 }

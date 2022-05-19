@@ -2,6 +2,7 @@ package com.taki.order.service;
 
 import com.taki.order.domain.dto.CheckLackDTO;
 import com.taki.order.domain.dto.LackDTO;
+import com.taki.order.domain.entity.OrderInfoDO;
 import com.taki.order.domain.request.LackRequest;
 
 /**
@@ -24,6 +25,16 @@ public interface OrderLackService {
      */ 
     CheckLackDTO checkRequest(LackRequest lackRequest);
 
+
+
+    /** 
+     * @description:  订单是否已经发起缺品
+     * @param orderInfoDO 订单 信息
+     * @return 是否已经发起缺品
+     * @author Long
+     * @date: 2022/5/19 18:49
+     */ 
+    Boolean isOrderLacked(OrderInfoDO orderInfoDO);
 
     /** 
      * @description: 具体缺品处理

@@ -76,7 +76,7 @@ public interface OrderAfterSaleService {
     Boolean receivePaymentRefundCallback(RefundCallbackRequest refundCallbackRequest);
     
     /** 
-     * @description:  接受客服审核结果 入口
+     * @description:  接受客服审核结果通过 入口
      * @param customerAuditAssembleRequest  客户审核组装请求
      * @return  java.lang.Object
      * @author Long
@@ -85,4 +85,30 @@ public interface OrderAfterSaleService {
     Boolean receiveCustomerAuditAccept(CustomerAuditAssembleRequest customerAuditAssembleRequest);
 
 
+    /**
+     * @description: 接受客服审核结果 拒绝 入口
+     * @param customerAuditAssembleRequest 客户审核组装请求
+     * @return  java.lang.Boolean
+     * @author Long
+     * @date: 2022/5/19 18:14
+     */
+    Boolean receiveCustomerAuditReject(CustomerAuditAssembleRequest customerAuditAssembleRequest);
+
+    /**
+     * @description:  查询 客服 审核状态
+     * @param afterSaleId 售后Id
+     * @return  java.lang.Integer
+     * @author Long
+     * @date: 2022/5/19 21:28
+     */
+    Integer findCustomerAuditSaleStatus(Long afterSaleId);
+    
+    /** 
+     * @description:  撤销售后申请
+     * @param revokeAfterSaleRequest 撤销售后申请 请求
+     * @return  void
+     * @author Long
+     * @date: 2022/5/19 21:43
+     */ 
+    Boolean revokeAfterSale(RevokeAfterSaleRequest revokeAfterSaleRequest);
 }

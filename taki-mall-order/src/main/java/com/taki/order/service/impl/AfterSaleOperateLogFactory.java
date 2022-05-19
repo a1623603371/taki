@@ -52,7 +52,7 @@ public class AfterSaleOperateLogFactory {
     private AfterSaleLogDO create(AfterSaleInfoDO afterSaleInfoDO, Integer preStatus, Integer currentStatus, String operateRemark) {
         AfterSaleLogDO afterSaleLogDO = new AfterSaleLogDO();
 
-        afterSaleLogDO.setAfterSaleId(afterSaleInfoDO.getAfterSaleId());
+        afterSaleLogDO.setAfterSaleId(Long.valueOf(afterSaleInfoDO.getAfterSaleId()));
         afterSaleLogDO.setPreStatus(preStatus);
         afterSaleLogDO.setCurrentStatus(currentStatus);
         afterSaleLogDO.setRemark(operateRemark);

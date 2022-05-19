@@ -7,6 +7,7 @@ import com.taki.common.enums.AfterSaleTypeDetailEnum;
 import com.taki.common.enums.AfterSaleTypeEnum;
 import com.taki.common.enums.OrderStatusEnum;
 import com.taki.common.message.ActualRefundMessage;
+import com.taki.common.utlis.ExJsonUtil;
 import com.taki.common.utlis.ObjectUtil;
 import com.taki.common.utlis.ParamCheckUtil;
 import com.taki.order.dao.*;
@@ -20,7 +21,9 @@ import com.taki.order.manager.OrderNoManager;
 import com.taki.order.mq.producer.DefaultProducer;
 import com.taki.order.service.OrderLackService;
 import com.taki.order.service.amount.AfterSaleAmountService;
+import com.taki.product.domian.dto.ProductSkuDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,24 +74,42 @@ public class OrderLackServiceImpl implements OrderLackService {
 
     @Override
     public CheckLackDTO checkRequest(LackRequest lackRequest) {
-        //1.参数基本校应
-        ParamCheckUtil.checkStringNonEmpty(lackRequest.getOrderId(), OrderErrorCodeEnum.ORDER_ID_IS_NULL);
-        ParamCheckUtil.checkCollectionNonEmpty(lackRequest.getLackItems(),OrderErrorCodeEnum.LACK_ITEM_IS_NULL);
 
-        //2.查询订单
+
+        //1.查询订单
         OrderInfoDO order = orderInfoDao.getByOrderId(lackRequest.getOrderId());
         ParamCheckUtil.checkObjectNonNull(order,OrderErrorCodeEnum.ORDER_NOT_FOUND);
 
-        //3.校验订单是否可以发起却品
-        if (!OrderStatusEnum.canLack().contains(order.getOrderStatus())){
-            throw new OrderBizException(OrderErrorCodeEnum.ORDER_NOT_ALLOW_TO_ADJUST_ADDRESS);
+
+        //2、校验订单是否可以发起缺品
+        // 可以发起缺品的前置条件：
+        // （1) 订单的状态为："已出库"
+        //  (2) 订单未发起过缺品
+
+        // 解释一下为啥是"已库存"状态才能发起缺品：
+        // 缺品的业务逻辑是这样的，当订单支付后，进入履约流程，仓库人员捡货当时候发现现有商品无法满足下单所需，即"缺品"了
+        // 仓库人员首先会将通知订单系统将订单的状态变为"已出库"，然后会再来调用这个缺品的接口
+        if (!OrderStatusEnum.canLack().contains(order.getOrderStatus()) ||isOrderLacked(order)){
+            throw new OrderBizException(OrderErrorCodeEnum.ORDER_NOT_ALLOW_TO_LACK);
         }
 
-        // 4.查询订单 item
+        // 3.查询订单 item
         List<OrderItemDO> orderItems  = orderItemDao.listByOrderId(lackRequest.getOrderId());
 
         List<LackItemDTO> lackItems = ObjectUtil.convertList(orderItems,LackItemDTO.class, CloneDirection.OPPOSITE);
         return new CheckLackDTO(order,lackItems);
+    }
+
+    @Override
+    public Boolean isOrderLacked(OrderInfoDO orderInfoDO) {
+        OrderExtJsonDTO orderExtJson = ExJsonUtil.parseJson(orderInfoDO.getExtJson(),OrderExtJsonDTO.class);
+
+        if (ObjectUtils.isNotEmpty(orderExtJson)){
+            return orderExtJson.getLackFlag();
+        }
+
+
+        return false;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -183,7 +204,7 @@ public class OrderLackServiceImpl implements OrderLackService {
         // 构造售后单
         AfterSaleRefundDO afterSaleRefund = AfterSaleRefundDO
                 .builder()
-                .afterSaleId(afterSaleInfo.getAfterSaleId())
+                .afterSaleId(String.valueOf(afterSaleInfo.getAfterSaleId()))
                 .orderId(orderInfo.getOrderId())
                 .accountType(AccountTypeEnum.THIRD.getCode())
                 .payType(orderInfo.getPayType())
@@ -214,7 +235,7 @@ public class OrderLackServiceImpl implements OrderLackService {
         afterSaleItemDO.setProductName(orderItem.getProductName());
         afterSaleItemDO.setSkuCode(productSku.getSkuCode());
         afterSaleItemDO.setReturnQuantity(lackNum);
-        afterSaleItemDO.setProductImg(productSku.getProductImg());
+        afterSaleItemDO.setProductImg(productSku.getProductImage());
         afterSaleItemDO.setOriginAmount(orderItem.getOriginAmount());
 
         // 计算sku缺品退款金额

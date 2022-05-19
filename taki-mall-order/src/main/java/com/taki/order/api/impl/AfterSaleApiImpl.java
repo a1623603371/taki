@@ -1,18 +1,48 @@
 package com.taki.order.api.impl;
 
+import com.alibaba.fastjson.JSONObject;
+import com.taki.common.constants.RedisLockKeyConstants;
+import com.taki.common.constants.RocketMQConstant;
+import com.taki.common.enums.CustomerAuditResult;
+import com.taki.common.enums.CustomerAuditSourceEnum;
+import com.taki.common.message.ActualRefundMessage;
+import com.taki.common.redis.RedisLock;
+import com.taki.common.utlis.ParamCheckUtil;
 import com.taki.common.utlis.ResponseData;
 import com.taki.customer.domain.request.CustomReviewReturnGoodsRequest;
 import com.taki.order.api.AfterSaleApi;
+import com.taki.order.dao.AfterSaleInfoDao;
+import com.taki.order.dao.AfterSaleItemDao;
+import com.taki.order.dao.OrderItemDao;
 import com.taki.order.domain.dto.CheckLackDTO;
 import com.taki.order.domain.dto.LackDTO;
+import com.taki.order.domain.dto.OrderItemDTO;
+import com.taki.order.domain.dto.ReleaseProductStockDTO;
+import com.taki.order.domain.entity.AfterSaleItemDO;
+import com.taki.order.domain.entity.OrderItemDO;
 import com.taki.order.domain.request.*;
+import com.taki.order.enums.AfterSaleStatusEnum;
 import com.taki.order.exception.OrderBizException;
+import com.taki.order.exception.OrderErrorCodeEnum;
+import com.taki.order.mq.producer.DefaultProducer;
 import com.taki.order.service.OrderAfterSaleService;
 import com.taki.order.service.OrderLackService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.dubbo.config.annotation.DubboService;
+import org.apache.rocketmq.client.producer.LocalTransactionState;
+import org.apache.rocketmq.client.producer.TransactionListener;
+import org.apache.rocketmq.client.producer.TransactionMQProducer;
+import org.apache.rocketmq.client.producer.TransactionSendResult;
+import org.apache.rocketmq.common.message.Message;
+import org.apache.rocketmq.common.message.MessageExt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.support.SimpleTriggerContext;
+
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @ClassName AfterSaleApiImpl
@@ -33,6 +63,22 @@ public class AfterSaleApiImpl implements AfterSaleApi {
     @Autowired
     private OrderLackService orderLackService;
 
+
+    @Autowired
+    private AfterSaleItemDao afterSaleItemDao;
+
+    @Autowired
+    private AfterSaleInfoDao afterSaleInfoDao;
+
+    @Autowired
+    private OrderItemDao orderItemDao;
+
+    @Autowired
+    private RedisLock redisLock;
+
+    @Autowired
+    private DefaultProducer defaultProducer;
+
     @Override
     public ResponseData<Boolean> cancelOrder(CancelOrderRequest cancelOrderRequest) {
 
@@ -51,11 +97,29 @@ public class AfterSaleApiImpl implements AfterSaleApi {
 
     @Override
     public ResponseData<LackDTO> lockItem(LackRequest lackRequest) {
+        log.info("request={}", JSONObject.toJSONString(lackRequest));
         try {
+
+            // 1.参数基本效验
+            ParamCheckUtil.checkObjectNonNull(lackRequest.getOrderId(), OrderErrorCodeEnum.ORDER_ID_IS_NULL);
+            ParamCheckUtil.checkObjectNonNull(lackRequest.getLackItems(),OrderErrorCodeEnum.LACK_ITEM_IS_NULL);
+
+
+            //2 加锁防止并发
+            String lockKey = RedisLockKeyConstants.LACK_REQUEST_KEY + lackRequest.getOrderId();
+
+            if (!redisLock.lock(lockKey)){
+                throw new OrderBizException(OrderErrorCodeEnum.ORDER_NOT_ALLOW_TO_LACK);
+            }
+
             // 1.參數效驗
             CheckLackDTO checkResult = orderLackService.checkRequest(lackRequest);
             // 2.缺品處理
-            return ResponseData.success(orderLackService.executeLackRequest(lackRequest,checkResult));
+            try {
+                return ResponseData.success(orderLackService.executeLackRequest(lackRequest,checkResult));
+            }finally {
+                redisLock.unLock(lockKey);
+            }
         }catch (OrderBizException e){
             log.error("biz error",e);
             return ResponseData.error(e.getErrorCode(),e.getErrorMessage());
@@ -75,12 +139,193 @@ public class AfterSaleApiImpl implements AfterSaleApi {
     }
 
     @Override
-    public ResponseData<Boolean> receiveCustomerAuditResult(CustomerAuditAssembleRequest customerAuditAssembleRequest) {
-        return ResponseData.success(orderAfterSaleService.receiveCustomerAuditResult(customerAuditAssembleRequest));
+    public ResponseData<Boolean> receiveCustomerAuditResult(CustomReviewReturnGoodsRequest customReviewReturnGoodsRequest) {
+
+        // 1组装接受客服审核结果的数据
+        CustomerAuditAssembleRequest customerAuditAssembleRequest = buildCustomerAuditAssembleData(customReviewReturnGoodsRequest);
+
+        // 客服审核拒绝
+
+        if (CustomerAuditResult.REJECT.getCode().equals(customerAuditAssembleRequest.getReviewReasonCode())){
+            //更新 审核拒绝 售后消息
+          Boolean result =   orderAfterSaleService.receiveCustomerAuditReject(customerAuditAssembleRequest);
+
+            return ResponseData.success(result);
+        }
+            // 客服 审核通过
+        if (CustomerAuditResult.ACCEPT.getCode().equals(customerAuditAssembleRequest.getReviewReasonCode())){
+            String orderId = customerAuditAssembleRequest.getOrderId();
+            Long afterSaleId = customerAuditAssembleRequest.getAfterSaleId();
+
+            AfterSaleItemDO afterSaleItemDO = afterSaleItemDao.getOrderIdAndAfterSaleId(orderId,afterSaleId);
+
+            if (ObjectUtils.isEmpty(afterSaleItemDO)){
+                throw new OrderBizException(OrderErrorCodeEnum.AFTER_SALE_ITEM_CANNOT_NULL);
+            }
+
+            //4.组装释放库存参数
+            AuditPassReleaseAssetRequest auditPassReleaseAssetRequest = buildAuditPassReleaseAssets(afterSaleItemDO,customerAuditAssembleRequest,orderId);
+
+            // 5. 组装事务MQ消息
+            TransactionMQProducer transactionMQProducer = defaultProducer.getProducer();
+
+            transactionMQProducer.setTransactionListener(new TransactionListener() {
+                @Override
+                public LocalTransactionState executeLocalTransaction(Message message, Object o) {
+
+                    try {
+                        orderAfterSaleService.receiveCustomerAuditAccept(customerAuditAssembleRequest);
+                        return LocalTransactionState.COMMIT_MESSAGE;
+                    }catch (Exception e){
+                        log.error("system error");
+                        return LocalTransactionState.ROLLBACK_MESSAGE;
+                    }
+
+
+                }
+
+                @Override
+                public LocalTransactionState checkLocalTransaction(MessageExt messageExt) {
+                        Integer customerAuditAfterSaleStatus = orderAfterSaleService.findCustomerAuditSaleStatus(customerAuditAssembleRequest.getAfterSaleId());
+
+                        if (AfterSaleStatusEnum.REVIEW_PASS.getCode().equals(customerAuditAfterSaleStatus)){
+                            return LocalTransactionState.COMMIT_MESSAGE;
+                        }
+
+                    return LocalTransactionState.ROLLBACK_MESSAGE;
+                }
+            });
+
+            try {
+            Message message = new Message(RocketMQConstant.CUSTOMER_AUDIT_PASS_RELEASE_ASSETS_TOPIC,JSONObject.toJSONString(auditPassReleaseAssetRequest).getBytes(StandardCharsets.UTF_8));
+            // 6.发送事务MQ 消息 客服审核通过后释放权益资产
+                TransactionSendResult result = transactionMQProducer.sendMessageInTransaction(message,auditPassReleaseAssetRequest);
+
+                if (!result.getLocalTransactionState().equals(LocalTransactionState.COMMIT_MESSAGE)){
+                    throw new OrderBizException(OrderErrorCodeEnum.SEND_AUDIT_PASS_RELEASE_ASSETS_FAILED);
+                }
+
+            }catch (Exception e){
+                throw new OrderBizException(OrderErrorCodeEnum.SEND_TRANSACTION_MQ_FAILED);
+            }
+
+
+        }
+        return ResponseData.success(true);
+    }
+    /**
+     * @description:   构建审核通过 释放 资产
+     * @param afterSaleItemDO 售后条目消息
+     *   @param customerAuditAssembleRequest 客户审核组装请求
+     * @return
+     * @author Long
+     * @date: 2022/5/19 21:03
+     */
+    private AuditPassReleaseAssetRequest buildAuditPassReleaseAssets(AfterSaleItemDO afterSaleItemDO, CustomerAuditAssembleRequest customerAuditAssembleRequest,String orderId) {
+
+        AuditPassReleaseAssetRequest auditPassReleaseAssetRequest = new AuditPassReleaseAssetRequest();
+
+
+        ReleaseProductStockDTO releaseProductStockDTO = new ReleaseProductStockDTO();
+
+        List<ReleaseProductStockDTO.OrderItemRequest> orderItemRequests = new ArrayList<>();
+        ReleaseProductStockDTO.OrderItemRequest orderItemRequest = new ReleaseProductStockDTO.OrderItemRequest();
+        orderItemRequest.setSkuCode(afterSaleItemDO.getSkuCode());
+        orderItemRequest.setSaleQuantity(afterSaleItemDO.getReturnQuantity());
+        orderItemRequests.add(orderItemRequest);
+
+        releaseProductStockDTO.setOrderId(orderId);
+        releaseProductStockDTO.setOrderItemRequests(orderItemRequests);
+
+        auditPassReleaseAssetRequest.setReleaseProductStockDTO(releaseProductStockDTO);
+
+        // 实际退款数据
+        ActualRefundMessage actualRefundMessage = new ActualRefundMessage();
+        actualRefundMessage.setAfterSaleId(afterSaleItemDO.getAfterSaleId());
+        actualRefundMessage.setOrderId(afterSaleItemDO.getOrderId());
+        actualRefundMessage.setAfterSaleRefundId(customerAuditAssembleRequest.getAfterSaleRefundId());
+
+        /**
+         * 当前版本判断售后条目是否订单所属的最后一条 业务限制：
+         * 手动售后是整笔条目退，这里判断本次售后条目是否属于改订单的最后一个可售后的条目逻辑：
+         * 如果 正向下单的订单条目总条数：= 售后已退款成功的订单条目 + 1（本次客服审核通过的这笔条目）
+         * 那么 当前这笔审核通过的条目就是整笔订单的最后一条
+         */
+
+        // 判断是否要退的最后一条
+        Long afterSaleId = customerAuditAssembleRequest.getAfterSaleId();
+
+        List<OrderItemDO> orderItemDOs = orderItemDao.listByOrderId(orderId);
+
+        //查询 售后订单条目表中不包含当前条目的数量
+        List<AfterSaleItemDO> afterSaleItems = afterSaleItemDao.listNotContainCurrentAfterSaleId(orderId,afterSaleId);
+
+        // 查出数据中是否包含当前正在审核的这条
+        if (orderItemDOs.size() ==  afterSaleItems.size() ){
+            //本次条目就是当前订单的最后一笔
+            actualRefundMessage.setLastReturnGoods(true);
+        }
+        auditPassReleaseAssetRequest.setActualRefundMessage(actualRefundMessage);
+
+        return  auditPassReleaseAssetRequest;
+    }
+
+
+    /**
+     * @description:  构造 客户审核组装请求
+     * @param customReviewReturnGoodsRequest 自定义审核退货请求
+     * @return
+     * @author Long
+     * @date: 2022/5/19 21:03
+     */
+    private CustomerAuditAssembleRequest buildCustomerAuditAssembleData(CustomReviewReturnGoodsRequest customReviewReturnGoodsRequest) {
+
+        CustomerAuditAssembleRequest customerAuditAssembleRequest = new CustomerAuditAssembleRequest();
+
+        Long afterSaleId = customerAuditAssembleRequest.getAfterSaleId();
+
+        String orderId = customerAuditAssembleRequest.getOrderId();
+
+        Integer auditResult = customReviewReturnGoodsRequest.getAuditResult();
+
+        customerAuditAssembleRequest.setAfterSaleId(afterSaleId);
+        customerAuditAssembleRequest.setOrderId(orderId);
+        customerAuditAssembleRequest.setAfterSaleRefundId(customReviewReturnGoodsRequest.getAfterSaleRefundId());
+        customerAuditAssembleRequest.setReviewTime(new Date());
+        customerAuditAssembleRequest.setReviewSource(CustomerAuditSourceEnum.SELF_MALL.getCode());
+        customerAuditAssembleRequest.setReviewReasonCode(auditResult);
+        customerAuditAssembleRequest.setAuditResultDesc(customerAuditAssembleRequest.getAuditResultDesc());
+
+        return customerAuditAssembleRequest;
+
     }
 
     @Override
     public ResponseData<Boolean> revokeAfterSale(RevokeAfterSaleRequest revokeAfterSaleRequest) {
-        return null;
+        // 1. 参数效应
+        ParamCheckUtil.checkObjectNonNull(revokeAfterSaleRequest.getAfterSaleId(),OrderErrorCodeEnum.AFTER_SALE_ID_IS_NULL);
+
+        Long afterSaleId = revokeAfterSaleRequest.getAfterSaleId();
+
+        String lockKey = RedisLockKeyConstants.REFUND_KEY + afterSaleId;
+
+        //2 . 加锁 ，锁整个销售单 2个作用
+
+        //2.1 防止并发
+        //2.2 业务上考虑 ：只涉及售后表更新 ，就需要加锁，锁定整个售后表，否则算钱的时候，就由于突然撤销，导致钱多算
+
+        if (!redisLock.lock(lockKey)){
+            throw new OrderBizException(OrderErrorCodeEnum.AFTER_SALE_CANNOT_REVOKE);
+        }
+
+        try {
+            // 3.撤销申请
+            orderAfterSaleService.revokeAfterSale(revokeAfterSaleRequest);
+        }finally {
+            redisLock.unLock(lockKey);
+        }
+
+
+        return ResponseData.success(true);
     }
 }

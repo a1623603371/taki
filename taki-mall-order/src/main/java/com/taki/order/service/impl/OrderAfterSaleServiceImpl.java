@@ -521,7 +521,7 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
 
 
     @Override
-    public Boolean receiveCustomerAuditResult(CustomerAuditAssembleRequest customerAuditAssembleRequest) {
+    public Boolean receiveCustomerAuditAccept(CustomerAuditAssembleRequest customerAuditAssembleRequest) {
             AfterSaleInfoDO afterSaleInfoDO = afterSaleInfoDao.getByAfterSaleId(customerAuditAssembleRequest.getAfterSaleId());
 
             if(afterSaleInfoDO.getAfterSaleStatus() > AfterSaleStatusEnum.COMMITED.getCode()){
@@ -537,6 +537,64 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
         AfterSaleLogDO afterSaleLogDO = afterSaleOperateLogFactory.get(afterSaleInfoDO,AfterSaleStatusChannelEnum.AFTER_SALE_CUSTOMER_AUDIT_PASS);
 
         afterSaleLogDAO.save(afterSaleLogDO);
+        return true;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Boolean receiveCustomerAuditReject(CustomerAuditAssembleRequest customerAuditAssembleRequest) {
+        AfterSaleInfoDO afterSaleInfo = afterSaleInfoDao.getOneByAfterSaleId(customerAuditAssembleRequest
+                .getAfterSaleRefundId());
+        //幂等 效验：防止  客服重复审核订单
+        if (afterSaleInfo.getAfterSaleStatus() > AfterSaleStatusEnum.COMMITED.getCode()){
+            throw new OrderBizException(OrderErrorCodeEnum.CUSTOMER_AUDIT_CANNOT_REPEAT);
+        }
+
+        //更新售后信息
+        customerAuditAssembleRequest.setReviewReason(CustomerAuditResult.REJECT.getMsg());
+        afterSaleInfoDao.updateCustomerAuditAfterSaleResult(AfterSaleStatusEnum.REVIEW_REJECTED.getCode(),customerAuditAssembleRequest );
+
+        //记录 售后日志
+        AfterSaleLogDO afterSaleLogDO = afterSaleOperateLogFactory.get(afterSaleInfo,AfterSaleStatusChannelEnum.AFTER_SALE_CUSTOMER_AUDIT_REJECT);
+
+        afterSaleLogDAO.save(afterSaleLogDO);
+
+
+        return true;
+    }
+
+    @Override
+    public Integer findCustomerAuditSaleStatus(Long afterSaleId) {
+        AfterSaleInfoDO afterSaleInfoDO = afterSaleInfoDao.getByAfterSaleId(afterSaleId);
+
+        return afterSaleInfoDO.getAfterSaleStatus();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Boolean revokeAfterSale(RevokeAfterSaleRequest revokeAfterSaleRequest) {
+        //查询 售后单
+        Long afterSaleId = revokeAfterSaleRequest.getAfterSaleId();
+
+        AfterSaleInfoDO afterSaleInfoDO = afterSaleInfoDao.getOneByAfterSaleId(afterSaleId);
+
+        ParamCheckUtil.checkObjectNonNull(afterSaleInfoDO,OrderErrorCodeEnum.AFTER_SALE_NOT_FOUND);
+
+        //2.校验售后单是否可以撤销：只有提交申请状态才可以撤销
+        if (!AfterSaleStatusEnum.COMMITED.getCode().equals(afterSaleInfoDO.getAfterSaleStatus())){
+            throw new OrderBizException(OrderErrorCodeEnum.AFTER_SALE_CANNOT_REVOKE);
+        }
+
+        //3.更新售后单状态：“已撤销”
+        afterSaleInfoDao.updateStatus(afterSaleId,AfterSaleStatusEnum.COMMITED.getCode(), AfterSaleStatusEnum.REVOKE.getCode());
+
+        //4. 增加 一条 售后单操作日志
+        afterSaleLogDAO.save(afterSaleOperateLogFactory.get(afterSaleInfoDO,AfterSaleStatusChannelEnum.AFTER_SALE_REVOKE));
+
+
+
+
+
         return true;
     }
 
@@ -829,7 +887,7 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
 
         //1 生成售后订单号
         String afterSaleId = orderNoManager.genOrderId(OrderNoTypeEnum.AFTER_SALE.getCode(), orderInfoDO.getUserId());
-        afterSaleInfoDO.setAfterSaleId(afterSaleId);
+        afterSaleInfoDO.setAfterSaleId(Long.valueOf(afterSaleId));
         afterSaleInfoDO.setBusinessIdentifier(orderInfoDO.getBusinessIdentifier());
         afterSaleInfoDO.setOrderId(orderInfoDO.getOrderId());
         afterSaleInfoDO.setOrderSourceChannel(BusinessIdentifierEnum.SELF_MALL.getCode());
