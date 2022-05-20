@@ -1,5 +1,6 @@
 package com.taki.order.enums;
 
+import com.taki.common.enums.OrderStatusEnum;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -18,7 +19,7 @@ public enum OrderCancelTypeEnum {
     TIMEOUT_CANCELED(1, "订单超时，取消"),
     CUSTOMER_CANCELED(2, "用户授权客服取消");
 
-
+    OrderStatusEnum
     private Integer code;
 
 

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.taki.common.BaseDAO;
+import com.taki.common.enums.OrderStatusEnum;
 import com.taki.order.domain.dto.OrderExtJsonDTO;
 import com.taki.order.domain.dto.OrderListDTO;
 import com.taki.order.domain.dto.OrderListQueryDTO;
@@ -120,5 +121,17 @@ public class OrderInfoDao extends BaseDAO<OrderInfoMapper, OrderInfoDO> {
     public Boolean updateOrderInfo(OrderInfoDO orderInfoDO) {
 
         return this.update(orderInfoDO,new QueryWrapper<OrderInfoDO>().eq(OrderInfoDO.ORDER_ID,orderInfoDO.getOrderId()));
+    }
+    
+    /** 
+     * @description: 查询 所有 未支付订单
+     * @param 
+     * @return  void
+     * @author Long
+     * @date: 2022/5/20 16:50
+     */ 
+    public List<OrderInfoDO> listAllUnPaid() {
+
+        return this.list(new QueryWrapper<OrderInfoDO>().eq(OrderInfoDO.ORDER_STATUS, OrderStatusEnum.CREATED));
     }
 }

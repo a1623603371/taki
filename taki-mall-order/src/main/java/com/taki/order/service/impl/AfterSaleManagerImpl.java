@@ -284,7 +284,7 @@ public class AfterSaleManagerImpl implements AfterSaleManager {
      */
     private void insertCancelOrderAfterSaleInfoTable(OrderInfoDTO orderInfoDTO, Integer cancelOrderAfterSaleStatus, AfterSaleInfoDO afterSaleInfoDO, String afterSaleId) {
 
-        afterSaleInfoDO.setAfterSaleId(afterSaleId);
+        afterSaleInfoDO.setAfterSaleId(Long.valueOf(afterSaleId));
         afterSaleInfoDO.setBusinessIdentifier(BusinessIdentifierEnum.SELF_MALL.getCode());
         afterSaleInfoDO.setOrderId(orderInfoDTO.getOrderId());
         afterSaleInfoDO.setOrderSourceChannel(BusinessIdentifierEnum.SELF_MALL.getCode());
