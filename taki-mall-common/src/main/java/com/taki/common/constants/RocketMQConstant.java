@@ -40,6 +40,12 @@ public class RocketMQConstant {
      */
     public static  final   String PAID_ORDER_SUCCESS_TOPIC = "paid_order_success_topic";
 
+
+    /**
+     * 完成订单支付 producer 分组
+     */
+    public static  final    String PAID_ORDER_SUCCESS_PRODUCER_GROUP = "paid_order_success_producer_group";
+
     /**
      * 完成订单支付 consumer 分组
      */
@@ -49,6 +55,15 @@ public class RocketMQConstant {
      * 触发订单履约发送事务消息topic
      */
     public static  final  String TRIGGER_ORDER_FULFILL_TOPIC = "trigger_order_fulfill_topic";
+
+
+    /**
+     * 触发订单履约发送事务消息 consumer 分组
+     */
+    public  static final String TRIGGER_ORDER_FULFILL_PRODUCER_GROUP = "trigger_order_fulfill_producer_group";
+
+
+
 
     /**
      * 触发订单履约发送事务消息 consumer 分组
@@ -84,7 +99,12 @@ public class RocketMQConstant {
     public static  final  String ACTUAL_REFUND_TOPIC = "actual_refund_topic";
 
     /**
-     * 监听实例 退款分组
+     * 监听实际 退款 producer 分组
+     */
+    public static final  String ACTUAL_REFUND_PRODUCER_GROUP = "actual_refund_producer_group";
+
+    /**
+     * 监听实例 退款 consumer分组
      */
     public static final String ACTUAL_REFUND_CONSUMER_GROUP = "actual_refund_consumer_group";
 
@@ -93,10 +113,18 @@ public class RocketMQConstant {
      */
     public static  final String REQUEST_CONSUMER_GROUP = "request_consumer_group";
 
+
     /**
-     * 监听释放权益资产分组
+     * 监听释放权益资产 producer 分组
+     */
+    public static  final  String RELEASE_PROPERTY_PRODUCER_GROUP = "release_property_producer_Group";
+
+    /**
+     * 监听释放权益资产 consumer 分组
      */
     public static  final  String RELEASE_PROPERTY_CONSUMER_GROUP = "release_property_consumer_Group";
+
+
 
     /**
      * 监听释放库存 分组
@@ -107,6 +135,8 @@ public class RocketMQConstant {
      * 监听释放资产分组
      */
     public static  final  String    RELEASE_ASSETS_CONSUMER_GROUP = "release_assets_consumer_group";
+
+
 
     /**
      * 正向订单物流配送结果相关topic 信息
@@ -143,9 +173,21 @@ public class RocketMQConstant {
      */
     public static   final String CUSTOMER_AUDIT_PASS_RELEASE_ASSETS_TOPIC = "customer_audit_pass_release_assets_topic";
 
+
     /**
-     * 监听客服审核通过发送释放资产分组
+     * 监听客服审核通过发送释放资产 producer 分组
+     */
+    public static  final  String CUSTOMER_AUDIT_PASS_RELEASE_ASSETS_PRODUCER_GROUP = "customer_audit_pass_release_assets_producer_group";
+
+    /**
+     * 监听客服审核通过发送释放资产 consumer 分组
      */
     public static  final  String CUSTOMER_AUDIT_PASS_RELEASE_ASSETS_CONSUMER_GROUP = "customer_audit_pass_release_assets_consumer_group";
+
+
+    /**
+     * 缺品处理 producer 分组
+     */
+    public  static  final  String LACK_ITEM_PRODUCER_GROUP = "lack_item_producer_group";
 }
 

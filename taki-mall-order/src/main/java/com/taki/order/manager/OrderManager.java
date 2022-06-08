@@ -33,12 +33,10 @@ public interface OrderManager {
 
     /**
      * @description: 支付回调修改订单状态
-     * @param payCallbackRequest 支付回调请求
      * @param orderInfo 订单数据
-     * @param orderPaymentDetail 订单支付详情数据
      * @return  void
      * @author Long
      * @date: 2022/5/12 21:41
      */
-    void updateOrderStatusPaid(PayCallbackRequest payCallbackRequest, OrderInfoDO orderInfo, OrderPaymentDetailDO orderPaymentDetail);
+    void updateOrderStatusWhenPayCallback(OrderInfoDO orderInfo);
 }

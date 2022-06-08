@@ -17,10 +17,7 @@ import com.taki.common.exception.ServiceException;
 import com.taki.common.message.PaidOrderSuccessMessage;
 import com.taki.common.message.PayOrderTimeOutDelayMessage;
 import com.taki.common.redis.RedisLock;
-import com.taki.common.utlis.JsonUtil;
-import com.taki.common.utlis.ObjectUtil;
-import com.taki.common.utlis.ParamCheckUtil;
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utlis.*;
 import com.taki.inventory.api.InventoryApi;
 import com.taki.market.api.MarketApi;
 import com.taki.market.domain.dto.CalculateOrderAmountDTO;
@@ -37,6 +34,8 @@ import com.taki.order.domain.request.*;
 import com.taki.order.domain.entity.*;
 import com.taki.order.manager.OrderManager;
 import com.taki.order.mq.producer.DefaultProducer;
+import com.taki.order.mq.producer.PaidOrderSuccessProducer;
+import com.taki.order.remote.*;
 import com.taki.pay.api.PayApi;
 import com.taki.pay.domian.dto.PayOrderDTO;
 import com.taki.pay.domian.rquest.PayOrderRequest;
@@ -58,20 +57,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.apache.rocketmq.client.producer.LocalTransactionState;
-import org.apache.rocketmq.client.producer.TransactionListener;
-import org.apache.rocketmq.client.producer.TransactionMQProducer;
+import org.apache.rocketmq.client.exception.MQClientException;
+import org.apache.rocketmq.client.producer.*;
 import org.apache.rocketmq.common.message.Message;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -92,9 +90,6 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     @Autowired
     private OrderDeliveryDetailDao orderDeliveryDetailDao;
 
-    @Autowired
-    private OrderOperateLogDao orderOperateLogDao;
-
 
     @Autowired
     private OrderPaymentDetailDao orderPaymentDetailDao;
@@ -114,53 +109,75 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
 
     @Autowired
+    private PaidOrderSuccessProducer paidOrderSuccessProducer;
+
+
+    @Autowired
     private RedisLock redisLock;
 
 
-    /**
-     * 库存服务
-     */
-    @DubboReference(version ="1.0.0" ,retries = 0)
-    private InventoryApi inventoryApi;
+
 
     /**
      * 营销服务
      */
-    @DubboReference(version = "1.0.0" ,retries = 0)
-    private MarketApi marketApi;
+    @Autowired
+    private MarketRemote marketRemote;
+    /**
+     * 风控服务
+     */
+    @Autowired
+    private RiskRemote riskRemote;
 
-    @DubboReference
-    private RiskApi riskApi;
+    /**
+     * 商品服务
+     */
+    @Autowired
+    private ProductRemote productRemote;
 
-
-    @DubboReference
-    private ProductApi productApi;
-
-    @DubboReference
-    private AddressApi addressApi;
-
-    @DubboReference
-    private PayApi payApi;
+    /**
+     * 支付服务
+     */
+    @Autowired
+    private PayRemote payRemote;
 
 
     @Override
-    public GenOrderIdDTO getGenOrderIdDTO(GenOrderIdRequest genOrderIdRequest) {
+    public GenOrderIdDTO getGenOrderId(GenOrderIdRequest genOrderIdRequest) {
+
+
+        log.info(LoggerFormat.build()
+                .remark("genOrderId -> request")
+                .data("request",genOrderIdRequest)
+                .finish());
 
         String userId = genOrderIdRequest.getUserId();
         ParamCheckUtil.checkStringNonEmpty(userId);
-
         Integer businessIdentifier = genOrderIdRequest.getBusinessIdentifier();
         ParamCheckUtil.checkObjectNonNull(businessIdentifier);
+
+
         String orderId = orderNoManager.genOrderId(OrderAutoTypeEnum.SALE_ORDER.getCode(),userId);
         GenOrderIdDTO genOrderId = new GenOrderIdDTO();
         genOrderId.setOrderId(orderId);
-        log.info("生单id:{}",orderId);
+
+        log.info(LoggerFormat.build()
+                .remark("genOrderId -> request")
+                .data("response",genOrderId)
+                .finish());
+
         return genOrderId;
     }
 
-    @GlobalTransactional(rollbackFor = Exception.class)
+   // @GlobalTransactional(rollbackFor = Exception.class)
     @Override
     public CreateOrderDTO createOrder(CreateOrderRequest createOrderRequest) {
+
+        log.info(LoggerFormat.build()
+                .remark("createOrder -> request")
+                .data("request",createOrderRequest)
+                .finish());
+
 
         // 1.入参检查
         checkCreateOrderRequestParam(createOrderRequest);
@@ -180,9 +197,6 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         //6. 生成订单到数据库
         createOrder(createOrderRequest,productSkus,calculateOrderAmount);
 
-
-        //addNewOrder(createOrderRequest,productSkus,calculateOrderAmount);
-
         // 7.发送延时订单消息用于支付超时自动关单
         sendPayOrderTimeoutDelayMessage(createOrderRequest);
         // 返回订单数据
@@ -193,7 +207,13 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public PrePayOrderDTO preOrder(PrePayOrderRequest prePayOrderRequest) {
+    public PrePayOrderDTO prePayOrder(PrePayOrderRequest prePayOrderRequest) {
+
+        log.info(LoggerFormat.build()
+                .remark("preOrder -> request")
+                .data("request",prePayOrderRequest)
+                .finish());
+
         // 入参检查
         checkPerPayOrderRequestPram(prePayOrderRequest);
 
@@ -205,11 +225,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
         String lockKey = RedisLockKeyConstants.ORDER_PAY_KEY + orderId;
 
-        boolean lock = redisLock.lock(lockKey);
-
-        if (!lock){
-            throw new OrderBizException(OrderErrorCodeEnum.ORDER_PRE_PAY_ERROR);
-        }
+        prePayOrderKey(lockKey);
         try {
             // 预支付订单检查
             checkPerPayOrderInfo(orderId,payAmount);
@@ -217,144 +233,246 @@ public class OrderInfoServiceImpl implements OrderInfoService {
             //调用 支付系统 进行预支付
             PayOrderRequest payOrderRequest =  prePayOrderRequest.clone(PayOrderRequest.class);
 
-            ResponseData<PayOrderDTO> responseResult = payApi.payOrder(payOrderRequest);
-
-            if (!responseResult.getSuccess()){
-                throw new OrderBizException(OrderErrorCodeEnum.ORDER_PRE_PAY_ERROR);
-            }
-            PayOrderDTO payOrder = responseResult.getData();
-
+            PayOrderDTO payOrder = payRemote.payOrder(payOrderRequest);
             //更新订单表 与支付信息表
             updateOrderPaymentInfo(payOrder);
 
-            return payOrder.clone(PrePayOrderDTO.class);
+            PrePayOrderDTO prePayOrderDTO = payOrder.clone(PrePayOrderDTO.class);
+
+            log.info(LoggerFormat.build()
+                    .remark("prePayOrder -> request")
+                    .data("response",prePayOrderDTO)
+                    .finish());
+            return prePayOrderDTO;
         }finally {
             redisLock.unLock(lockKey);
         }
 
     }
 
+    /**
+     * @description: 支付 分布式锁
+     * @param lockKey 锁key
+     * @return  void
+     * @author Long
+     * @date: 2022/6/8 14:05
+     */
+    private void prePayOrderKey( String lockKey){
+        boolean lock = redisLock.lock(lockKey);
+        if (!lock){
+            throw new OrderBizException(OrderErrorCodeEnum.ORDER_PRE_PAY_ERROR);
+        }
+    }
+
+
     @Override
     public void payCallback(PayCallbackRequest payCallbackRequest) {
-        // 入参检查
-        checkPayCallbackRequestParam(payCallbackRequest);
+
+        log.info(LoggerFormat.build()
+                .remark("payCallback->request")
+                .data("request",payCallbackRequest)
+                .finish());
 
         String orderId = payCallbackRequest.getOrderId();
-
-        BigDecimal payAmount = payCallbackRequest.getPayAmount();
-
         Integer payType = payCallbackRequest.getPayType();
 
-        List<String> redisKeyList = Lists.newArrayList();
-
-
-        String orderPayKey = RedisLockKeyConstants.ORDER_PAY_KEY + orderId;
-
-        String cancelOrderPayKey = RedisLockKeyConstants.CANCEL_KEY + orderId;
-
-        redisKeyList.add(orderPayKey);
-        redisKeyList.add(cancelOrderPayKey);
-
-
-
-        boolean lock = redisLock.multiLock(redisKeyList);
-
-        if (!lock){
-            throw new OrderBizException(OrderErrorCodeEnum.ORDER_PAY_CALLBACK_ERROR);
-        }
-
-        try {
         // 从数据库中查询出订单信息
         OrderInfoDO orderInfo = orderInfoDao.getByOrderId(orderId);
         OrderPaymentDetailDO orderPaymentDetail = orderPaymentDetailDao.getPaymentDetailByOrderId(orderId);
+        // 入参检查
+        checkPayCallbackRequestParam(payCallbackRequest, orderInfo,orderPaymentDetail);
+        // 为支付回调操作进行多重分布式锁加锁
+        List<String> redisKeyList = Lists.newArrayList();
+        payCallbackMultiLock(redisKeyList,orderId);
 
-        // 检验参数
-        if(ObjectUtils.isEmpty(orderInfo) || ObjectUtils.isEmpty(orderPaymentDetail)){
-            throw new OrderBizException(OrderErrorCodeEnum.ORDER_INFO_IS_NULL);
-        }
-
-        if (payAmount.compareTo(orderInfo.getPayAmount()) == 0){
-            throw new ServiceException(OrderErrorCodeEnum.ORDER_PAY_AMOUNT_ERROR);
-        }
-
+        try {
         // 异常场景
         Integer orderStatus = orderInfo.getOrderStatus();
 
-        if (OrderStatusEnum.CREATED.getCode().equals(orderStatus)){
-            //如果订单状态是 ”已创建“ 直接更新订单状态为已支付，并发送事务消息
+        Integer payStatus = orderPaymentDetail.getPayStatus();
+        // 幂等检查
+        if (!OrderStatusEnum.CREATED.getCode().equals(orderStatus)){
+            // 异常场景
+            payCallbackFailure(orderStatus,payStatus,payType,orderPaymentDetail,orderInfo);
+            return;
 
-            TransactionMQProducer transactionMQProducer = defaultProducer.getProducer();
-
-            transactionMQProducer.setTransactionListener(new TransactionListener() {
-                @Override
-                public LocalTransactionState executeLocalTransaction(Message message, Object o) {
-                    try {
-                    orderManager.updateOrderStatusPaid(payCallbackRequest,orderInfo,orderPaymentDetail);
-
-                    return LocalTransactionState.COMMIT_MESSAGE;
-                    }catch (OrderBizException e){
-                        throw e;
-                    }catch (Exception e){
-
-                        log.error("system error:{}",e);
-
-                        return LocalTransactionState.ROLLBACK_MESSAGE;
-                    }
-
-                }
-
-                @Override
-                public LocalTransactionState checkLocalTransaction(MessageExt messageExt) {
-                        // 检查订单是否是已支付
-                    OrderInfoDO orderInfoDO = orderInfoDao.getByOrderId(orderId);
-                    if (ObjectUtils.isNotEmpty(orderInfoDO) && OrderStatusEnum.PAID.getCode().equals(orderInfoDO.getOrderStatus())){
-
-                        return LocalTransactionState.COMMIT_MESSAGE;
-
-                    }
-                        return LocalTransactionState.ROLLBACK_MESSAGE;
-                }
-            });
-
-            // 发送 “订单已完成支付” 消息
-            sendPaidOrderSuccessMessage(orderInfo);
-        }else {
-            // 如果订单状态 不是 “已创建”
-            if (OrderStatusEnum.CANCELED.getCode().equals(orderStatus)) {
-                //如果订单是取消状态
-                Integer payStatus = orderPaymentDetail.getPayStatus();
-
-                if (PayStatusEnum.UNPAID.getCode().equals(payStatus)) {
-                    // 调用退款
-                    executeOrderRefund(orderInfo, orderPaymentDetail);
-
-                    throw new OrderBizException(OrderErrorCodeEnum.ORDER_CANCEL_PAY_CALLBACK_ERROR);
-                } else if (PayStatusEnum.PAID.getCode().equals(payStatus)) {
-                    if (payType.equals(orderPaymentDetail.getPayType())) {
-                        throw new OrderBizException(OrderErrorCodeEnum.ORDER_CANCEL_PAY_CALLBACK_PAY_TYPE_NO_SAME_ERROR);
-                    } else {
-                        throw new OrderBizException(OrderErrorCodeEnum.ORDER_CANCEL_PAY_CALLBACK_PAY_TYPE_NO_SAME_ERROR);
-                    }
-                }else {
-                    // 如果订单状态不是取消状态
-                    if (PayStatusEnum.PAID.getCode().equals(orderPaymentDetail.getPayStatus())){
-                        if (payType.equals(orderPaymentDetail.getPayType())){
-                            return;
-                        }
-                        // 调用退款
-                        executeOrderRefund(orderInfo,orderPaymentDetail);
-                        throw new OrderBizException(OrderErrorCodeEnum.ORDER_CANCEL_PAY_CALLBACK_REPEAT_ERROR);
-                    }
-                }
-            }
         }
+        //执行正式得订单支付回调处理
+        doPayCallback(orderInfo);
+
+        log.info(LoggerFormat.build()
+                .remark("payCallback -> response")
+                .finish());
+
         }catch (Exception e){
+            log.error("payCallback error",e);
             throw new OrderBizException(e.getMessage());
         }finally {
             redisLock.unMultiLock(redisKeyList);
         }
 
 
+
+    }
+    /** 
+     * @description:  支付回调成功的时候处理逻辑
+     * @param orderInfo
+     * @return  void
+     * @author Long
+     * @date: 2022/6/8 18:41
+     */ 
+    private void doPayCallback(OrderInfoDO orderInfo) throws MQClientException {
+        // 如果 订单状态 “已创建” 直接更新订单状态为 已支付 ，并发送事务消息
+        TransactionMQProducer transactionMQProducer = paidOrderSuccessProducer.getTransactionMQProducer();
+        setPayCallbackTransactionListener(transactionMQProducer);
+        sendPayCallbackSuccessMessage(transactionMQProducer,orderInfo);
+    }
+
+    /** 
+     * @description: 发送订单已支付信息，触发履约
+     * @param transactionMQProducer
+     * @param  orderInfo
+     * @return  void
+     * @author Long
+     * @date: 2022/6/8 22:22
+     */ 
+    private void sendPayCallbackSuccessMessage(TransactionMQProducer transactionMQProducer, OrderInfoDO orderInfo) throws MQClientException {
+        String orderId = orderInfo.getOrderId();
+
+        PaidOrderSuccessMessage message = new PaidOrderSuccessMessage();
+        message.setOrderId(orderId);
+
+        log.info(LoggerFormat.build()
+                .remark("发送订单已支付消息")
+                .data("message",message)
+                .finish());
+        String topic = RocketMQConstant.PAID_ORDER_SUCCESS_TOPIC;
+
+        byte[] body = JSON.toJSONString(message).getBytes();
+
+        Message mq = new Message(topic,null,orderId,body);
+
+        TransactionSendResult result  = transactionMQProducer.sendMessageInTransaction(mq,orderInfo);
+
+        if (!SendStatus.SEND_OK.equals(result.getSendStatus())){
+        throw new OrderBizException(OrderErrorCodeEnum.ORDER_PAY_CALLBACK_SEND_MQ_ERROR);
+        }
+    }
+
+    /** 
+     * @description: 发送支付成功消息，时，设置事务消息 TransactionListener 组件
+     * @param transactionMQProducer
+     * @return  void
+     * @author Long
+     * @date: 2022/6/8 21:12
+     */ 
+    private void setPayCallbackTransactionListener(TransactionMQProducer transactionMQProducer) {
+        transactionMQProducer.setTransactionListener(new TransactionListener() {
+            @Override
+            public LocalTransactionState executeLocalTransaction(Message message, Object o) {
+                try {
+                    OrderInfoDO orderInfo = (OrderInfoDO) o;
+                    orderManager.updateOrderStatusWhenPayCallback(orderInfo);
+                    return  LocalTransactionState.COMMIT_MESSAGE;
+                }catch (ServiceException e){
+                    throw e;
+                }catch (Exception e){
+                    log.error("system error",e);
+                    return LocalTransactionState.ROLLBACK_MESSAGE;
+                }
+            }
+
+            @Override
+            public LocalTransactionState checkLocalTransaction(MessageExt messageExt) {
+                PaidOrderSuccessMessage paidOrderSuccessMessage = JSON.parseObject(
+                        new String(messageExt.getBody(), StandardCharsets.UTF_8),PaidOrderSuccessMessage.class);
+
+                // 检查订单是否已支付
+                OrderInfoDO orderInfoDO = orderInfoDao.getByOrderId(paidOrderSuccessMessage.getOrderId());
+                if(orderInfoDO != null && OrderStatusEnum.PAID.getCode().equals(orderInfoDO.getOrderStatus())){
+
+                    return LocalTransactionState.COMMIT_MESSAGE;
+
+                }
+                return LocalTransactionState.ROLLBACK_MESSAGE;
+            }
+        });
+
+    }
+
+    /** 
+     * @description: 支付回调异常处理逻辑
+     * @param orderStatus 订单整体
+     * @param payStatus 支付状态
+     * @param payType 支付类型
+     * @param orderPaymentDetail 订单支付详情
+     * @param orderInfo 订单数据
+     * @return  void
+     * @author Long
+     * @date: 2022/6/8 16:36
+     */ 
+    private void payCallbackFailure(Integer orderStatus, Integer payStatus, Integer payType, OrderPaymentDetailDO orderPaymentDetail, OrderInfoDO orderInfo) {
+        // 如果订单状态 不是 “已创建”
+        // 可能是支付回调就取消了订单，也可能支付回调成功后取消
+        if (OrderStatusEnum.CANCELED.getCode().equals(orderStatus)) {
+            //此时如果订单得支付状态是未支付得话
+            //说明用户在取消订单得时候，支付系统还没有完成回调，而支付系统又已经扣了用户得钱，已调用一下退款
+            if (PayStatusEnum.UNPAID.getCode().equals(payStatus)) {
+                // 调用退款
+                executeOrderRefund(orderInfo, orderPaymentDetail);
+                throw new OrderBizException(OrderErrorCodeEnum.ORDER_CANCEL_PAY_CALLBACK_ERROR);
+
+                //如果是已支付状态 代表了 用户在取消得时候不是 已创建状态了
+            } else if (PayStatusEnum.PAID.getCode().equals(payStatus)) {
+                if (payType.equals(orderPaymentDetail.getPayType())) {
+                    //  非 “已创建”状态订单得取消状态操作本身就会进行退款
+                    // 所以如果同种支付方式，说明用户并没有进行多次支付，不需要调用退款接口
+                    throw new OrderBizException(OrderErrorCodeEnum.ORDER_CANCEL_PAY_CALLBACK_PAY_TYPE_SAME_ERROR);
+                } else {
+                    // 非同种支付方式，说明用户 用户 2中不同得支付方式进行了重复支付，所以调用退款接口
+
+                    executeOrderRefund(orderInfo,orderPaymentDetail);
+
+                    throw new OrderBizException(OrderErrorCodeEnum.ORDER_CANCEL_PAY_CALLBACK_PAY_TYPE_NO_SAME_ERROR);
+                }
+            }else {
+                // 如果订单状态不是取消状态(那么就是 已履约，已出库，已配送 状态中)
+                if (PayStatusEnum.PAID.getCode().equals(payStatus)){
+                    // 如果是同种支付方式回调，说明用户是并m没有发起重复付款，只是支付系统 多触发了一次支付回调
+                    //  这里做幂等判断，直接 返回，不需要调用 退款接口
+                    if (payType.equals(orderPaymentDetail.getPayType())){
+                        return;
+                    }
+                    //  如果 非同种支付方式，说明用户 更换了支付方式，发起了重复支付，所以调用退款接口进行退款
+                    // 调用退款
+                    executeOrderRefund(orderInfo,orderPaymentDetail);
+                    throw new OrderBizException(OrderErrorCodeEnum.ORDER_CANCEL_PAY_CALLBACK_REPEAT_ERROR);
+                }
+            }
+        }
+
+    }
+
+
+    /** 
+     * @description: 支付回调加分布式锁
+     * @param redisKeyList 锁集合
+     * @param  orderId 订单id
+     * @return  void
+     * @author Long
+     * @date: 2022/6/8 16:30
+     */ 
+    private void payCallbackMultiLock(List<String> redisKeyList, String orderId) {
+        // 加支付分布式锁 避免重复支付
+        String orderPayKey = RedisLockKeyConstants.ORDER_PAY_KEY + orderId;
+        // 加 取消分布式锁 避免 取消同一笔订单
+        String cancelOrderPayKey = RedisLockKeyConstants.CANCEL_KEY + orderId;
+        redisKeyList.add(orderPayKey);
+        redisKeyList.add(cancelOrderPayKey);
+        boolean lock = redisLock.multiLock(redisKeyList);
+        if (!lock){
+            throw new OrderBizException(OrderErrorCodeEnum.ORDER_PAY_CALLBACK_ERROR);
+        }
 
     }
 
@@ -372,19 +490,24 @@ public class OrderInfoServiceImpl implements OrderInfoService {
             }
         });
 
-        return null;
+        //移除订单
+      Boolean result =   orderInfoDao.softRemoveOrders(orderIds);
+        return result;
     }
     
     /** 
-     * @description:
-     * @param orderInfoDO
+     * @description: 判断订单是否可以移除
+     * @param orderInfoDO 订单 信息
      * @return  boolean
      * @author Long
      * @date: 2022/2/26 19:33
      */ 
     private boolean canRemove(OrderInfoDO orderInfoDO) {
-        return OrderStatusEnum.canRemoveStatus().contains(orderInfoDO.getOrderStatus()) &&  DeleteStatusEnum.NO.getCode().equals(orderInfoDO.getDeleteStatus());
+        return OrderStatusEnum.canRemoveStatus()
+                .contains(orderInfoDO.getOrderStatus()) &&
+                DeleteStatusEnum.NO.getCode().equals(orderInfoDO.getDeleteStatus());
     }
+
 
     @Override
     public Boolean adjustDeliveryAddress(AdjustDeliveryAddressRequest adjustDeliveryAddressRequest) {
@@ -432,24 +555,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         payRefundRequest.setOrderId(orderInfo.getOrderId());
         payRefundRequest.setRefundAmount(orderPaymentDetail.getPayAmount());
         payRefundRequest.setOutTradeNo(orderPaymentDetail.getOutTradeNo());
-        payApi.executeRefund(payRefundRequest);
-    }
-
-    /**
-     * @description:  发送订单已支付消息，触发订单进行履约
-     * @param orderInfo 订单
-     * @return  void
-     * @author Long
-     * @date: 2022/1/17 17:13
-     */
-    private void sendPaidOrderSuccessMessage(OrderInfoDO orderInfo) {
-        String orderId = orderInfo.getOrderId();
-        PaidOrderSuccessMessage paidOrderSuccessMessage = new PaidOrderSuccessMessage();
-
-        paidOrderSuccessMessage.setOrderId(orderId);
-
-        String msgJson = JSON.toJSONString(paidOrderSuccessMessage);
-        defaultProducer.sendMessage(RocketMQConstant.PAID_ORDER_SUCCESS_TOPIC,msgJson,"订单已完成支付");
+        payRemote.executeRefund(payRefundRequest);
     }
 
 
@@ -461,7 +567,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
      * @author Long
      * @date: 2022/1/17 16:15
      */
-    private void checkPayCallbackRequestParam(PayCallbackRequest payCallbackRequest) {
+    private void checkPayCallbackRequestParam(PayCallbackRequest payCallbackRequest,OrderInfoDO orderInfo,OrderPaymentDetailDO orderPaymentDetail) {
         ParamCheckUtil.checkObjectNonNull(payCallbackRequest);
 
         // 订单号
@@ -488,6 +594,15 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         String merchantId = payCallbackRequest.getMerchantId();
         ParamCheckUtil.checkStringNonEmpty(merchantId);
 
+        // 检验参数
+        if(ObjectUtils.isEmpty(orderInfo) || ObjectUtils.isEmpty(orderPaymentDetail)){
+            throw new OrderBizException(OrderErrorCodeEnum.ORDER_INFO_IS_NULL);
+        }
+
+        if (payAmount.compareTo(orderInfo.getPayAmount()) == 0){
+            throw new ServiceException(OrderErrorCodeEnum.ORDER_PAY_AMOUNT_ERROR);
+        }
+
     }
 
 
@@ -502,37 +617,119 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         String orderId = payOrder.getOrderId();
        Integer payType = payOrder.getPayType();
         String outTradeNo = payOrder.getOutTradeNo();
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime payTime = LocalDateTime.now();
 
-        // 订单支付信息
-        OrderInfoDO orderInfoDO = orderInfoDao.getByOrderId(orderId);
-        orderInfoDO.setPayTime(now);
-        orderInfoDO.setPayType(payType);
-        orderInfoDao.updateById(orderInfoDO);
+        // 更新 主订单 支付信息
+        updateMasterOrderPaymentInfo(orderId,payType,outTradeNo,payTime);
 
-        // 支付明细
-        OrderPaymentDetailDO orderPaymentDetailDO = orderPaymentDetailDao.getPaymentDetailByOrderId(orderId);
-        orderPaymentDetailDO.setPayTime(now);
-        orderPaymentDetailDO.setPayType(payType);
-        orderPaymentDetailDO.setOutTradeNo(outTradeNo);
-        orderPaymentDetailDao.updateById(orderPaymentDetailDO);
+        updateSubOrderPaymentInfo(orderId,payType,payTime,outTradeNo);
 
-        // 判断 是否存在 子订单
-        List<OrderInfoDO> subOrderList = orderInfoDao.listByParentOrderId(orderId);
-        if (subOrderList != null && !subOrderList.isEmpty()) {
-            subOrderList.forEach(subOrder -> {
-                subOrder.setPayTime(now);
-                subOrder.setPayType(payType);
-                orderInfoDao.updateById(subOrder);
 
-            OrderPaymentDetailDO  subOrderPaymentDetail = orderPaymentDetailDao.getPaymentDetailByOrderId(subOrder.getOrderId());
-                subOrderPaymentDetail.setPayTime(now);
-                subOrderPaymentDetail.setPayType(payType);
-                subOrderPaymentDetail.setOutTradeNo(outTradeNo);
-                orderPaymentDetailDao.updateById(subOrderPaymentDetail);
+    }
 
-            });
+    /**
+     * @description:  更新子订单支付详情
+     * @param orderId 订单 id
+     * @param  payType 支付类型
+     * @param payTime 支付时间
+     * @param outTradeNo 交易系统流水Id
+     * @return  void
+     * @author Long
+     * @date: 2022/6/8 14:50
+     */
+    private void updateSubOrderPaymentInfo(String orderId, Integer payType, LocalDateTime payTime, String outTradeNo) {
+        //判断是否存在子订单，不存在则不处理
+        List<String> subOrderIds = orderInfoDao.listSubOrderIds(orderId);
+
+        if (CollectionUtils.isEmpty(subOrderIds)){
+            return;
         }
+        // 更新子订单信息
+        updateOrderInfo(subOrderIds,payType,payTime);
+
+        //更新子订单支付信息明细信息
+        updateOrderPaymentDetail(subOrderIds,payType,payTime,outTradeNo);
+
+    }
+
+    /**
+     * @description: 更新主订单支付信息
+     * @param orderId 订单Id
+     * @param payType 支付方式
+     * @param outTradeNo 交易系统流水号
+     * @param payTime 支付时间
+     * @return  void
+     * @author Long
+     * @date: 2022/6/8 14:16
+     */
+    private void updateMasterOrderPaymentInfo(String orderId, Integer payType, String outTradeNo, LocalDateTime payTime) {
+
+        List<String> orderIds = Collections.singletonList(orderId);
+
+        // 更新订单支付明细 信息
+        updateOrderInfo(orderIds,payType,payTime);
+
+        //更新订单支付信息
+        updateOrderPaymentDetail(orderIds,payType,payTime,outTradeNo);
+
+
+    }
+
+    /**
+     * @description: 更新 订单支付明细
+     * @param orderIds 订单Id 集合
+     * @param payType 支付类型
+     * @param payTime 支付时间
+     * @param outTradeNo 订单系统交易流水id
+     * @return  void
+     * @author Long
+     * @date: 2022/6/8 14:41
+     */
+    private void updateOrderPaymentDetail(List<String> orderIds, Integer payType, LocalDateTime payTime, String outTradeNo) {
+        if (CollectionUtils.isEmpty(orderIds)){
+            return;
+        }
+        OrderPaymentDetailDO orderPaymentDetailDO = new OrderPaymentDetailDO();
+
+        orderPaymentDetailDO.setPayType(payType);
+        orderPaymentDetailDO.setPayTime(payTime);
+        orderPaymentDetailDO.setOutTradeNo(outTradeNo);
+
+        if (orderIds.size() == 1){
+            orderPaymentDetailDao.updateByOrderId(orderPaymentDetailDO,orderIds.get(0));
+        }else {
+            orderPaymentDetailDao.updateBatchByOrderId(orderPaymentDetailDO,orderIds);
+        }
+
+    }
+
+    /**
+     * @description:  更新 订单支付明细信息
+     * @param orderIds 订单id 集合
+     * @param payType 支付类型
+     * @param payTime 支付时间
+     * @return  void
+     * @author Long
+     * @date: 2022/6/8 14:19
+     */
+    private void updateOrderInfo(List<String> orderIds, Integer payType, LocalDateTime payTime) {
+
+        if (CollectionUtils.isEmpty(orderIds)){
+            return;
+        }
+
+        OrderInfoDO orderInfoDO = new OrderInfoDO();
+
+        orderInfoDO.setPayType(payType);
+        orderInfoDO.setPayTime(payTime);
+
+        if (orderIds.size() == 1){
+            orderInfoDao.updateByOrderId(orderInfoDO,orderIds.get(0));
+        }else {
+            orderInfoDao.updateBatchByOrderId(orderInfoDO,orderIds);
+        }
+
+
     }
 
     /***
@@ -586,10 +783,12 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     private void checkPerPayOrderRequestPram(PrePayOrderRequest prePayOrderRequest) {
         String userId = prePayOrderRequest.getUserId();
         ParamCheckUtil.checkStringNonEmpty(userId,OrderErrorCodeEnum.USER_ID_IS_NULL);
+
         String businessIdentifier = prePayOrderRequest.getBusinessIdentifier();
         ParamCheckUtil.checkObjectNonNull(businessIdentifier,OrderErrorCodeEnum.BUSINESS_IDENTIFIER_ERROR);
 
         Integer payType = prePayOrderRequest.getPayType();
+
         ParamCheckUtil.checkObjectNonNull(payType,OrderErrorCodeEnum.PAY_TYPE_PARAM_ERROR);
 
         if (PayTypeEnum.getByCode(payType) == null){
@@ -612,9 +811,11 @@ public class OrderInfoServiceImpl implements OrderInfoService {
      */
     private void sendPayOrderTimeoutDelayMessage(CreateOrderRequest createOrderRequest) {
 
+        String orderId = createOrderRequest.getOrderId();
+
         PayOrderTimeOutDelayMessage payOrderTimeOutDelayMessage = PayOrderTimeOutDelayMessage
                 .builder()
-                .orderId(createOrderRequest.getOrderId())
+                .orderId(orderId)
                 .businessIdentifier(createOrderRequest.getBusinessIdentifier())
                 .cancelType(OrderCancelTypeEnum.TIMEOUT_CANCELED.getCode())
                 .orderType(createOrderRequest.getOrderType())
@@ -624,7 +825,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
         String msgJson = JsonUtil.object2Json(payOrderTimeOutDelayMessage);
 
-        defaultProducer.sendMessage(RocketMQConstant.PAY_ORDER_TIMEOUT_DELAY_TOPIC,msgJson, RocketDelayedLevel.DELAYED_30M,"支付订单超时延时消息");
+        defaultProducer.sendMessage(RocketMQConstant.PAY_ORDER_TIMEOUT_DELAY_TOPIC,msgJson,
+                RocketDelayedLevel.DELAYED_30M,"支付订单超时延时消息",null,orderId);
 
     }
 
@@ -641,44 +843,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
      */
     private void createOrder(CreateOrderRequest createOrderRequest,List<ProductSkuDTO> productSkus,CalculateOrderAmountDTO calculateOrderAmount ){
 
-
         orderManager.createOrder(createOrderRequest,productSkus, calculateOrderAmount );
     }
-
-
-
-
-
-
-
-
-    /**
-     * @description: 锁定商品库存
-     * @param createOrderRequest  生单请求
-     * @return  void
-     * @author Long
-     * @date: 2022/1/6 10:12
-     */ 
-//    private void lockProductStock(CreateOrderRequest createOrderRequest) {
-//
-//    String orderId = createOrderRequest.getOrderId();
-//
-//    List<LockProductStockRequest.OrderItemRequest> orderItemRequests = ObjectUtil.convertList(createOrderRequest.getOrderItemRequests(),LockProductStockRequest.OrderItemRequest.class);
-//
-//    LockProductStockRequest lockProductStockRequest = createOrderRequest.clone(LockProductStockRequest.class);
-//
-//    lockProductStockRequest.setOrderItemRequests(orderItemRequests);
-//
-//    ResponseData<Boolean> responseResult = inventoryApi.lockProductStock(lockProductStockRequest);
-//
-//    if (!responseResult.getSuccess()){
-//        log.error("锁定商品仓库失败,订单号：{}",orderId);
-//
-//        throw  new OrderBizException(responseResult.getCode(),responseResult.getMessage());
-//    }
-//
-//
-//    }
 
 
     /**
@@ -722,8 +888,6 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
         // 订单条目补充商品信息
         Map<String,ProductSkuDTO> productSkuDTOMap = productSkuList.stream().collect(Collectors.toMap(ProductSkuDTO::getSkuCode, Function.identity()));
-
-
         calculateOrderAmountRequest.getOrderItemRequests().forEach(orderItemRequest -> {
             String skuCode = orderItemRequest.getSkuCode();
             ProductSkuDTO productSku = productSkuDTOMap.get(skuCode);
@@ -731,33 +895,23 @@ public class OrderInfoServiceImpl implements OrderInfoService {
             productSku.setProductId(orderItemRequest.getProductId());
         });
         // 调用营销服务计算订单价格
-        ResponseData<CalculateOrderAmountDTO> responseResult = marketApi.calculateOrderAmount(calculateOrderAmountRequest);
-
-        if (responseResult.getSuccess()){
-            log.error("调用营销服务计算价格失败错误信息：{}",responseResult.getMessage());
-            throw new OrderBizException(responseResult.getCode(),responseResult.getMessage());
-        }
-        CalculateOrderAmountDTO calculateOrderAmount = responseResult.getData();
-
+        CalculateOrderAmountDTO calculateOrderAmount = marketRemote.calculateOrderAmount(calculateOrderAmountRequest);
         if (!ObjectUtils.isNotEmpty(calculateOrderAmount)){
-            log.error("计算订单价格失败");
             throw new OrderBizException(OrderErrorCodeEnum.CALCULATE_ORDER_AMOUNT_ERROR);
         }
         // 订单费用
         List<OrderAmountDTO> orderAmountDTOList = ObjectUtil.convertList(calculateOrderAmount.getOrderAmountDTOList(),OrderAmountDTO.class);
-
         if (orderAmountDTOList == null || orderAmountDTOList.isEmpty()){
-            log.error("计算订单价格的订单费用信息为空");
             throw  new OrderBizException(OrderErrorCodeEnum.CALCULATE_ORDER_AMOUNT_ERROR);
         }
-
         List<OrderAmountDetailDTO> orderAmountDetailList = ObjectUtil.convertList(calculateOrderAmount.getOrderAmountDetailDTOList(),OrderAmountDetailDTO.class);
-
         if (orderAmountDetailList == null || orderAmountDetailList.isEmpty()){
-            log.error("计算订单价格的订单费用详细信息为空");
             throw  new OrderBizException(OrderErrorCodeEnum.CALCULATE_ORDER_AMOUNT_ERROR);
         }
-
+        log.info(LoggerFormat.build()
+                .remark("calculateOrderAmount->return")
+                .data("return",calculateOrderAmount)
+                .finish());
         return calculateOrderAmount;
 
     }
@@ -772,28 +926,22 @@ public class OrderInfoServiceImpl implements OrderInfoService {
      */
     private List<ProductSkuDTO> listProductSkus(CreateOrderRequest createOrderRequest) {
 
-        List<CreateOrderRequest.OrderItemRequest> itemRequests = createOrderRequest.getOrderItemRequests();
+        List<CreateOrderRequest.OrderItemRequest> orderItemRequests = createOrderRequest.getOrderItemRequests();
 
-        List<ProductSkuDTO> productSkus = new ArrayList<>();
 
-        itemRequests.forEach(orderItemRequest -> {
-            ProductSkuQuery query = new ProductSkuQuery();
-            query.setSkuCode(orderItemRequest.getSkuCode());
-            query.setSellerId(query.getSellerId());
-            ResponseData<ProductSkuDTO> responseResult = productApi.getProductSku(query);
-            if (!responseResult.getSuccess()){
-                log.error("调用商品RPC失败错误信息:{}",responseResult.getMessage());
-                throw new OrderBizException(responseResult.getCode(),responseResult.getMessage());
-            }
-            ProductSkuDTO productSku = responseResult.getData();
+        List<String> skuCodeList = new ArrayList<>();
 
-            if (!ObjectUtils.isNotEmpty(productSku)){
-                log.error("商品不存在SKU:{}",orderItemRequest.getSkuCode());
-                throw new OrderBizException(OrderErrorCodeEnum.PRODUCT_SKU_CODE_ERROR, orderItemRequest.getSkuCode());
-            }
-
-            productSkus.add(productSku);
+        orderItemRequests.forEach(orderItem->{
+            skuCodeList.add(orderItem.getSkuCode());
         });
+
+        List<ProductSkuDTO> productSkus = productRemote.listProductSku(skuCodeList,createOrderRequest.getSellerId());
+
+
+        log.info(LoggerFormat.build()
+                .remark("listProductSkus->return")
+                .data("productSkus",productSkus)
+                .finish());
 
         return productSkus;
 
@@ -808,12 +956,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
      */
     private void checkRisk(CreateOrderRequest createOrderRequest) {
         CheckOrderRiskRequest checkOrderRiskRequest = createOrderRequest.clone(CheckOrderRiskRequest.class);
+        riskRemote.checkOrderRisk(checkOrderRiskRequest);
 
-        ResponseData<CheckOrderRiskDTO> responseResult = riskApi.checkOrderRisk(checkOrderRiskRequest);
-        if (!responseResult.getSuccess()){
-            log.error("风控服务调用失败异常信息:{}",responseResult.getMessage());
-            throw new OrderBizException(responseResult.getCode(),responseResult.getMessage());
-        }
 
     }
 

@@ -2,6 +2,7 @@ package com.taki.order.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.taki.common.BaseDAO;
+import com.taki.order.domain.entity.OrderPaymentDetailDO;
 import com.taki.order.domain.request.AdjustDeliveryAddressRequest;
 import com.taki.order.domain.entity.OrderDeliveryDetailDO;
 import com.taki.order.mapper.OrderDeliveryDetailMapper;
@@ -87,8 +88,10 @@ public class OrderDeliveryDetailDao extends BaseDAO<OrderDeliveryDetailMapper, O
     public Boolean updateDelivery(Long id, String delivererNo, String deliverName, String delivererPhone) {
 
         return this.update().set(OrderDeliveryDetailDO.DELIVERER_NO,delivererNo)
-                            .set(OrderDeliveryDetailDO.DELIVERER_NAME,delivererNo)
-                            .set(OrderDeliveryDetailDO.DELIVERER_PHONE,delivererNo)
+                            .set(OrderDeliveryDetailDO.DELIVERER_NAME,deliverName)
+                            .set(OrderDeliveryDetailDO.DELIVERER_PHONE,delivererPhone)
                             .eq(OrderDeliveryDetailDO.ID,id).update();
     }
+
+
 }

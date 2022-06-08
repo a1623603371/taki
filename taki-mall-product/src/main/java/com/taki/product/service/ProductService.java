@@ -2,6 +2,8 @@ package com.taki.product.service;
 
 import com.taki.product.domian.dto.ProductSkuDTO;
 
+import java.util.List;
+
 /**
  * @ClassName ProductService
  * @Description 商品 service 接口
@@ -20,4 +22,13 @@ public interface ProductService {
      * @date: 2022/2/17 17:36
      */
     ProductSkuDTO getProductSkuByCode(String skuCode);
+
+    /**
+     * @description: 根据 商品编码集合 批量查询商品
+     * @param skuCodes 商品编码集合
+     * @return
+     * @author Long
+     * @date: 2022/6/8 15:35
+     */
+    List<ProductSkuDTO> listProductSkuByCode(List<String> skuCodes);
 }

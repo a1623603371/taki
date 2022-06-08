@@ -45,7 +45,7 @@ public class OrderApiImpl implements OrderApi {
             if (StringUtils.isBlank(userId)){
                 return ResponseData.error(OrderErrorCodeEnum.USER_ID_IS_NULL);
             }
-            GenOrderIdDTO genOrderIdDTO = orderInfoService.getGenOrderIdDTO(genOrderIdRequest);
+            GenOrderIdDTO genOrderIdDTO = orderInfoService.getGenOrderId(genOrderIdRequest);
             return ResponseData.success(genOrderIdDTO);
         } catch (OrderBizException e){
             log.error("biz error",e);
@@ -79,7 +79,7 @@ public class OrderApiImpl implements OrderApi {
     public ResponseData<PrePayOrderDTO> prePayOrder(PrePayOrderRequest payOrderRequest) {
 
             try {
-                PrePayOrderDTO prePayOrderDTO = orderInfoService.preOrder(payOrderRequest);
+                PrePayOrderDTO prePayOrderDTO = orderInfoService.prePayOrder(payOrderRequest);
                 return ResponseData.success(prePayOrderDTO);
             }catch (OrderBizException e){
                 log.error("biz error",e);

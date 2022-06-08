@@ -62,6 +62,7 @@ public enum OrderErrorCodeEnum implements BaseErrorCodeEnum{
     ORDER_PRE_PAY_ERROR(105042, "订单支付发生错误"),
     ORDER_PRE_PAY_EXPIRE_ERROR(105042, "已经超过支付订单的截止时间"),
     ORDER_PAY_CALLBACK_ERROR(105043, "订单支付回调发生错误"),
+    ORDER_PAY_CALLBACK_SEND_MQ_ERROR(105043, "订单支付回调发送MQ发生错误"),
     ORDER_INFO_IS_NULL(105044, "订单信息不存在"),
     ORDER_CALLBACK_PAY_AMOUNT_ERROR(105045, "订单支付金额错误"),
     ORDER_CANCEL_PAY_CALLBACK_ERROR(105046, "接收到支付回调时，订单已经取消"),

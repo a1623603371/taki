@@ -63,6 +63,7 @@ public class StateMachineConfiguration {
         return processCtrlStateMachineEngine;
     }
 
+    @Bean
     public  StateMachineEngineHolder    stateMachineEngineHolder (ProcessCtrlStateMachineEngine processCtrlStateMachineEngine){
 
         StateMachineEngineHolder stateMachineEngineHolder = new StateMachineEngineHolder() ;

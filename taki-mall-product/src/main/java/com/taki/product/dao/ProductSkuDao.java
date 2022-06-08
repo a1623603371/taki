@@ -6,6 +6,8 @@ import com.taki.product.domain.entity.ProductSkuDO;
 import com.taki.product.mapper.ProductSkuMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * @ClassName ProductSkuDao
  * @Description 商品Sku dao 组件
@@ -27,5 +29,17 @@ public class ProductSkuDao extends BaseDAO<ProductSkuMapper, ProductSkuDO> {
 
         return this.getOne(new QueryWrapper<ProductSkuDO>().eq(ProductSkuDO.SKU_CODE,skuCode));
 
+    }
+
+    /**
+     * @description: 批量查询商品
+     * @param skuCodes 商品编码 集合
+     * @return
+     * @author Long
+     * @date: 2022/6/8 15:37
+     */
+    public List<ProductSkuDO> listProductSkuByCode(List<String> skuCodes) {
+
+        return this.list(new QueryWrapper<ProductSkuDO>().in(ProductSkuDO.SKU_CODE,skuCodes));
     }
 }

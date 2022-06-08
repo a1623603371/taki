@@ -148,9 +148,9 @@ public class OrderInfoDO extends BaseEntity implements Serializable{
 
     public static final String ORDER_STATUS = "order_status";
 
-    public static final String CANNEL_TYPE = "cannel_type";
+    public static final String CANCEL_TYPE = "cancel_type";
 
-    public static final String CANNEL_TIME = "cannel_time";
+    public static final String CANCEL_TIME = "cancel_time";
 
     public static final String SELLER_ID = "seller_id";
 
@@ -192,7 +192,7 @@ public class OrderInfoDO extends BaseEntity implements Serializable{
 
     public static final String DELETE_STATUS = "delete_status";
 
-    public static final String COMMENT_STAUTS = "comment_stauts";
+    public static final String COMMENT_STATUS = "comment_status";
 
     public static final String FREIGTH = "freigth";
 

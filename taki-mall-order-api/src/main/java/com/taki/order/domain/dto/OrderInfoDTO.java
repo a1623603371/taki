@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -94,12 +95,12 @@ public class OrderInfoDTO extends AbstractObject implements Serializable {
     /**
      * 支付时间
      */
-    private Date payTime;
+    private LocalDateTime payTime;
 
     /**
      * 订单取消截止时间
      */
-    private Date cancelDeadlineTime;
+    private LocalDateTime cancelDeadlineTime;
 
     /**
      * 商家备注

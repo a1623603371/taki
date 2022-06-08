@@ -60,15 +60,12 @@ public class ReleaseAssetsListener implements MessageListenerConcurrently {
 
                 }
 
-
                 //3. 发送释放库存 请求MQ
-
 
                 CancelOrderReleaseProductStockRequest cancelOrderReleaseProductStockRequest = buildSkuList(orderInfo,orderItemDao);
 
                 defaultProducer.sendMessage(RocketMQConstant.CANCEL_RELEASE_INVENTORY_TOPIC,
                         JSONObject.toJSONString(cancelOrderReleaseProductStockRequest),"取消订单释放库存");
-
 
                 // 4.发送 释放优惠券 MQ
 

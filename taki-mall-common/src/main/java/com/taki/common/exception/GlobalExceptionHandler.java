@@ -39,6 +39,7 @@ public class GlobalExceptionHandler {
           //      .trace(trace)
                 .exceptionName(ex.getClass().getName())
                 .path(request.getRequestURI());
+
         return ResponseData.error(ErrorCodeEnum.SYSTEM_ERROR,result.build());
     }
 

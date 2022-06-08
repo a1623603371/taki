@@ -6,15 +6,18 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.taki.common.BaseDAO;
 import com.taki.common.enums.OrderStatusEnum;
 import com.taki.order.domain.dto.OrderExtJsonDTO;
+import com.taki.order.domain.dto.OrderInfoDTO;
 import com.taki.order.domain.dto.OrderListDTO;
 import com.taki.order.domain.dto.OrderListQueryDTO;
 import com.taki.order.domain.entity.OrderInfoDO;
+import com.taki.order.enums.DeleteStatusEnum;
 import com.taki.order.mapper.OrderInfoMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @ClassName OrderInfoDao
@@ -133,5 +136,56 @@ public class OrderInfoDao extends BaseDAO<OrderInfoMapper, OrderInfoDO> {
     public List<OrderInfoDO> listAllUnPaid() {
 
         return this.list(new QueryWrapper<OrderInfoDO>().eq(OrderInfoDO.ORDER_STATUS, OrderStatusEnum.CREATED));
+    }
+
+    /** 
+     * @description: 根据订单Id 修改 订单支付信息
+     * @param orderInfoDO 订单信息
+     * @params orderId 订单Id
+     * @return  void
+     * @author Long
+     * @date: 2022/6/8 14:25
+     */ 
+    public void updateByOrderId(OrderInfoDO orderInfoDO, String orderId) {
+        this.update(orderInfoDO,new QueryWrapper<OrderInfoDO>().eq(OrderInfoDO.ORDER_ID,orderId));
+
+    }
+
+    /**
+     * @description:  批量修改 订单 支付信息
+     * @param orderInfoDO 订单信息
+     * @param   orderIds 订单id 集合
+     * @return  void
+     * @author Long
+     * @date: 2022/6/8 14:39
+     */
+    public void updateBatchByOrderId(OrderInfoDO orderInfoDO, List<String> orderIds) {
+        this.update(orderInfoDO,new QueryWrapper<OrderInfoDO>().in(OrderInfoDO.ORDER_ID,orderIds));
+    }
+
+    /**
+     * @description: 根据 主订单id 查询 子订单
+     * @param orderId 主订单Id
+     * @return
+     * @author Long
+     * @date: 2022/6/8 14:53
+     */
+    public List<String> listSubOrderIds(String orderId) {
+        return this.list(new QueryWrapper<OrderInfoDO>()
+                .eq(OrderInfoDO.PARENT_ORDER_ID,orderId))
+                .stream().map(OrderInfoDO::getOrderId)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * @description: 软删除订单
+     * @param orderIds 订单id 集合
+     * @return  java.lang.Boolean
+     * @author Long
+     * @date: 2022/6/8 22:41
+     */
+    public Boolean softRemoveOrders(List<String> orderIds) {
+
+       return this.update().set(OrderInfoDO.DELETE_STATUS, DeleteStatusEnum.YES).in(OrderInfoDO.ORDER_ID,orderIds).update();
     }
 }

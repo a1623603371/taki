@@ -43,4 +43,31 @@ public class OrderPaymentDetailDao extends BaseDAO<OrderPaymentDetailMapper, Ord
 
         return this.list(new QueryWrapper<OrderPaymentDetailDO>().eq(OrderPaymentDetailDO.ORDER_ID,orderId));
     }
+
+    /**
+     * @description:   更新订单修改 订单支付明细
+     * @param orderPaymentDetailDO 订单支付明细信息
+     * @param orderId 订单Id
+     * @return  void
+     * @author Long
+     * @date: 2022/6/8 14:44
+     */
+    public Boolean updateByOrderId(OrderPaymentDetailDO orderPaymentDetailDO, String orderId) {
+
+        return this.update(orderPaymentDetailDO,new QueryWrapper<OrderPaymentDetailDO>().eq(OrderPaymentDetailDO.ORDER_ID,orderId));
+
+    }
+
+    /**
+     * @description:   批量更新订单修改 订单支付明细
+     * @param orderPaymentDetailDO 订单支付明细信息
+     * @param orderIds 订单Id集合
+     * @return  void
+     * @author Long
+     * @date: 2022/6/8 14:44
+     */
+    public Boolean updateBatchByOrderId(OrderPaymentDetailDO orderPaymentDetailDO, List<String> orderIds) {
+
+        return this.update(orderPaymentDetailDO,new QueryWrapper<OrderPaymentDetailDO>().in(OrderPaymentDetailDO.ORDER_ID,orderIds));
+    }
 }

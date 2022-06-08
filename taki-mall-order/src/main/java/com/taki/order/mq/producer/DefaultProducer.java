@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 public class DefaultProducer {
 
 
-    private final TransactionMQProducer producer;
+    private final DefaultMQProducer producer;
 
 
     public DefaultProducer(RocketMQProperties rocketMQProperties) {
@@ -72,8 +72,8 @@ public class DefaultProducer {
      * @author Long
      * @date: 2022/1/13 22:08
      */ 
-    public void  sendMessage(String topic,String message,String type){
-
+    public void  sendMessage(String topic,String message,String type,String tags,String keys){
+        sendMessage(topic,message,-1,type,tags,keys);
     }
 
     /**
@@ -86,9 +86,9 @@ public class DefaultProducer {
      * @author Long
      * @date: 2022/1/13 22:10
      */
-    public void sendMessage(String topic,String message,Integer delayTimeLevel,String type){
+    public void sendMessage(String topic,String message,Integer delayTimeLevel,String type,String tags,String keys ){
 
-        Message msg = new Message(topic,message.getBytes(StandardCharsets.UTF_8));
+        Message msg = new Message(topic,tags,keys,message.getBytes(StandardCharsets.UTF_8));
 
         try {
             if (delayTimeLevel > 0){
@@ -110,7 +110,7 @@ public class DefaultProducer {
     }
 
 
-    public TransactionMQProducer getProducer() {
+    public DefaultMQProducer getProducer() {
 
         return producer;
     }

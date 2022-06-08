@@ -24,6 +24,8 @@ import com.taki.order.domain.request.*;
 import com.taki.order.enums.AfterSaleStatusEnum;
 import com.taki.order.exception.OrderBizException;
 import com.taki.order.exception.OrderErrorCodeEnum;
+import com.taki.order.mq.producer.CancelOrderSendReleaseAssetsProducer;
+import com.taki.order.mq.producer.CustomerAuditPassSendReleaseAssetsProducer;
 import com.taki.order.mq.producer.DefaultProducer;
 import com.taki.order.service.OrderAfterSaleService;
 import com.taki.order.service.OrderLackService;
@@ -77,7 +79,7 @@ public class AfterSaleApiImpl implements AfterSaleApi {
     private RedisLock redisLock;
 
     @Autowired
-    private DefaultProducer defaultProducer;
+    private CustomerAuditPassSendReleaseAssetsProducer customerAuditPassSendReleaseAssetsProducer;
 
     @Override
     public ResponseData<Boolean> cancelOrder(CancelOrderRequest cancelOrderRequest) {
@@ -149,70 +151,120 @@ public class AfterSaleApiImpl implements AfterSaleApi {
         if (CustomerAuditResult.REJECT.getCode().equals(customerAuditAssembleRequest.getReviewReasonCode())){
             //更新 审核拒绝 售后消息
           Boolean result =   orderAfterSaleService.receiveCustomerAuditReject(customerAuditAssembleRequest);
-
             return ResponseData.success(result);
         }
             // 客服 审核通过
         if (CustomerAuditResult.ACCEPT.getCode().equals(customerAuditAssembleRequest.getReviewReasonCode())){
             String orderId = customerAuditAssembleRequest.getOrderId();
             Long afterSaleId = customerAuditAssembleRequest.getAfterSaleId();
-
             AfterSaleItemDO afterSaleItemDO = afterSaleItemDao.getOrderIdAndAfterSaleId(orderId,afterSaleId);
-
             if (ObjectUtils.isEmpty(afterSaleItemDO)){
                 throw new OrderBizException(OrderErrorCodeEnum.AFTER_SALE_ITEM_CANNOT_NULL);
             }
 
             //4.组装释放库存参数
-            AuditPassReleaseAssetRequest auditPassReleaseAssetRequest = buildAuditPassReleaseAssets(afterSaleItemDO,customerAuditAssembleRequest,orderId);
+            AuditPassReleaseAssetsRequest auditPassReleaseAssetRequest = buildAuditPassReleaseAssets(afterSaleItemDO,customerAuditAssembleRequest,orderId);
 
-            // 5. 组装事务MQ消息
-            TransactionMQProducer transactionMQProducer = defaultProducer.getProducer();
-
-            transactionMQProducer.setTransactionListener(new TransactionListener() {
-                @Override
-                public LocalTransactionState executeLocalTransaction(Message message, Object o) {
-
-                    try {
-                        orderAfterSaleService.receiveCustomerAuditAccept(customerAuditAssembleRequest);
-                        return LocalTransactionState.COMMIT_MESSAGE;
-                    }catch (Exception e){
-                        log.error("system error");
-                        return LocalTransactionState.ROLLBACK_MESSAGE;
-                    }
-
-
-                }
-
-                @Override
-                public LocalTransactionState checkLocalTransaction(MessageExt messageExt) {
-                        Integer customerAuditAfterSaleStatus = orderAfterSaleService.findCustomerAuditSaleStatus(customerAuditAssembleRequest.getAfterSaleId());
-
-                        if (AfterSaleStatusEnum.REVIEW_PASS.getCode().equals(customerAuditAfterSaleStatus)){
-                            return LocalTransactionState.COMMIT_MESSAGE;
-                        }
-
-                    return LocalTransactionState.ROLLBACK_MESSAGE;
-                }
-            });
-
-            try {
-            Message message = new Message(RocketMQConstant.CUSTOMER_AUDIT_PASS_RELEASE_ASSETS_TOPIC,JSONObject.toJSONString(auditPassReleaseAssetRequest).getBytes(StandardCharsets.UTF_8));
-            // 6.发送事务MQ 消息 客服审核通过后释放权益资产
-                TransactionSendResult result = transactionMQProducer.sendMessageInTransaction(message,auditPassReleaseAssetRequest);
-
-                if (!result.getLocalTransactionState().equals(LocalTransactionState.COMMIT_MESSAGE)){
-                    throw new OrderBizException(OrderErrorCodeEnum.SEND_AUDIT_PASS_RELEASE_ASSETS_FAILED);
-                }
-
-            }catch (Exception e){
-                throw new OrderBizException(OrderErrorCodeEnum.SEND_TRANSACTION_MQ_FAILED);
-            }
-
-
+            // 5. 发送客服审核通过释放权益资产事务MQ
+            sendAuditPassReleaseAssets(customerAuditAssembleRequest,auditPassReleaseAssetRequest);
         }
         return ResponseData.success(true);
     }
+
+    /**
+     * @description: 发送 审核 资产 消息
+     * @param customerAuditAssembleRequest
+     * @param auditPassReleaseAssetsRequest
+     * @return  void
+     * @author Long
+     * @date: 2022/6/8 20:32
+     */
+    private void sendAuditPassReleaseAssets(CustomerAuditAssembleRequest customerAuditAssembleRequest, AuditPassReleaseAssetsRequest auditPassReleaseAssetsRequest) {
+
+
+        TransactionMQProducer transactionMQProducer = customerAuditPassSendReleaseAssetsProducer.getTransactionMQProducer();
+
+        setSendAuditPassReleaseAssetsListener(transactionMQProducer);
+
+        sendAuditPassReleaseAssetsSuccessMessage(transactionMQProducer,customerAuditAssembleRequest,auditPassReleaseAssetsRequest);
+
+
+
+    }
+    
+    /** 
+     * @description:  审核通过 发送释放资产消息
+     * @param transactionMQProducer 消息生产者
+     * @param customerAuditAssembleRequest 客服审核 资产请求
+     * @param auditPassReleaseAssetsRequest 审核通过释放资产请求
+     * @return  void
+     * @author Long
+     * @date: 2022/6/8 20:55
+     */ 
+    private void sendAuditPassReleaseAssetsSuccessMessage(TransactionMQProducer transactionMQProducer, CustomerAuditAssembleRequest customerAuditAssembleRequest, AuditPassReleaseAssetsRequest auditPassReleaseAssetsRequest) {
+        try {
+
+            Message message = new Message(RocketMQConstant.CUSTOMER_AUDIT_PASS_RELEASE_ASSETS_TOPIC,JSONObject.toJSONString(auditPassReleaseAssetsRequest).getBytes(StandardCharsets.UTF_8));
+            // 6.发送事务MQ 消息 客服审核通过后释放权益资产
+            TransactionSendResult result = transactionMQProducer.sendMessageInTransaction(message,customerAuditAssembleRequest);
+
+            if (!result.getLocalTransactionState().equals(LocalTransactionState.COMMIT_MESSAGE)){
+                throw new OrderBizException(OrderErrorCodeEnum.SEND_AUDIT_PASS_RELEASE_ASSETS_FAILED);
+            }
+
+        }catch (Exception e){
+            throw new OrderBizException(OrderErrorCodeEnum.SEND_TRANSACTION_MQ_FAILED);
+        }
+
+    }
+
+    /**
+     * @description:  设置 发送 审核
+     * @param transactionMQProducer
+     * @return  void
+     * @author Long
+     * @date: 2022/6/8 20:36
+     */
+    private void setSendAuditPassReleaseAssetsListener(TransactionMQProducer transactionMQProducer) {
+
+        transactionMQProducer.setTransactionListener(new TransactionListener() {
+            @Override
+            public LocalTransactionState executeLocalTransaction(Message message, Object arg) {
+
+                try {
+
+                    CustomerAuditAssembleRequest customerAuditAssembleRequest = (CustomerAuditAssembleRequest) arg;
+                    //更新 审核通过 售后信息
+                    orderAfterSaleService.receiveCustomerAuditAccept(customerAuditAssembleRequest);
+                    return LocalTransactionState.COMMIT_MESSAGE;
+                }catch (Exception e){
+                    log.error("system error");
+                    return LocalTransactionState.ROLLBACK_MESSAGE;
+                }
+
+
+            }
+
+            @Override
+            public LocalTransactionState checkLocalTransaction(MessageExt messageExt) {
+            AuditPassReleaseAssetsRequest message = JSONObject.parseObject(
+                    new String(messageExt.getBody(),StandardCharsets.UTF_8),AuditPassReleaseAssetsRequest.class);
+
+
+                Integer customerAuditAfterSaleStatus = orderAfterSaleService.findCustomerAuditSaleStatus(
+                        message.getActualRefundMessage().getAfterSaleId());
+
+                if (AfterSaleStatusEnum.REVIEW_PASS.getCode().equals(customerAuditAfterSaleStatus)){
+                    return LocalTransactionState.COMMIT_MESSAGE;
+                }
+
+                return LocalTransactionState.ROLLBACK_MESSAGE;
+            }
+        });
+
+    }
+
+
     /**
      * @description:   构建审核通过 释放 资产
      * @param afterSaleItemDO 售后条目消息
@@ -221,9 +273,9 @@ public class AfterSaleApiImpl implements AfterSaleApi {
      * @author Long
      * @date: 2022/5/19 21:03
      */
-    private AuditPassReleaseAssetRequest buildAuditPassReleaseAssets(AfterSaleItemDO afterSaleItemDO, CustomerAuditAssembleRequest customerAuditAssembleRequest,String orderId) {
+    private AuditPassReleaseAssetsRequest buildAuditPassReleaseAssets(AfterSaleItemDO afterSaleItemDO, CustomerAuditAssembleRequest customerAuditAssembleRequest,String orderId) {
 
-        AuditPassReleaseAssetRequest auditPassReleaseAssetRequest = new AuditPassReleaseAssetRequest();
+        AuditPassReleaseAssetsRequest auditPassReleaseAssetRequest = new AuditPassReleaseAssetsRequest();
 
 
         ReleaseProductStockDTO releaseProductStockDTO = new ReleaseProductStockDTO();
@@ -243,7 +295,7 @@ public class AfterSaleApiImpl implements AfterSaleApi {
         ActualRefundMessage actualRefundMessage = new ActualRefundMessage();
         actualRefundMessage.setAfterSaleId(afterSaleItemDO.getAfterSaleId());
         actualRefundMessage.setOrderId(afterSaleItemDO.getOrderId());
-        actualRefundMessage.setAfterSaleRefundId(customerAuditAssembleRequest.getAfterSaleRefundId());
+      //  actualRefundMessage.setAfterSaleRefundId(customerAuditAssembleRequest.getAfterSaleRefundId());
 
         /**
          * 当前版本判断售后条目是否订单所属的最后一条 业务限制：
@@ -261,7 +313,7 @@ public class AfterSaleApiImpl implements AfterSaleApi {
         List<AfterSaleItemDO> afterSaleItems = afterSaleItemDao.listNotContainCurrentAfterSaleId(orderId,afterSaleId);
 
         // 查出数据中是否包含当前正在审核的这条
-        if (orderItemDOs.size() ==  afterSaleItems.size() ){
+        if (orderItemDOs.size() ==  afterSaleItems.size() + 1){
             //本次条目就是当前订单的最后一笔
             actualRefundMessage.setLastReturnGoods(true);
         }

@@ -2,6 +2,7 @@ package com.taki.order.manager.impl;
 
 import com.taki.common.exception.ServiceException;
 import com.taki.common.utlis.DateFormatUtils;
+import com.taki.common.utlis.LoggerFormat;
 import com.taki.common.utlis.NumberUtils;
 import com.taki.order.dao.OrderAutoNoDao;
 
@@ -93,8 +94,22 @@ public class OrderNoMangerImpl implements OrderNoManager {
     private String getAutoNoKey() {
 
         OrderAutoNoDO orderAutoNoDO = new OrderAutoNoDO();
+        log.info(LoggerFormat.build()
+                .remark("getAutoNoKey -> before  insert")
+                .finish());
+
+
         orderAutoNoDao.save(orderAutoNoDO);
+        log.info(LoggerFormat.build()
+                .remark("getAutoNoKey -> before  insert")
+                .finish());
+
         Long orderOn = orderAutoNoDO.getId();;
-        return String.valueOf(NumberUtils.genNo(orderOn,8));
+
+        String orderId = String.valueOf(NumberUtils.genNo(orderOn,8));
+        log.info(LoggerFormat.build()
+                .remark("getAutoNoKey -> before  genNo  ")
+                .finish());
+        return orderId ;
     }
 }

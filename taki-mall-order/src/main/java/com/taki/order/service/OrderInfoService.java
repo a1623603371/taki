@@ -25,7 +25,7 @@ public interface OrderInfoService {
      * @author Long
      * @date: 2022/1/2 19:15
      */
-    GenOrderIdDTO getGenOrderIdDTO(GenOrderIdRequest genOrderIdRequest);
+    GenOrderIdDTO getGenOrderId(GenOrderIdRequest genOrderIdRequest);
 
     /** 
      * @description: 创建订单
@@ -43,7 +43,7 @@ public interface OrderInfoService {
      * @author Long
      * @date: 2022/1/15 14:44
      */
-    PrePayOrderDTO preOrder(PrePayOrderRequest prePayOrderRequest);
+    PrePayOrderDTO prePayOrder(PrePayOrderRequest prePayOrderRequest);
 
     /**
      * @description: 支付回调
