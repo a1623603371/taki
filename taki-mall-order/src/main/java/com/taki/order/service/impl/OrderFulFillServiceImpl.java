@@ -100,22 +100,12 @@ public class OrderFulFillServiceImpl implements OrderFulFillService {
             log.info("order  has  not  bean paid ,cannot fulfill,orderId={}",orderId);
             return;
         }
-
-//        // 3.推送订单至履约
-//        ResponseData<Boolean> result = fulFillApi.receiveOrderFulFill(builderReceiveFulFillRequest(orderInfoDO));
-//
-//        if (!result.getSuccess()){
-//            log.error("push  order  to fulfill-system error ,orderId={}",orderId);
-//            throw new OrderBizException(OrderErrorCodeEnum.ORDER_FULFILL_ERROR);
-//        }
-
-        //4.更新订单状态 为：“已履约”
+        //3.更新订单状态 为：“已履约”
         orderInfoDao.updateOrderStatus(orderId,OrderStatusEnum.PAID.getCode(), OrderStatusEnum.FULFILL.getCode());
 
-        // 5. 并 插入一天 订单变更记录
+        // 4. 并 插入一天 订单变更记录
         orderOperateLogDao.save(orderOperateLogFactory.get(orderInfoDO,OrderStatusChangEnum.ORDER_FULFILLED));
 
-         //todo 分布式 解决：推送履约系统成功，但是执行本地事物失败的场景(存在问题)
     }
 
 
@@ -193,7 +183,7 @@ public class OrderFulFillServiceImpl implements OrderFulFillService {
     /**
      * @description: 获取订单物流配送处理器
      * @param statusChang
-     * @return  com.taki.order.wms.OrderWmsShipResultProcessor
+     * @return
      * @author Long
      * @date: 2022/4/6 16:05
      */

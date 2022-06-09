@@ -2,7 +2,9 @@ package com.taki.order.domain.dto;
 
 import com.taki.common.core.AbstractObject;
 import com.taki.product.domian.dto.ProductSkuDTO;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -14,6 +16,8 @@ import java.io.Serializable;
  * @Version 1.0
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class LackItemDTO extends AbstractObject implements Serializable {
 
     /**

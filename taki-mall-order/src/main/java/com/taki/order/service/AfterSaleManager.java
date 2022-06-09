@@ -26,13 +26,12 @@ public interface AfterSaleManager {
      * @description: 取消组装订单操作 记录售后信息
      * @param cancelOrderAssembleRequest 取消订单组转请求
      * @param afterSaleStatus  售后状态
-     * @param orderInfoDO 订单
-     * @param afterSaleId 售后Id
+
      * @return  void
      * @author Long
      * @date: 2022/5/17 23:03
      */ 
-    void insertCancelOrderAfterSale(CancelOrderAssembleRequest cancelOrderAssembleRequest, Integer afterSaleStatus, OrderInfoDTO orderInfoDTO, String afterSaleId  );
+    void insertCancelOrderAfterSale(CancelOrderAssembleRequest cancelOrderAssembleRequest, Integer afterSaleStatus );
 }
 
 

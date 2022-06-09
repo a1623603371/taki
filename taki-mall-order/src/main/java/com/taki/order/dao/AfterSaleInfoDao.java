@@ -59,7 +59,7 @@ public class AfterSaleInfoDao extends BaseDAO<AfterSaleInfoMapper, AfterSaleInfo
      * @author Long
      * @date: 2022/4/3 20:08
      */
-    public AfterSaleInfoDO getByAfterSaleId(Long afterSaleId) {
+    public AfterSaleInfoDO getByAfterSaleId(String afterSaleId) {
 
         return this.getOne(new QueryWrapper<AfterSaleInfoDO>().eq(AfterSaleInfoDO.AFTER_SALE_ID,afterSaleId));
     }
@@ -80,10 +80,10 @@ public class AfterSaleInfoDao extends BaseDAO<AfterSaleInfoMapper, AfterSaleInfo
      * @author Long
      * @date: 2022/4/5 18:06
      */
-    public Boolean updateStatus(Long afterSaleId, Integer fromStatus, Integer toStatus) {
+    public Boolean updateStatus(String afterSaleId, Integer fromStatus, Integer toStatus) {
 
         return this.update().set(AfterSaleInfoDO.AFTER_SALE_STATUS,toStatus).eq(AfterSaleInfoDO.AFTER_SALE_ID,afterSaleId)
-                .eq(AfterSaleInfoDO.AFTER_SALE_STATUS,toStatus).update();
+                .eq(AfterSaleInfoDO.AFTER_SALE_STATUS,fromStatus).update();
     }
 
     /**
@@ -93,7 +93,7 @@ public class AfterSaleInfoDao extends BaseDAO<AfterSaleInfoMapper, AfterSaleInfo
      * @author Long
      * @date: 2022/5/18 15:34
      */
-    public AfterSaleInfoDO getOneByAfterSaleId(Long afterSaleId) {
+    public AfterSaleInfoDO getOneByAfterSaleId(String afterSaleId) {
         return this.getOne(new QueryWrapper<AfterSaleInfoDO>().eq(AfterSaleInfoDO.AFTER_SALE_ID,afterSaleId));
     }
 
@@ -107,7 +107,7 @@ public class AfterSaleInfoDao extends BaseDAO<AfterSaleInfoMapper, AfterSaleInfo
      */ 
     public Boolean updateCustomerAuditAfterSaleResult(Integer afterSaleStatus, CustomerAuditAssembleRequest customerAuditAssembleRequest) {
 
-        Long afterSaleId = customerAuditAssembleRequest.getAfterSaleId();
+        String afterSaleId = customerAuditAssembleRequest.getAfterSaleId();
 
         String reviewReason = customerAuditAssembleRequest.getReviewReason();
 

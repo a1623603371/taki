@@ -6,19 +6,23 @@ import com.taki.common.constants.RocketMQConstant;
 import com.taki.common.enums.CustomerAuditResult;
 import com.taki.common.enums.CustomerAuditSourceEnum;
 import com.taki.common.message.ActualRefundMessage;
+import com.taki.common.mq.MQMessage;
 import com.taki.common.redis.RedisLock;
 import com.taki.common.utlis.ParamCheckUtil;
 import com.taki.common.utlis.ResponseData;
 import com.taki.customer.domain.request.CustomReviewReturnGoodsRequest;
+import com.taki.customer.domain.request.CustomerReceiveAfterSaleRequest;
 import com.taki.order.api.AfterSaleApi;
 import com.taki.order.dao.AfterSaleInfoDao;
 import com.taki.order.dao.AfterSaleItemDao;
+import com.taki.order.dao.AfterSaleRefundDAO;
 import com.taki.order.dao.OrderItemDao;
 import com.taki.order.domain.dto.CheckLackDTO;
 import com.taki.order.domain.dto.LackDTO;
 import com.taki.order.domain.dto.OrderItemDTO;
 import com.taki.order.domain.dto.ReleaseProductStockDTO;
 import com.taki.order.domain.entity.AfterSaleItemDO;
+import com.taki.order.domain.entity.AfterSaleRefundDO;
 import com.taki.order.domain.entity.OrderItemDO;
 import com.taki.order.domain.request.*;
 import com.taki.order.enums.AfterSaleStatusEnum;
@@ -54,7 +58,7 @@ import java.util.List;
  * @Version 1.0
  */
 @Slf4j
-@DubboService(version = "1.0.0",retries = 1)
+@DubboService(version = "1.0.0",retries = 0)
 public class AfterSaleApiImpl implements AfterSaleApi {
 
 
@@ -70,7 +74,7 @@ public class AfterSaleApiImpl implements AfterSaleApi {
     private AfterSaleItemDao afterSaleItemDao;
 
     @Autowired
-    private AfterSaleInfoDao afterSaleInfoDao;
+    private AfterSaleRefundDAO afterSaleRefundDAO;
 
     @Autowired
     private OrderItemDao orderItemDao;
@@ -156,7 +160,7 @@ public class AfterSaleApiImpl implements AfterSaleApi {
             // 客服 审核通过
         if (CustomerAuditResult.ACCEPT.getCode().equals(customerAuditAssembleRequest.getReviewReasonCode())){
             String orderId = customerAuditAssembleRequest.getOrderId();
-            Long afterSaleId = customerAuditAssembleRequest.getAfterSaleId();
+            String afterSaleId = customerAuditAssembleRequest.getAfterSaleId();
             AfterSaleItemDO afterSaleItemDO = afterSaleItemDao.getOrderIdAndAfterSaleId(orderId,afterSaleId);
             if (ObjectUtils.isEmpty(afterSaleItemDO)){
                 throw new OrderBizException(OrderErrorCodeEnum.AFTER_SALE_ITEM_CANNOT_NULL);
@@ -204,7 +208,7 @@ public class AfterSaleApiImpl implements AfterSaleApi {
     private void sendAuditPassReleaseAssetsSuccessMessage(TransactionMQProducer transactionMQProducer, CustomerAuditAssembleRequest customerAuditAssembleRequest, AuditPassReleaseAssetsRequest auditPassReleaseAssetsRequest) {
         try {
 
-            Message message = new Message(RocketMQConstant.CUSTOMER_AUDIT_PASS_RELEASE_ASSETS_TOPIC,JSONObject.toJSONString(auditPassReleaseAssetsRequest).getBytes(StandardCharsets.UTF_8));
+            Message message = new MQMessage(RocketMQConstant.CUSTOMER_AUDIT_PASS_RELEASE_ASSETS_TOPIC,JSONObject.toJSONString(auditPassReleaseAssetsRequest).getBytes(StandardCharsets.UTF_8));
             // 6.发送事务MQ 消息 客服审核通过后释放权益资产
             TransactionSendResult result = transactionMQProducer.sendMessageInTransaction(message,customerAuditAssembleRequest);
 
@@ -305,7 +309,7 @@ public class AfterSaleApiImpl implements AfterSaleApi {
          */
 
         // 判断是否要退的最后一条
-        Long afterSaleId = customerAuditAssembleRequest.getAfterSaleId();
+        String afterSaleId = customerAuditAssembleRequest.getAfterSaleId();
 
         List<OrderItemDO> orderItemDOs = orderItemDao.listByOrderId(orderId);
 
@@ -334,7 +338,7 @@ public class AfterSaleApiImpl implements AfterSaleApi {
 
         CustomerAuditAssembleRequest customerAuditAssembleRequest = new CustomerAuditAssembleRequest();
 
-        Long afterSaleId = customerAuditAssembleRequest.getAfterSaleId();
+        String afterSaleId = customerAuditAssembleRequest.getAfterSaleId();
 
         String orderId = customerAuditAssembleRequest.getOrderId();
 
@@ -357,7 +361,7 @@ public class AfterSaleApiImpl implements AfterSaleApi {
         // 1. 参数效应
         ParamCheckUtil.checkObjectNonNull(revokeAfterSaleRequest.getAfterSaleId(),OrderErrorCodeEnum.AFTER_SALE_ID_IS_NULL);
 
-        Long afterSaleId = revokeAfterSaleRequest.getAfterSaleId();
+        String afterSaleId = revokeAfterSaleRequest.getAfterSaleId();
 
         String lockKey = RedisLockKeyConstants.REFUND_KEY + afterSaleId;
 
@@ -379,5 +383,18 @@ public class AfterSaleApiImpl implements AfterSaleApi {
 
 
         return ResponseData.success(true);
+    }
+
+    @Override
+    public ResponseData<Long> customerFindAfterSaleRefundInfo(CustomerReceiveAfterSaleRequest customerReceiveAfterSaleRequest) {
+
+        String afterSaleId = customerReceiveAfterSaleRequest.getAfterSaleId();
+
+        AfterSaleRefundDO afterSaleRefundDO = afterSaleRefundDAO.findAfterSaleRefundByfterSaleId(afterSaleId);
+
+        if(ObjectUtils.isEmpty(afterSaleRefundDO)){
+            throw new OrderBizException(OrderErrorCodeEnum.AFTER_SALE_ID_IS_NULL);
+        }
+        return ResponseData.success(afterSaleRefundDO.getId());
     }
 }

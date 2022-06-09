@@ -42,7 +42,7 @@ public interface AfterSaleQueryService {
      * @author Long
      * @date: 2022/3/3 22:28
      */ 
-    AfterSaleOrderDetailDTO afterSaleDetail(Long afterSaleId);
+    AfterSaleOrderDetailDTO afterSaleDetail(String afterSaleId);
     
     /** 
      * @description:  查询缺品信息

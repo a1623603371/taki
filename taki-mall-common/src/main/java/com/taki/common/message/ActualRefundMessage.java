@@ -17,13 +17,13 @@ public class ActualRefundMessage  implements Serializable {
 
     /**
      * 售后退款Id
-     */
-    private Long afterSaleRefundId;
 
+    private Long afterSaleRefundId;
+  */
     /**
      * 售后订单Id
      */
-    private Long afterSaleId;
+    private String afterSaleId;
 
     /**
      * 订单Id

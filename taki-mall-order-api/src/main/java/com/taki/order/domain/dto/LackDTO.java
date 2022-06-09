@@ -30,5 +30,5 @@ public class LackDTO extends AbstractObject implements Serializable {
     /**
      *售后Id
      */
-    private Long afterSaleId;
+    private String afterSaleId;
 }

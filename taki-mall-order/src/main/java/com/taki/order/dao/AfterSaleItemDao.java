@@ -54,7 +54,7 @@ public class AfterSaleItemDao extends BaseDAO<AfterSaleItemMapper, AfterSaleItem
      * @author Long
      * @date: 2022/4/4 22:57
      */
-    public List<AfterSaleItemDO> listByAfterSaleId(Long afterSaleId) {
+    public List<AfterSaleItemDO> listByAfterSaleId(String afterSaleId) {
         return this.list(new QueryWrapper<AfterSaleItemDO>().eq(AfterSaleItemDO.AFTER_SALE_ID,afterSaleId));
     }
 
@@ -67,7 +67,7 @@ public class AfterSaleItemDao extends BaseDAO<AfterSaleItemMapper, AfterSaleItem
      * @author Long
      * @date: 2022/5/19 20:59
      */
-    public AfterSaleItemDO getOrderIdAndAfterSaleId(String orderId, Long afterSaleId) {
+    public AfterSaleItemDO getOrderIdAndAfterSaleId(String orderId, String afterSaleId) {
 
         return this.getOne(new QueryWrapper<AfterSaleItemDO>()
                 .eq(AfterSaleItemDO.ORDER_ID,orderId).eq(AfterSaleItemDO.AFTER_SALE_ID,afterSaleId));
@@ -80,7 +80,7 @@ public class AfterSaleItemDao extends BaseDAO<AfterSaleItemMapper, AfterSaleItem
      * @author Long
      * @date: 2022/5/19 20:59
      */
-    public List<AfterSaleItemDO> listNotContainCurrentAfterSaleId(String orderId, Long afterSaleId) {
+    public List<AfterSaleItemDO> listNotContainCurrentAfterSaleId(String orderId, String afterSaleId) {
         return this.list(new QueryWrapper<AfterSaleItemDO>()
                 .eq(AfterSaleItemDO.ORDER_ID,orderId).eq(AfterSaleItemDO.AFTER_SALE_ID,afterSaleId));
     }

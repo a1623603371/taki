@@ -3,9 +3,10 @@ package com.taki.order.mq.consumer.listener;
 import com.alibaba.fastjson.JSONObject;
 import com.taki.common.constants.RocketMQConstant;
 import com.taki.common.message.ActualRefundMessage;
+import com.taki.common.mq.AbstractMessageListenerConcurrently;
 import com.taki.inventory.domain.request.ReleaseProductStockRequest;
 import com.taki.order.domain.dto.ReleaseProductStockDTO;
-import com.taki.order.domain.request.AuditPassReleaseAssetRequest;
+import com.taki.order.domain.request.AuditPassReleaseAssetsRequest;
 import com.taki.order.mq.producer.DefaultProducer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
@@ -27,35 +28,36 @@ import java.util.List;
  */
 @Slf4j
 @Component
-public class AuditPassReleaseAssetsListens implements MessageListenerConcurrently {
+public class AuditPassReleaseAssetsListens extends AbstractMessageListenerConcurrently {
 
 
     @Autowired
     private DefaultProducer defaultProducer;
 
-    @Override
-    public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> list, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
-        try {
-            list.forEach(msg->{
-            // 1.消费者 释放资产 message
-            String message = new String(msg.getBody());
-            log.info("auditPassReleaseAssetsListen message:{}",message);
-            AuditPassReleaseAssetRequest auditPassReleaseAssetRequest = JSONObject.parseObject(message,AuditPassReleaseAssetRequest.class);
 
-            //2.发送释放库存MQ
+
+    @Override
+    protected ConsumeConcurrentlyStatus omMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
+        try {
+            msgs.forEach(msg->{
+                // 1.消费者 释放资产 message
+                String message = new String(msg.getBody());
+                log.info("auditPassReleaseAssetsListen message:{}",message);
+                AuditPassReleaseAssetsRequest auditPassReleaseAssetRequest = JSONObject.parseObject(message,AuditPassReleaseAssetsRequest.class);
+
+                //2.发送释放库存MQ
                 ReleaseProductStockDTO releaseProductStockDTO = auditPassReleaseAssetRequest.getReleaseProductStockDTO();
 
                 ReleaseProductStockRequest releaseProductStockRequest = buildReleaseProductStock(releaseProductStockDTO);
 
                 defaultProducer.sendMessage(RocketMQConstant.CANCEL_RELEASE_INVENTORY_TOPIC,
-                        JSONObject.toJSONString(releaseProductStockRequest),"客服审核通过释放库存");
+                        JSONObject.toJSONString(releaseProductStockRequest),"客服审核通过释放库存",null,null);
 
-             //3 。发送实际退款
+                //3 。发送实际退款
 
                 ActualRefundMessage actualRefundMessage = auditPassReleaseAssetRequest.getActualRefundMessage();
-
                 defaultProducer.sendMessage(RocketMQConstant.ACTUAL_REFUND_TOPIC,
-                        JSONObject.toJSONString(actualRefundMessage),"客服审核通过实际退款");
+                        JSONObject.toJSONString(actualRefundMessage),"客服审核通过实际退款",null,null);
 
             });
 
@@ -66,7 +68,7 @@ public class AuditPassReleaseAssetsListens implements MessageListenerConcurrentl
 
         }
     }
-    
+
     /** 
      * @description: 组装释放库存数据
      * @param releaseProductStockDTO 释放商品库存 数据

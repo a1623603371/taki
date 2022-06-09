@@ -101,7 +101,7 @@ public interface OrderAfterSaleService {
      * @author Long
      * @date: 2022/5/19 21:28
      */
-    Integer findCustomerAuditSaleStatus(Long afterSaleId);
+    Integer findCustomerAuditSaleStatus(String afterSaleId);
     
     /** 
      * @description:  撤销售后申请

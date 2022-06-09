@@ -30,7 +30,7 @@ public class AfterSaleInfoDO extends BaseEntity implements Serializable {
     /**
      * 售后Id
      */
-    private Long afterSaleId;
+    private String afterSaleId;
 
     /**
      * 业务线

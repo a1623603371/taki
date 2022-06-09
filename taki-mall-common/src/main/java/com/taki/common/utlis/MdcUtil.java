@@ -107,7 +107,7 @@ public class MdcUtil {
     }
 
     /**
-     * 设置当前线程的traceId
+     * 判断当前线程的traceId
      * @return
      */
     public static  Boolean isUserTraceId(){

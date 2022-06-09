@@ -22,7 +22,7 @@ public class AfterSaleItemDO extends AbstractObject implements Serializable {
     /**
      * 售后ID
      */
-    private Long afterSaleId;
+    private String afterSaleId;
 
     /**
      * 订单ID

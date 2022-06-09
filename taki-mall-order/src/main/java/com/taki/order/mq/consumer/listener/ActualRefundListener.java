@@ -2,6 +2,7 @@ package com.taki.order.mq.consumer.listener;
 
 import com.alibaba.fastjson.JSONObject;
 import com.taki.common.message.ActualRefundMessage;
+import com.taki.common.mq.AbstractMessageListenerConcurrently;
 import com.taki.common.utlis.ResponseData;
 import com.taki.order.domain.entity.AfterSaleRefundDO;
 import com.taki.order.exception.OrderBizException;
@@ -25,16 +26,16 @@ import java.util.List;
  */
 @Slf4j
 @Component
-public class ActualRefundListener  implements MessageListenerConcurrently {
+public class ActualRefundListener  extends AbstractMessageListenerConcurrently {
 
     @Autowired
     private OrderAfterSaleService orderAfterSaleService;
 
-    @Override
-    public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> list, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
 
+    @Override
+    protected ConsumeConcurrentlyStatus omMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
         try {
-            list.forEach(messageExt -> {
+            msgs.forEach(messageExt -> {
                 String msg = new String(messageExt.getBody());
                 ActualRefundMessage actualRefundMessage = JSONObject.parseObject(msg,ActualRefundMessage.class);
                 log.info("实际退款 消费者  进行消费消息：{}",msg);
@@ -46,8 +47,7 @@ public class ActualRefundListener  implements MessageListenerConcurrently {
                 }
             });
 
-
-
+            return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         }catch (Exception e){
             log.error("consumer error",e);
 
@@ -55,6 +55,5 @@ public class ActualRefundListener  implements MessageListenerConcurrently {
         }
 
 
-        return null;
     }
 }

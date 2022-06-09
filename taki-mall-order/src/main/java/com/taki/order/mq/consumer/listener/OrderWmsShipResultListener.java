@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.taki.common.constants.RedisLockKeyConstants;
 import com.taki.common.core.BeanCopierUtils;
 import com.taki.common.enums.OrderStatusChangEnum;
+import com.taki.common.mq.AbstractMessageListenerConcurrently;
 import com.taki.common.redis.RedisLock;
 import com.taki.fulfill.domain.evnet.OrderDeliveredWmsEvent;
 import com.taki.fulfill.domain.evnet.OrderEvent;
@@ -29,7 +30,7 @@ import java.util.List;
  */
 @Component
 @Slf4j
-public class OrderWmsShipResultListener implements MessageListenerOrderly {
+public class OrderWmsShipResultListener extends AbstractMessageListenerConcurrently {
 
     @Autowired
     private RedisLock redisLock;
@@ -38,11 +39,11 @@ public class OrderWmsShipResultListener implements MessageListenerOrderly {
     private OrderFulFillService orderFulFillService;
 
     @Override
-    public ConsumeOrderlyStatus consumeMessage(List<MessageExt> list, ConsumeOrderlyContext consumeOrderlyContext) {
+    protected ConsumeConcurrentlyStatus omMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
         OrderEvent orderEvent;
 
         try {
-            for (MessageExt msg : list) {
+            for (MessageExt msg : msgs) {
 
                 String message = new String(msg.getBody());
                 log.info("received orderWmsShopResult  message:{}",msg);
@@ -68,16 +69,14 @@ public class OrderWmsShipResultListener implements MessageListenerOrderly {
                         redisLock.unLock(key);
                     }
                 }
-
             }
-
-            return ConsumeOrderlyStatus.SUCCESS;
+            return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         }catch (Exception e){
             // 处理业务逻辑失败！ Suspend current queue a moment
-            return ConsumeOrderlyStatus.SUSPEND_CURRENT_QUEUE_A_MOMENT;
+            log.error("订单物流配送结果消息处理失败");
+            return ConsumeConcurrentlyStatus.RECONSUME_LATER;
         }
     }
-
 
     /**
      * @description: 构造物流配送结果请求
@@ -104,6 +103,7 @@ public class OrderWmsShipResultListener implements MessageListenerOrderly {
 
         return wmsShipDTO;
     }
+
 
 
 }

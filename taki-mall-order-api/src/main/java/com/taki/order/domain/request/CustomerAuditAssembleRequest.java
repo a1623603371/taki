@@ -19,7 +19,7 @@ public class CustomerAuditAssembleRequest extends AbstractObject implements Seri
     /**
      * 售后id
      */
-    private Long afterSaleId;
+    private String afterSaleId;
     /**
      * 订单id
      */
@@ -28,7 +28,7 @@ public class CustomerAuditAssembleRequest extends AbstractObject implements Seri
     /**
      * 售后支付单id
      */
-    private Long afterSaleRefundId;
+    private String afterSaleRefundId;
     /**
      * 客服审核时间
      */

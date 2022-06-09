@@ -79,7 +79,7 @@ public enum OrderErrorCodeEnum implements BaseErrorCodeEnum{
 
     ORDER_STATUS_ERROR(105049, "订单状态异常"),
     ORDER_PAY_STATUS_IS_PAID(105050, "订单已经是已完成支付状态"),
-
+    SEND_AFTER_SALE_CUSTOMER_AUDIT_MQ_FAILED(105055, "发送客服审核售后事务消息失败"),
 
     RETURN_GOODS_REQUEST_IS_NULL(105051, "手动退货入参不能为空"),
     AFTER_SALE_TIME_IS_NULL(105052, "申请售后时间不能为空"),

@@ -37,7 +37,7 @@ public class CustomReviewReturnGoodsRequest extends AbstractObject implements Se
     /**
      * 售后支付单Id
      */
-    private Long afterSaleRefundId;
+    private String afterSaleRefundId;
 
     /**
      * 订单Id

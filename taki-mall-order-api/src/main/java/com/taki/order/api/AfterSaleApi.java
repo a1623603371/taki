@@ -2,6 +2,7 @@ package com.taki.order.api;
 
 import com.taki.common.utlis.ResponseData;
 import com.taki.customer.domain.request.CustomReviewReturnGoodsRequest;
+import com.taki.customer.domain.request.CustomerReceiveAfterSaleRequest;
 import com.taki.order.domain.dto.LackDTO;
 import com.taki.order.domain.request.*;
 
@@ -62,4 +63,14 @@ public interface AfterSaleApi {
      * @date: 2022/3/9 15:03
      */ 
     ResponseData<Boolean> revokeAfterSale(RevokeAfterSaleRequest revokeAfterSaleRequest);
+
+
+    /** 
+     * @description:  提供客服系统查询售后支付单信息
+     * @param 
+     * @return
+     * @author Long
+     * @date: 2022/6/9 18:57
+     */ 
+    ResponseData<Long> customerFindAfterSaleRefundInfo(CustomerReceiveAfterSaleRequest customerReceiveAfterSaleRequest);
 }

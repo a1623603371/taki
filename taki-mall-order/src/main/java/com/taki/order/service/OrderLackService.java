@@ -4,6 +4,7 @@ import com.taki.order.domain.dto.CheckLackDTO;
 import com.taki.order.domain.dto.LackDTO;
 import com.taki.order.domain.entity.OrderInfoDO;
 import com.taki.order.domain.request.LackRequest;
+import org.apache.rocketmq.client.exception.MQClientException;
 
 /**
  * @ClassName OrderLackService
@@ -44,5 +45,5 @@ public interface OrderLackService {
      * @author Long
      * @date: 2022/3/9 15:27
      */ 
-    LackDTO executeLackRequest(LackRequest lackRequest ,CheckLackDTO checkLack);
+    LackDTO executeLackRequest(LackRequest lackRequest ,CheckLackDTO checkLack) throws MQClientException;
 }

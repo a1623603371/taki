@@ -141,7 +141,7 @@ public class AfterSaleQueryServiceImpl implements AfterSaleQueryService {
     }
 
     @Override
-    public AfterSaleOrderDetailDTO afterSaleDetail(Long afterSaleId) {
+    public AfterSaleOrderDetailDTO afterSaleDetail(String afterSaleId) {
         //1 查询 售后单
         AfterSaleInfoDO afterSaleInfo = afterSaleInfoDao.getByAfterSaleId(afterSaleId);
 
@@ -153,13 +153,10 @@ public class AfterSaleQueryServiceImpl implements AfterSaleQueryService {
         List<AfterSaleItemDO> afterSaleItemDOS = afterSaleItemDao.listByAfterSaleId(afterSaleId);
 
         // 3.查询售后支付信息
-        List<AfterSaleRefundDO> afterSaleRefunds =  afterSaleRefundDAO.listByAfterSaleId(afterSaleId);
+        List<AfterSaleRefundDO> afterSaleRefunds =  afterSaleRefundDAO.listByAfterSaleId(Long.valueOf(afterSaleId));
 
         // 4、查询日志
-        List<AfterSaleLogDO> afterSaleLogs =  afterSaleLogDAO.listByAfterSaleId(afterSaleId);
-
-
-
+        List<AfterSaleLogDO> afterSaleLogs =  afterSaleLogDAO.listByAfterSaleId(Long.valueOf(afterSaleId));
 
         return  new AfterSaleOrderDetailBuilder()
                 .afterSaleInfo(afterSaleInfo)

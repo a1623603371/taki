@@ -2,6 +2,7 @@ package com.taki.fulfill.service.impl;
 
 import com.taki.common.constants.RocketMQConstant;
 import com.taki.common.enums.OrderStatusChangEnum;
+import com.taki.common.mq.MQMessage;
 import com.taki.fulfill.domain.evnet.OrderEvent;
 import com.taki.fulfill.domain.evnet.OrderOutStockWmsEvent;
 import com.taki.fulfill.domain.request.TriggerOrderWmsShipEventRequest;
@@ -53,7 +54,7 @@ public abstract class AbstractWmsShipEventProcessor implements OrderWmsShipEvent
      */ 
     protected  void sendMessage(String body, String orderId){
         if(StringUtils.isNotBlank(body)){
-            Message message = new Message();
+            Message message = new MQMessage();
 
             message.setTopic(RocketMQConstant.ORDER_WMS_SHIP_RESULT_TOPIC);
             message.setBody(body.getBytes(StandardCharsets.UTF_8));

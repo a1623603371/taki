@@ -13,7 +13,6 @@ import java.io.Serializable;
  * @Version 1.0
  */
 @Data
-@Builder
 public class PayOrderTimeOutDelayMessage implements Serializable {
 
 

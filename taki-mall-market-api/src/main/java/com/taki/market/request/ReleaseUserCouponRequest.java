@@ -29,4 +29,14 @@ public class ReleaseUserCouponRequest implements Serializable {
      *优惠券Id
      */
     private String couponId;
+
+    /**
+     * 订单Id
+     */
+    private String orderId;
+
+    /**
+     * 售后单Id
+     */
+    private String afterSaleId;
 }

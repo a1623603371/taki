@@ -18,5 +18,5 @@ public class RevokeAfterSaleRequest extends AbstractObject implements Serializab
     /**
      * 售后Id
      */
-    private Long afterSaleId;
+    private String afterSaleId;
 }

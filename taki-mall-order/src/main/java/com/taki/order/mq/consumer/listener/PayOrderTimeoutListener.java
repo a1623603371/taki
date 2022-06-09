@@ -3,6 +3,7 @@ package com.taki.order.mq.consumer.listener;
 import com.alibaba.fastjson.JSONObject;
 import com.taki.common.enums.OrderStatusEnum;
 import com.taki.common.message.PayOrderTimeOutDelayMessage;
+import com.taki.common.mq.AbstractMessageListenerConcurrently;
 import com.taki.order.dao.OrderInfoDao;
 import com.taki.order.domain.entity.OrderInfoDO;
 import com.taki.order.domain.request.CancelOrderRequest;
@@ -28,7 +29,7 @@ import java.util.List;
  */
 @Component
 @Slf4j
-public class PayOrderTimeoutListener  implements MessageListenerConcurrently {
+public class PayOrderTimeoutListener  extends AbstractMessageListenerConcurrently {
 
     @Autowired
     private OrderAfterSaleService orderAfterSaleService;
@@ -38,10 +39,9 @@ public class PayOrderTimeoutListener  implements MessageListenerConcurrently {
 
 
     @Override
-    public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> list, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
-
+    protected ConsumeConcurrentlyStatus omMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
         try {
-            for (MessageExt messageExt : list) {
+            for (MessageExt messageExt : msgs) {
 
                 String message = new String(messageExt.getBody());
                 PayOrderTimeOutDelayMessage payOrderTimeOutDelayMessage = JSONObject.parseObject(message,PayOrderTimeOutDelayMessage.class);
@@ -68,7 +68,7 @@ public class PayOrderTimeoutListener  implements MessageListenerConcurrently {
                 // 当时间 小于 订单实际 支付截止时间
 
                 if (LocalDateTime.now().compareTo(orderInfoDO.getExpireTime()) > 0){
-                        return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+                    return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
                 }
 
                 orderAfterSaleService.cancelOrder(cancelOrderRequest);

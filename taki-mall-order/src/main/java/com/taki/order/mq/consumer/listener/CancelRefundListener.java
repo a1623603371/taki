@@ -1,6 +1,7 @@
 package com.taki.order.mq.consumer.listener;
 
 import com.alibaba.fastjson.JSONObject;
+import com.taki.common.mq.AbstractMessageListenerConcurrently;
 import com.taki.common.utlis.ResponseData;
 import com.taki.order.domain.request.CancelOrderAssembleRequest;
 import com.taki.order.exception.OrderBizException;
@@ -25,33 +26,34 @@ import java.util.List;
  */
 @Component
 @Slf4j
-public class CancelRefundListener implements MessageListenerConcurrently {
+public class CancelRefundListener extends AbstractMessageListenerConcurrently {
 
     @Autowired
     private OrderAfterSaleService orderAfterSaleService;
 
+
+
     @Override
-    public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> list, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
+    protected ConsumeConcurrentlyStatus omMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
         try {
-        list.forEach(messageExt -> {
-            String msg = new String(messageExt.getBody());
-            CancelOrderAssembleRequest cancelOrderAssembleRequest = JSONObject.parseObject(msg,CancelOrderAssembleRequest.class);
-            log.info("CancelRefundConsumer  message:{}",cancelOrderAssembleRequest);
+            msgs.forEach(messageExt -> {
+                String msg = new String(messageExt.getBody());
+                CancelOrderAssembleRequest cancelOrderAssembleRequest = JSONObject.parseObject(msg,CancelOrderAssembleRequest.class);
+                log.info("CancelRefundConsumer  message:{}",cancelOrderAssembleRequest);
 
-            // 执行 取消订单/超时 未支付 取消 前 的操作
+                // 执行 取消订单/超时 未支付 取消 前 的操作
 
-            ResponseData<Boolean> result = orderAfterSaleService.processCancelOrder(cancelOrderAssembleRequest);
-            if (!result.getSuccess()){
-                throw new OrderBizException(OrderErrorCodeEnum.CONSUME_MQ_FAILED);
-            }
-        });
+                ResponseData<Boolean> result = orderAfterSaleService.processCancelOrder(cancelOrderAssembleRequest);
+                if (!result.getSuccess()){
+                    throw new OrderBizException(OrderErrorCodeEnum.CONSUME_MQ_FAILED);
+                }
+            });
 
-        return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+            return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         }catch (Exception e){
             log.error("consumer  error",e);
 
             return ConsumeConcurrentlyStatus.RECONSUME_LATER;
         }
-
     }
 }

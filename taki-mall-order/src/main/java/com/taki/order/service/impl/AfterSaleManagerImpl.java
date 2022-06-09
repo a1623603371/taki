@@ -143,30 +143,29 @@ public class AfterSaleManagerImpl implements AfterSaleManager {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void insertCancelOrderAfterSale(CancelOrderAssembleRequest cancelOrderAssembleRequest, Integer afterSaleStatus, OrderInfoDTO orderInfoDTO, String afterSaleId) {
+    public void insertCancelOrderAfterSale(CancelOrderAssembleRequest cancelOrderAssembleRequest, Integer afterSaleStatus) {
 
+        String orderId = cancelOrderAssembleRequest.getOrderId();
+
+        OrderInfoDO orderInfoDO = orderInfoDao.getByOrderId(orderId);
+        String afterSaleId =cancelOrderAssembleRequest.getAfterSaleId();
         OrderInfoDTO orderInfo = cancelOrderAssembleRequest.getOrderInfo();
-
             //取消订单过程中 申请退款金额 和 实际退款金额 都是 实付退款金额 金额相同
 
         AfterSaleInfoDO afterSaleInfoDO = new AfterSaleInfoDO();
-        afterSaleInfoDO.setApplyRefundAmount(orderInfo.getPayAmount());
-        afterSaleInfoDO.setRealRefundAmount(orderInfo.getPayAmount());
+        afterSaleInfoDO.setApplyRefundAmount(orderInfoDO.getPayAmount());
+        afterSaleInfoDO.setRealRefundAmount(orderInfoDO.getPayAmount());
 
             // 1/新增售后订单表
         Integer cancelOrderAfterSaleStatus = AfterSaleStatusEnum.REVIEW_PASS.getCode();
-        insertCancelOrderAfterSaleInfoTable(orderInfoDTO,cancelOrderAfterSaleStatus,afterSaleInfoDO,afterSaleId);
+        insertCancelOrderAfterSaleInfoTable(orderInfoDO,cancelOrderAfterSaleStatus,afterSaleInfoDO,afterSaleId);
         cancelOrderAssembleRequest.setAfterSaleId(afterSaleId);
 
         // 2 新增售后条目表
-        String orderId = cancelOrderAssembleRequest.getOrderId();
         List<OrderItemDTO> orderItemDTOS = cancelOrderAssembleRequest.getOrderItems();
-
         insertAfterSaleItemTable(orderId,orderItemDTOS,afterSaleId);
-
         //3. 新增售后变跟表
         insertCancelOrderAfterSaleLogTable(afterSaleId,orderInfo,AfterSaleStatusEnum.UN_CREATE.getCode(),afterSaleStatus);
-
         //4.新增售后支付表
         AfterSaleRefundDO afterSaleRefundDO = insertAfterSaleRefundTable(orderInfo,afterSaleId,afterSaleInfoDO);
         cancelOrderAssembleRequest.setAfterSaleRefundId(afterSaleRefundDO.getId());
@@ -274,7 +273,7 @@ public class AfterSaleManagerImpl implements AfterSaleManager {
 
     /**
      * @description: 插入 取消订单 售后表
-     * @param orderInfoDTO 订单 信息
+     * @param orderInfoDO 订单 信息
      * @param cancelOrderAfterSaleStatus 取消订单售后状态
      * @param  afterSaleInfoDO 售后单信息
      * @param afterSaleId 售后id
@@ -282,13 +281,13 @@ public class AfterSaleManagerImpl implements AfterSaleManager {
      * @author Long
      * @date: 2022/5/18 14:01
      */
-    private void insertCancelOrderAfterSaleInfoTable(OrderInfoDTO orderInfoDTO, Integer cancelOrderAfterSaleStatus, AfterSaleInfoDO afterSaleInfoDO, String afterSaleId) {
+    private void insertCancelOrderAfterSaleInfoTable(OrderInfoDO orderInfoDO, Integer cancelOrderAfterSaleStatus, AfterSaleInfoDO afterSaleInfoDO, String afterSaleId) {
 
         afterSaleInfoDO.setAfterSaleId(Long.valueOf(afterSaleId));
         afterSaleInfoDO.setBusinessIdentifier(BusinessIdentifierEnum.SELF_MALL.getCode());
-        afterSaleInfoDO.setOrderId(orderInfoDTO.getOrderId());
+        afterSaleInfoDO.setOrderId(orderInfoDO.getOrderId());
         afterSaleInfoDO.setOrderSourceChannel(BusinessIdentifierEnum.SELF_MALL.getCode());
-        afterSaleInfoDO.setUserId(orderInfoDTO.getUserId());
+        afterSaleInfoDO.setUserId(orderInfoDO.getUserId());
         afterSaleInfoDO.setOrderType(OrderTypeEnum.NORMAL.getCode());
         afterSaleInfoDO.setApplyTime(LocalDateTime.now());
         afterSaleInfoDO.setAfterSaleStatus(cancelOrderAfterSaleStatus);
@@ -299,7 +298,7 @@ public class AfterSaleManagerImpl implements AfterSaleManager {
         // 取消订单 整笔退款
         afterSaleInfoDO.setAfterSaleType(AfterSaleTypeEnum.RETURN_MONEY.getCode());
 
-        Integer cancelType = Integer.valueOf(orderInfoDTO.getCancelType());
+        Integer cancelType = Integer.valueOf(orderInfoDO.getCancelType());
 
         if (OrderCancelTypeEnum.TIMEOUT_CANCELED.getCode().equals(cancelType)){
             afterSaleInfoDO.setAfterSaleTypeDetail(AfterSaleTypeDetailEnum.TIMEOUT_NO_PAY.getCode());
