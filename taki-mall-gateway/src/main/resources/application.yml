@@ -1,0 +1,144 @@
+spring:
+  application:
+    name: taki-eshop-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        username: nacos
+        password: nacos
+    sentinel:
+      transport:
+        dashboard: 127.0.0.1:8080
+        port: 19000
+      # 使用nacos做持久化
+      datasource:
+        # gateway api配置
+        gw-api-group:
+          nacos:
+            server-addr: localhost:8848
+            namespace: sentinel
+            group-id: SENTINEL_GROUP
+            data-id: ${spring.application.name}-gateway-api-rules.json
+            data-type: json
+            rule-type: gw-api-group
+        # gateway流控配置
+        gw-flow:
+          nacos:
+            server-addr: localhost:8848
+            namespace: sentinel
+            group-id: SENTINEL_GROUP
+            data-id: ${spring.application.name}-gateway-flow-rules.json
+            data-type: json
+            rule-type: gw-flow
+        # 熔断降级配置
+        degrade:
+          nacos:
+            server-addr: localhost:8848
+            namespace: sentinel
+            group-id: SENTINEL_GROUP
+            data-id: ${spring.application.name}-degrade-rules.json
+            data-type: json
+            rule-type: degrade
+        # 系统规则
+        system:
+          nacos:
+            server-addr: localhost:8848
+            namespace: sentinel
+            group-id: SENTINEL_GROUP
+            data-id: ${spring.application.name}-system-rules.json
+            data-type: json
+            rule-type: system
+
+    gateway:
+      routes:
+        # 订单服务
+        - id: order-service
+          uri: lb://taki-eshop-order
+          predicates:
+            - Path=/taki-eshop-order/**
+          filters:
+            - StripPrefix=1
+        # 地址服务
+        - id: address-service
+          uri: lb://taki-eshop-address
+          predicates:
+            - Path=/taki-eshop-address/**
+          filters:
+            - StripPrefix=1
+        # 履约服务
+        - id: fulfill-service
+          uri: lb://taki-eshop-fulfill
+          predicates:
+            - Path=/taki-eshop-fulfill/**
+          filters:
+            - StripPrefix=1
+        # 营销服务
+        - id: market-service
+          uri: lb://taki-eshop-market
+          predicates:
+            - Path=/taki-eshop-market/**
+          filters:
+            - StripPrefix=1
+        # 支付服务
+        - id: pay-service
+          uri: lb://taki-eshop-pay
+          predicates:
+            - Path=/taki-eshop-pay/**
+          filters:
+            - StripPrefix=1
+        # 风控服务
+        - id: risk-service
+          uri: lb://taki-eshop-risk
+          predicates:
+            - Path=/taki-eshop-risk/**
+          filters:
+            - StripPrefix=1
+        # 仓储服务
+        - id: wms-service
+          uri: lb://taki-eshop-wms
+          predicates:
+            - Path=/taki-eshop-wms/**
+          filters:
+            - StripPrefix=1
+        # 客服服务
+        - id: customer-service
+          uri: lb://taki-eshop-customer
+          predicates:
+            - Path=/taki-eshop-customer/**
+          filters:
+            - StripPrefix=1
+        # 库存服务
+        - id: inventory-service
+          uri: lb://taki-eshop-inventory
+          predicates:
+            - Path=/taki-eshop-inventory/**
+          filters:
+            - StripPrefix=1
+        # 订单服务
+        - id: order-service
+          uri: lb://taki-eshop-order
+          predicates:
+            - Path=/taki-eshop-order/**
+          filters:
+            - StripPrefix=1
+        # 商品服务
+        - id: product-service
+          uri: lb://taki-eshop-product
+          predicates:
+            - Path=/taki-eshop-product/**
+          filters:
+            - StripPrefix=1
+        # 运输服务
+        - id: tms-service
+          uri: lb://taki-eshop-tms
+          predicates:
+            - Path=/taki-eshop-tms/**
+          filters:
+            - StripPrefix=1
+      discovery:
+        locator:
+          enabled: true
+
+server:
+  port: 9000

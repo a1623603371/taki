@@ -198,6 +198,7 @@ public class OrderLackServiceImpl implements OrderLackService {
         OrderLackInfo orderLackInfo = OrderLackInfo.builder()
                 .lackAfterSaleOrder(lackAfterSaleInfo)
                 .afterSaleItems(afterSaleItems)
+                .afterSaleRefundDO(afterSaleRefund)
                 .lackExJson(lackExJson)
                 .orderId(orderInfo.getOrderId())
                 .build();

@@ -102,8 +102,6 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     private OrderManager orderManager;
 
 
-
-
     @Autowired
     private DefaultProducer defaultProducer;
 
@@ -111,10 +109,8 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     @Autowired
     private PaidOrderSuccessProducer paidOrderSuccessProducer;
 
-
     @Autowired
     private RedisLock redisLock;
-
 
 
 
@@ -813,8 +809,12 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
         String orderId = createOrderRequest.getOrderId();
 
-        PayOrderTimeOutDelayMessage payOrderTimeOutDelayMessage = PayOrderTimeOutDelayMessage
-                .builder()
+        PayOrderTimeOutDelayMessage payOrderTimeOutDelayMessage = PayOrderTimeOutDelayMessage.builder()
+
+
+
+
+
                 .orderId(orderId)
                 .businessIdentifier(createOrderRequest.getBusinessIdentifier())
                 .cancelType(OrderCancelTypeEnum.TIMEOUT_CANCELED.getCode())

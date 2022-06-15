@@ -63,14 +63,8 @@ public class OrderFulFillServiceImpl implements OrderFulFillService {
     @Autowired
     private OrderOperateLogDao orderOperateLogDao;
 
-
     @Autowired
     private OrderOperateLogFactory orderOperateLogFactory;
-
-    @DubboReference
-    private FulFillApi fulFillApi;
-
-
 
     @Override
     public void informOrderWmsShipResult(WmsShipDTO wmsShipDTO) {
