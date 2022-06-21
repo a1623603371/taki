@@ -61,4 +61,6 @@ public class ProductStockLogDO extends BaseEntity implements Serializable {
     public static final  String ORDER_ID = "order_id";
 
     public static final  String SKU_CODE = "sku_code";
+
+    public static  final String STATUS = "status";
 }

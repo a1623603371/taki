@@ -9,6 +9,8 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * @ClassName ProductStockDao
  * @Description 商品库存 DAO 组件
@@ -65,42 +67,40 @@ public class ProductStockDao extends BaseDAO<ProductStockMapper, ProductStockDO>
      * @description:  扣减销售库存
      * @param skuCode 商品 sku 编码
      * @param saleQuantity 销售数量
-     * @param originSaleStock 当前销售库存
+
      * @return  int
      * @author Long
      * @date: 2022/5/12 15:29
      */ 
-    public Boolean deductSaleStock(String skuCode, Integer saleQuantity, Integer originSaleStock) {
+    public Boolean deductSaleStock(String skuCode, Integer saleQuantity) {
 
-        return productStockMapper.deductSaleStock(skuCode,saleQuantity,originSaleStock);
+        return productStockMapper.deductSaleStock(skuCode,saleQuantity);
     }
 
     /**
      * @description:  增加已销售库存
      * @param skuCode 商品 sku 编码
      * @param  saleQuantity 销售库存
-     * @param originSaledQuantity 当前 已销售库存
      * @return  void
      * @author Long
      * @date: 2022/5/12 15:57
      */
-    public Boolean increaseSaledStock(String skuCode, Integer saleQuantity, Integer originSaledQuantity) {
+    public Boolean increaseSaledStock(String skuCode, Integer saleQuantity) {
 
-        return productStockMapper.increaseSaledStock(skuCode,saleQuantity,originSaledQuantity);
+        return productStockMapper.increaseSaledStock(skuCode,saleQuantity);
     }
 
     /**
      * @description:  还原销售库存
      * @param skuCode 商品 sku 编码
      * @param  saleQuantity 销售库存
-     * @param originSaleStock 当前 销售库存
      * @return  void
      * @author Long
      * @date: 2022/5/12 15:57
      */
-    public Boolean restoreSaleStock(String skuCode, Integer saleQuantity, int originSaleStock) {
+    public Boolean restoreSaleStock(String skuCode, Long saleQuantity) {
 
-        return productStockMapper.restoreSaleStock(skuCode,saleQuantity,originSaleStock);
+        return productStockMapper.restoreSaleStock(skuCode,saleQuantity.intValue());
     }
 
     /**
@@ -115,5 +115,17 @@ public class ProductStockDao extends BaseDAO<ProductStockMapper, ProductStockDO>
     public Boolean modifyProductStock(String skuCode, Long originSaleStockQuantity, Long stockIncremental) {
 
        return productStockMapper.modifyProductStock(skuCode,originSaleStockQuantity,stockIncremental);
+    }
+
+    /** 
+     * @description:  初始化压测库存数据
+     * @param skuCodes
+     * @return  void
+     * @author Long
+     * @date: 2022/6/20 20:14
+     */ 
+    public void initMeasureInventoryData(List<String> skuCodes) {
+        this.update().set(ProductStockDO.SALE_STOCK_QUANTITY,100000000000L)
+                        .set(ProductStockDO.SALED_STOCK_QUANTITY,0L).in(ProductStockDO.SKU_CODE,skuCodes).update();
     }
 }

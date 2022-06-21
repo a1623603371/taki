@@ -45,40 +45,38 @@ public interface ProductStockMapper extends BaseMapper<ProductStockDO> {
      * @description: 扣减销售库存
      * @param skuCode 商品 sku 编码
      * @param saleQuantity 销售数量
-     * @param  originSaleStock 当前销售库存
      * @return  int
      * @author Long
      * @date: 2022/5/12 15:33
      */
     @Update("UPDATE inventory_prodcut_stock set sale_stock_quantity = sale_stock_quantity - #{saleQuantity}" +
-            " WHERE sku_code=#{skucode} AND sale_stock_quantity = #{originSaleStock}")
-    Boolean deductSaleStock(@Param("skuCode") String skuCode, @Param("saleQuantity") Integer saleQuantity,@Param("originSaleStock") Integer originSaleStock);
+            " WHERE sku_code=#{skucode} ")
+    Boolean deductSaleStock(@Param("skuCode") String skuCode, @Param("saleQuantity") Integer saleQuantity);
 
       /** @description:  增加已销售库存
      * @param skuCode 商品 sku 编码
      * @param  saleQuantity 销售库存
-     * @param originSaledQuantity 当前 已销售库存
      * @return  void
      * @author Long
      * @date: 2022/5/12 15:57
             */
     @Update("UPDATE inventory_prodcut_stock set saled_stock_quantity = sale_stock_quantity + #{saleQuantity}" +
-              " WHERE sku_code=#{skucode} AND saled_stock_quantity = #{originSaledQuantity}")
-    Boolean increaseSaledStock(@Param("skuCode") String skuCode,@Param("saleQuantity") Integer saleQuantity,@Param("originSaledQuantity") Integer originSaledQuantity);
+              " WHERE sku_code=#{skucode} ")
+    Boolean increaseSaledStock(@Param("skuCode") String skuCode,@Param("saleQuantity") Integer saleQuantity);
 
 
     /**
      * @description:  还原销售库存
      * @param skuCode 商品 sku 编码
      * @param  saleQuantity 销售库存
-     * @param originSaleStock 当前 销售库存
+
      * @return  void
      * @author Long
      * @date: 2022/5/12 15:57
      */
     @Update("UPDATE inventory_prodcut_stock set sale_stock_quantity = sale_stock_quantity + #{saleQuantity}" +
-            " WHERE sku_code=#{skucode} AND sale_stock_quantity = #{originSaleStock}")
-    Boolean restoreSaleStock(@Param("skuCode")String skuCode, @Param("saleQuantity")Integer saleQuantity,@Param("originSaleStock") int originSaleStock);
+            " WHERE sku_code=#{skucode} ")
+    Boolean restoreSaleStock(@Param("skuCode")String skuCode, @Param("saleQuantity")Integer saleQuantity);
 
     /**
      * @description:  调整 商品库存

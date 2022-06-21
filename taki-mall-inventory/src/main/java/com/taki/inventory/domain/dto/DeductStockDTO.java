@@ -1,6 +1,7 @@
 package com.taki.inventory.domain.dto;
 
 import com.taki.common.core.AbstractObject;
+import com.taki.inventory.domain.entity.ProductStockDO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,15 +34,10 @@ public class DeductStockDTO extends AbstractObject {
     /**
      * 销售数量
      */
-    private Integer saleQuantity;
+    private Long saleQuantity;
 
     /**
-     * 原始销售数量
+     * 库存数据
      */
-    private Integer originSaleStock;
-
-    /**
-     * 原始已销售数量
-     */
-    private Integer originSaledStock;
+    private ProductStockDO productStockDO;
 }

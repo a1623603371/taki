@@ -8,7 +8,7 @@ import com.taki.common.utlis.ResponseData;
 import com.taki.wms.api.WmsApi;
 import com.taki.wms.dao.DeliverOrderDao;
 import com.taki.wms.dao.DeliveryOrderItemDao;
-import com.taki.wms.domain.dto.PickDto;
+import com.taki.wms.domain.dto.PickDTO;
 import com.taki.wms.domain.dto.ScheduleDeliveryResult;
 import com.taki.wms.domain.entity.DeliverOrderDO;
 import com.taki.wms.domain.entity.DeliveryOrderItemDO;
@@ -46,7 +46,7 @@ public class WmsApiServiceImpl implements WmsApi {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public ResponseData<PickDto> pickGoods(PickGoodsRequest request) {
+    public ResponseData<PickDTO> pickGoods(PickGoodsRequest request) {
         log.info("拣货 ，orderId={}，request={}",request.getOrderId(),request);
         String wmsException = request.getWmsException();
 
@@ -61,7 +61,7 @@ public class WmsApiServiceImpl implements WmsApi {
         deliveryOrderItemDao.saveBatch(result.getDeliveryOrderItems());
 
         // 3.构造返回参数
-        return ResponseData.success(new PickDto(request.getOrderId()));
+        return ResponseData.success(new PickDTO(request.getOrderId()));
     }
     
     /** 

@@ -6,12 +6,16 @@ import com.taki.common.utlis.ResponseData;
 import com.taki.fulfill.domain.request.ReceiveFulFillRequest;
 import com.taki.fulfill.exection.FulfillBizException;
 import com.taki.fulfill.exection.FulfillErrorCodeEnum;
+import com.taki.fulfill.remote.WmsRemote;
 import com.taki.fulfill.saga.WmsSagaService;
 import com.taki.wms.api.WmsApi;
-import com.taki.wms.domain.dto.PickDto;
+import com.taki.wms.domain.dto.PickDTO;
+
 import com.taki.wms.domain.request.PickGoodsRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.checkerframework.checker.units.qual.A;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,21 +31,18 @@ import java.util.List;
 @Slf4j
 public class WmsSagaServiceImpl implements WmsSagaService {
 
-    @DubboReference(version = "1.0.0",retries = 0)
-    private WmsApi wmsApi;
+    @Autowired
+    private WmsRemote wmsRemote;
 
     @Override
     public Boolean pickGoods(ReceiveFulFillRequest request) {
         log.info("拣货，request={}",request);
 
         //调用 wms 系统 发起拣货
-       ResponseData<PickDto> result =   wmsApi.pickGoods(buildPickGoodsRequest(request));
+     PickDTO pickDTO =   wmsRemote.pickGoods(buildPickGoodsRequest(request));
 
-        log.info("拣货结果，jsonResult = {]",request);
+        log.info("拣货结果，pickDTO = {]",pickDTO);
 
-        if (!result.getSuccess()){
-            throw new FulfillBizException(FulfillErrorCodeEnum.WMS_IS_ERROR);
-        }
 
         return true;
     }
@@ -71,13 +72,9 @@ public class WmsSagaServiceImpl implements WmsSagaService {
         log.info("补偿拣货 ，request={}", JSONObject.toJSONString(request));
 
         // 调用 WMS 取消 拣货
-        ResponseData<Boolean> result = wmsApi.cancelPickGoods(request.getOrderId());
+        Boolean result = wmsRemote.cancelPickGoods(request.getOrderId());
 
         log.info("补偿拣货结果，result={}",JSONObject.toJSONString(result));
-
-        if (!result.getSuccess()){
-            throw new FulfillBizException(FulfillErrorCodeEnum.WMS_IS_ERROR);
-        }
 
         return true;
     }

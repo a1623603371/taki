@@ -2,17 +2,21 @@ package com.taki.inventory.controller;
 
 import com.taki.common.utlis.ResponseData;
 import com.taki.inventory.api.InventoryApi;
-import com.taki.inventory.domain.request.AddProductStockRequest;
-import com.taki.inventory.domain.request.ModifyProductStockRequest;
-import com.taki.inventory.domain.request.SyncStockToCacheRequest;
+import com.taki.inventory.dao.ProductStockDao;
+import com.taki.inventory.domain.request.*;
 import com.taki.inventory.service.InventoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName InventoryController
@@ -29,6 +33,10 @@ public class InventoryController {
 
     @Autowired
     private InventoryService inventoryService;
+
+
+    @Autowired
+    private ProductStockDao productStockDao;
 
     /** 
      * @description:  新增商品库存
@@ -75,6 +83,75 @@ public class InventoryController {
 
         return ResponseData.success(result);
 
+    }
+
+
+    /**
+     * @description: 新增商品库存
+     * @param
+     * @return
+     * @author Long
+     * @date: 2022/6/20 14:27
+     */
+    @PostMapping("/deductProductStock")
+    public  ResponseData<Boolean> deductProductStock(@RequestBody DeductProductStockRequest  request){
+
+
+        Boolean result =  inventoryService.deductProductStock(request);
+
+        return ResponseData.success(result);
+
+    }
+
+    
+    /** 
+     * @description: 获取商品库存
+     * @param skuCode 商品编码
+     * @return
+     * @author Long
+     * @date: 2022/6/20 14:30
+     */ 
+    @PostMapping("/getStockInfo")
+    public  ResponseData<Map> getStockInfo(String skuCode){
+
+
+        return ResponseData.success(inventoryService.getStockInfo(skuCode));
+
+    }
+
+    
+    /** 
+     * @description: 初始化测试数据
+     * @param initMeasureDataRequest
+     * @return  com.taki.common.utlis.ResponseData<java.lang.Boolean>
+     * @author Long
+     * @date: 2022/6/20 16:39
+     */ 
+    @PostMapping("/initMeasureData")
+    public ResponseData<Boolean> initMeasureData(@RequestBody InitMeasureDataRequest initMeasureDataRequest){
+
+        List<String > skuCodes = initMeasureDataRequest.getSkuCodes();
+
+        if (!CollectionUtils.isEmpty(skuCodes)){
+
+            //初始化 压测库存数据
+            productStockDao.initMeasureInventoryData(skuCodes);
+
+
+            skuCodes.forEach(skuCode->{
+                SyncStockToCacheRequest syncStockToCacheRequest = new SyncStockToCacheRequest();
+
+                syncStockToCacheRequest.setSkuCode(skuCode);
+
+                //同步缓存
+                inventoryService.syncStockToCache(syncStockToCacheRequest);
+            });
+
+
+        }
+
+        return  ResponseData.success(true);
+        
     }
 
 }

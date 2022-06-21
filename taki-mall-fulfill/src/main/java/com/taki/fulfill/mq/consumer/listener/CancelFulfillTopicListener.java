@@ -2,6 +2,7 @@ package com.taki.fulfill.mq.consumer.listener;
 
 import com.alibaba.fastjson.JSONObject;
 import com.taki.fulfill.domain.request.CancelFulfillRequest;
+import com.taki.fulfill.remote.WmsRemote;
 import com.taki.fulfill.service.FulfillService;
 import com.taki.tms.api.TmsApi;
 import com.taki.wms.api.WmsApi;
@@ -32,7 +33,7 @@ public class CancelFulfillTopicListener implements MessageListenerConcurrently {
 
 
     @DubboReference(version = "1.0.0",retries = 0)
-    private WmsApi wmsApi;
+    private WmsRemote wmsApi;
 
     @DubboReference(version = "1.0.0",retries = 0)
     private TmsApi tmsApi;

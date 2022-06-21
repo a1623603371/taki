@@ -21,7 +21,7 @@ public class AfterSaleRefundDAO extends BaseDAO<AfterSaleRefundMapper, AfterSale
 
 
 
-    public AfterSaleRefundDO getByAfterSaleId(Long afterSaleId) {
+    public AfterSaleRefundDO getByAfterSaleId(String afterSaleId) {
         return this.getOne(new QueryWrapper<AfterSaleRefundDO>().eq(AfterSaleRefundDO.AFTER_SALE_ID,afterSaleId));
     }
 

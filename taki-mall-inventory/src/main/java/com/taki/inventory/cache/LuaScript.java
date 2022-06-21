@@ -57,9 +57,6 @@ public interface LuaScript {
             "if saleStock < saleQuantity then " +
             "   return -1;" +
             "end;" +
-            "if saleStock ~= originSaleStock then" +
-            "   return -1;" +
-            "end" +
             "redis.call('hset',productStockKey,saleStockKey,saleStock - saleQuantity)" +
             "return 1;";
 
@@ -72,9 +69,6 @@ public interface LuaScript {
             "local saleQuantity = tonumber(ARGV[1]);" +
             "local originSaledStock = tonumber(ARGV[2]);" +
             "local saledStock = tonumber(redis.call('hget',productStockKey,saledStockKey))" +
-            "if saleStock ~= originSaledStock then" +
-            "   return -1;" +
-            "end;" +
             "redis.call('hset',productStockKey,saledStockKey,saledStock + saleQuantity)" +
             "return 1;";
 
@@ -87,9 +81,6 @@ public interface LuaScript {
             "local saleQuantity = tonumber(ARGV(1));" +
             "local originSaleStock = tonumer(ARGV(2));" +
             "local saleStock = tonumer(redis.call('hget',productStockKey,saleStockKey))" +
-            "if saleStock ~= originSaleStock then" +
-            "   return -1;" +
-            "end;" +
             "redis.call('hset',productStockKey,saleStockKey,saleStock + saleQuantity)" +
             "return 1;";
 

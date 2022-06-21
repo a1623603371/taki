@@ -3,8 +3,10 @@ package com.taki.inventory.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import com.taki.common.constants.RedisLockKeyConstants;
+import com.taki.common.core.CoreConstants;
 import com.taki.common.redis.RedisCache;
 import com.taki.common.redis.RedisLock;
+import com.taki.common.utlis.LoggerFormat;
 import com.taki.common.utlis.ParamCheckUtil;
 import com.taki.inventory.cache.CacheSupport;
 import com.taki.inventory.dao.ProductStockDao;
@@ -13,6 +15,7 @@ import com.taki.inventory.domain.dto.DeductStockDTO;
 import com.taki.inventory.domain.entity.ProductStockDO;
 import com.taki.inventory.domain.entity.ProductStockLogDO;
 import com.taki.inventory.domain.request.*;
+import com.taki.inventory.enums.StockLogStatusEnum;
 import com.taki.inventory.exception.InventoryBizException;
 import com.taki.inventory.exception.InventoryErrorCodeEnum;
 import com.taki.inventory.service.InventoryService;
@@ -25,6 +28,7 @@ import org.springframework.util.ObjectUtils;
 import org.w3c.dom.stylesheets.LinkStyle;
 
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -62,6 +66,10 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Autowired
     private ModifyProductStockProcessor modifyProductStockProcessor;
+
+
+    @Autowired
+    private  SyncStockToCacheProcessor syncStockToCacheProcessor;
 
 //    @Transactional(rollbackFor = Exception.class)
 //    @Override
@@ -113,42 +121,115 @@ public class InventoryServiceImpl implements InventoryService {
 
         List<ReleaseProductStockRequest.OrderItemRequest> orderItemRequests = releaseProductStockRequest.getOrderItemRequests();
 
-        orderItemRequests.forEach(orderItemRequest -> {
-
+        String orderId = releaseProductStockRequest.getOrderId();
+        for (ReleaseProductStockRequest.OrderItemRequest orderItemRequest : orderItemRequests) {
             String skuCode = orderItemRequest.getSkuCode();
+            String lockKey = RedisLockKeyConstants.RELEASE_PRODUCT_STOCK_KEY + skuCode;
+            //1、添加redis释放库存锁，作用
+            // (1)防同一笔订单重复释放
+            // (2)重量级锁，保证mysql+redis释放库存的原子性，同一时间只能有一个订单来释放，
+            //    需要锁查询+扣库存
 
-            ProductStockDO productStockDO = productStockDao.getBySkuCode(skuCode);
+            Boolean locked = redisLock.tryLock(lockKey,CoreConstants.DEFAULT_WAIT_SECONDS);
 
-            if (ObjectUtils.isEmpty(productStockDO)){
-                throw new InventoryBizException(InventoryErrorCodeEnum.PRODUCT_SKU_STOCK_NOT_FOUND_ERROR);
-            }
+            if (!locked){
+                log.error(LoggerFormat.build()
+                        .remark("无法获取释放库存锁")
+                        .data("orderId",orderId)
+                        .data("skuCode",skuCode)
+                        .finish());
 
-            Integer saleQuantity = orderItemRequest.getSaleQuantity();
-
-            Boolean result = productStockDao.releaseProductStock(skuCode,saleQuantity);
-
-            if (!result){
                 throw new InventoryBizException(InventoryErrorCodeEnum.RELEASE_PRODUCT_SKU_STOCK_ERROR);
             }
+            try {
+                //2 查询mysql库存数据
+                ProductStockDO productStockDO = productStockDao.getBySkuCode(skuCode);
 
-        });
+                if (ObjectUtils.isEmpty(productStockDO)){
+                    throw new InventoryBizException(InventoryErrorCodeEnum.PRODUCT_SKU_STOCK_NOT_FOUND_ERROR);
+                }
+
+                // 3.查询redis 库存数据
+                String productStockKey = CacheSupport.buildProductStockKey(skuCode);
+
+                Map<String,String>  productStockValue = redisCache.hGetAll(productStockKey);
+
+                if (productStockValue.isEmpty()){
+                    //如果 查询不到redis 库存数据，将mysql 库存数据 放入 redis，已mysql数据为准
+                    addProductStockProcessor.addStockToRedis(productStockDO);
+                }
+
+                Integer saleQuantity = orderItemRequest.getSaleQuantity();
+
+                //4.效验是否释放库存
+                ProductStockLogDO productStockLog = productStockLogDao.getLog(orderId,skuCode);
+
+                if (!ObjectUtils.isEmpty(productStockLog) && StockLogStatusEnum.RELEASE.getCode().equals(productStockLog.getStatus())){
+                    log.info(LoggerFormat.build()
+                            .remark("已释放库存")
+                            .data("orderId",orderId)
+                            .data("skuCode",skuCode)
+                            .finish());
+                    return true;
+                }
+            }finally {
+                redisLock.unLock(lockKey);
+            }
+        }
         return true;
     }
 
     @Override
     public Boolean deductProductStock(DeductProductStockRequest deductProductStockRequest) {
 
+
+        log.info(LoggerFormat
+                .build()
+                .remark("deductProductStock->request")
+                .data("request",deductProductStockRequest)
+                .finish());
+
         // 检查入参
         checkLockProductStockRequest(deductProductStockRequest);
         String orderId = deductProductStockRequest.getOrderId();
         List<DeductProductStockRequest.OrderItemRequest> orderItemRequests = deductProductStockRequest.getOrderItemRequests();
 
-        orderItemRequests.forEach(orderItemRequest -> {
+        for (DeductProductStockRequest.OrderItemRequest orderItemRequest : orderItemRequests) {
+
+
             String skuCode = orderItemRequest.getSkuCode();
-            // 1.查询 数据库 库存数据
+
+            String lockKey = RedisLockKeyConstants.DEDUCT_PRODUCT_STOCK_KEY + skuCode;
+            try {
+                // 1.添加redis锁扣减库存锁
+                // （1）防止一笔订单重复扣减
+                //重量级锁，保证mysql + redis 扣 库存的原子性，同一时间只能有一个订单扣减
+                //需要锁查询+扣库存
+                // 获取不到锁，阻塞等待,默认等待3s
+                Boolean lockResult = redisLock.tryLock(lockKey, CoreConstants.DEFAULT_WAIT_SECONDS);
+
+                if(!lockResult){
+                    log.error(LoggerFormat.build()
+                            .remark("无法获取扣减库存锁")
+                            .data("orderId",orderId)
+                            .data("skuCode",skuCode)
+                            .finish());
+                    throw new InventoryBizException(InventoryErrorCodeEnum.DEDUCT_PRODUCT_SKU_STOCK_ERROR);
+                }
+
+
+            // 2.查询 数据库 库存数据
             ProductStockDO productStockDO = productStockDao.getBySkuCode(skuCode);
+                log.info(LoggerFormat.build()
+                        .remark("查询mysql库存数据")
+                        .data("orderId", orderId)
+                        .data("productStockDO", productStockDO)
+                        .finish());
             if (productStockDO == null){
-                log.error("商品库存记录不存在，skuCode={}",skuCode);
+                log.error(LoggerFormat.build()
+                        .remark("商品库存记录不存在")
+                        .data("skuCode", skuCode)
+                        .finish());
                 throw new InventoryBizException(InventoryErrorCodeEnum.PRODUCT_SKU_STOCK_NOT_FOUND_ERROR);
             }
 
@@ -164,37 +245,31 @@ public class InventoryServiceImpl implements InventoryService {
 
             //3.添加redis 锁 ，防止 bingfa
 
-            String lockKey = MessageFormat.format(RedisLockKeyConstants.RELEASE_PRODUCT_STOCK_KEY,orderId,skuCode);
-
-            Boolean result = redisLock.lock(lockKey);
-
-            if (!result){
-                log.error("无法获取扣减库存锁，orderId = {},skuCode={}",orderId,skuCode);
-                throw new InventoryBizException(InventoryErrorCodeEnum.DEDUCT_PRODUCT_SKU_STOCK_ERROR);
-            }
-
-
-            try {
-
             //4.查询库存扣减日志
             ProductStockLogDO productStockLogDO = productStockLogDao.getLog(orderId,skuCode);
 
-            if (!ObjectUtils.isEmpty(productStockDO)){
-                log.error("已扣减，扣减库存日志已存在，orderId={}，skuCode={}",orderId,skuCode);
+            if (!ObjectUtils.isEmpty(productStockLogDO)){
+                log.info(LoggerFormat.build()
+                        .remark("已扣减，扣减库存日志已存在")
+                        .data("orderId", orderId)
+                        .data("skuCode", skuCode)
+                        .finish());
+                return true;
             }
                 Integer saleQuantity = orderItemRequest.getSaleQuantity();
-                Integer originSaleStock =  productStockDO.getSaleStockQuantity().intValue();
-                Integer originSaledStock = productStockDO.getSaledStockQuantity().intValue();
 
                 // 5.执行库存扣减
-                DeductStockDTO deductStockDTO = new DeductStockDTO(orderId,skuCode,saleQuantity,originSaleStock,originSaledStock);
+                DeductStockDTO deductStockDTO = new DeductStockDTO(orderId,skuCode,Long.valueOf(saleQuantity),productStockDO);
 
                 deductProductProcessor.deduct(deductStockDTO);
 
             }finally {
                 redisLock.unLock(lockKey);
             }
-        });
+        }
+        log.info(LoggerFormat.build()
+                .remark("deductProductStock->response")
+                .finish());
         return true;
     }
 
@@ -213,7 +288,7 @@ public class InventoryServiceImpl implements InventoryService {
         // 3.添加 redis 锁 防止并发
         String lockKey = RedisLockKeyConstants.ADD_PRODUCT_STOCK_KEY +addProductStockRequest.getSkuCode();
 
-         Boolean result = redisLock.lock(lockKey);
+         Boolean result = redisLock.tryLock(lockKey);
 
          if (!result){
              throw new InventoryBizException(InventoryErrorCodeEnum.ADD_PRODUCT_SKU_STOCK_ERROR);
@@ -261,7 +336,7 @@ public class InventoryServiceImpl implements InventoryService {
 
         String lockKey = RedisLockKeyConstants.MODIFY_PRODUCT_STOCK_KEY + modifyProductStockRequest.getSkuCode();
 
-        Boolean lock = redisLock.lock(lockKey);
+        Boolean lock = redisLock.tryLock(lockKey);
 
         if (!lock){
             throw new InventoryBizException(InventoryErrorCodeEnum.MODIFY_PRODUCT_SKU_STOCK_ERROR);
@@ -284,20 +359,30 @@ public class InventoryServiceImpl implements InventoryService {
         //1.效验参数
         ParamCheckUtil.checkStringNonEmpty(skuCode,InventoryErrorCodeEnum.SKU_CODE_IS_EMPTY);
 
-        //2 检查商品库存
+        syncStockToCacheProcessor.doSync(skuCode);
+
+        return true;
+    }
+
+    @Override
+    public Map<String, Object> getStockInfo(String skuCode) {
 
         ProductStockDO productStock = productStockDao.getBySkuCode(skuCode);
 
-        ParamCheckUtil.checkObjectNonNull(productStock,InventoryErrorCodeEnum.PRODUCT_SKU_STOCK_NOT_FOUND_ERROR);
+        if (ObjectUtils.isEmpty(productStock)){
 
-        // 3.删除 缓存数据
+            return null;
+        }
 
-        redisCache.delete(CacheSupport.buildProductStockKey(skuCode));
+        String productStockKey = CacheSupport.buildProductStockKey(skuCode);
 
-        // 4. 保存 商品库到 redis 缓存
-        addProductStockProcessor.addStockToRedis(productStock);
+        Map<String,String> productStockVale = redisCache.hGetAll(productStockKey);
 
-        return true;
+        Map<String,Object> result = new HashMap<>();
+
+        result.put("mysql",productStock);
+        result.put("redis",productStockVale);
+        return result;
     }
 
     /**

@@ -4,6 +4,7 @@ import com.taki.inventory.domain.dto.DeductStockDTO;
 import io.seata.rm.tcc.api.BusinessActionContext;
 import io.seata.rm.tcc.api.BusinessActionContextParameter;
 import io.seata.rm.tcc.api.LocalTCC;
+import io.seata.rm.tcc.api.TwoPhaseBusinessAction;
 
 /**
  * @ClassName LockRedisStockTccService
@@ -23,7 +24,8 @@ public interface LockRedisStockTccService {
      * @return  boolean
      * @author Long
      * @date: 2022/5/12 13:18
-     */ 
+     */
+    @TwoPhaseBusinessAction(name = "lockRedisStockTccService",commitMethod = "commit",rollbackMethod = "rollback")
     boolean deductStock(BusinessActionContext actionContext,@BusinessActionContextParameter(paramName = "deductStock") DeductStockDTO deductStockDTO);
 
     /**

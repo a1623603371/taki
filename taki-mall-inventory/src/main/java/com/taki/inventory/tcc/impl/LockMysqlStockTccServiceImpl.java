@@ -2,6 +2,10 @@ package com.taki.inventory.tcc.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
+import com.taki.common.constants.RedisLockKeyConstants;
+import com.taki.common.redis.RedisLock;
+import com.taki.common.utlis.LoggerFormat;
+import com.taki.common.utlis.MdcUtil;
 import com.taki.inventory.dao.ProductStockDao;
 import com.taki.inventory.dao.ProductStockLogDao;
 import com.taki.inventory.domain.dto.DeductStockDTO;
@@ -12,6 +16,7 @@ import com.taki.inventory.tcc.TccResultHolder;
 import io.seata.rm.tcc.api.BusinessActionContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,15 +37,15 @@ public class LockMysqlStockTccServiceImpl implements LockMysqlStockTccService {
     @Autowired
     private ProductStockLogDao productStockLogDao;
 
+    @Autowired
+    private RedisLock redisLock;
+
 
     @Override
     public boolean deductStock(BusinessActionContext actionContext, DeductStockDTO deductStock) {
         String xid = actionContext.getXid();
         String skuCode = deductStock.getSkuCode();
-        Integer saleQuantity = deductStock.getSaleQuantity();
-        Integer originSaleStock = deductStock.getOriginSaleStock();
-        Integer originSaledStock = deductStock.getOriginSaledStock();
-
+        Integer saleQuantity = deductStock.getSaleQuantity().intValue();
         // 标识try阶段开始执行
         TccResultHolder.tagTryStart(getClass(),skuCode,xid);
 
@@ -50,14 +55,24 @@ public class LockMysqlStockTccServiceImpl implements LockMysqlStockTccService {
 
             return false;
         }
+        log.info(LoggerFormat
+                .build()
+                .remark("一阶段方法:扣减mysql销售库存")
+                .data("deductStock",saleQuantity)
+                .data("xid",xid)
+                .finish());
+        Boolean result = productStockDao.deductSaleStock(skuCode,saleQuantity);
 
-        log.info("一阶段方法：扣减方法：扣减mysql销售库存，deductStock ={},xid ={}", JSONObject.toJSONString(deductStock),xid);
-
-        Boolean result = productStockDao.deductSaleStock(skuCode,saleQuantity,originSaleStock);
-
-
-        // 标记 tcc 执行成功
-        if (result ){
+        if (result){
+            ProductStockLogDO logDO =  buildStockLog(deductStock);
+            // 2.插入一条扣减日志表
+            log.info(LoggerFormat
+                    .build()
+                    .remark("插入一条扣减日志记录")
+                    .data("logDO",logDO)
+                    .data("xid",xid)
+                    .finish());
+            productStockLogDao.save(logDO);
             TccResultHolder.tagTrySuccess(getClass(),skuCode,xid);
         }
         return result;
@@ -73,25 +88,30 @@ public class LockMysqlStockTccServiceImpl implements LockMysqlStockTccService {
     String xid = actionContext.getXid();
     DeductStockDTO deductStock = ((JSONObject)actionContext.getActionContext("deductStock")).toJavaObject(DeductStockDTO.class);
     String skuCode = deductStock.getSkuCode();
-    Integer saleQuantity = deductStock.getSaleQuantity();
-    Integer originSaleQuantity = deductStock.getSaleQuantity();
-    Integer originSaledQuantity = deductStock.getOriginSaledStock();
+    Integer saleQuantity = deductStock.getSaleQuantity().intValue();
 
-    log.info("二阶段提交：增加mysql 已销售库存,deductStock,xid = {}",JSONObject.toJSONString(deductStock),xid);
+
+     String traceId = (String) actionContext.getActionContext("traceId");
+    MdcUtil.setTraceId(traceId);
+
+
+    log.info(",deductStock,xid = {}",JSONObject.toJSONString(deductStock),xid);
+
+        log.info(LoggerFormat
+                .build()
+                .remark("二阶段提交：增加mysql 已销售库存")
+                .data("deductStock",deductStock)
+                .data("xid",xid)
+                .finish());
 
     // 幂等
     //当出现网络异常 后或者 TC Server 异常 ，回 出现 重复调用 commit阶段 情况，所以需要进行幂等操作
         if (!TccResultHolder.isTrySuccess(getClass(),skuCode,xid)){
             return;
         }
-
         // 1.增加已销售库存
-        productStockDao.increaseSaledStock(skuCode,saleQuantity,originSaledQuantity);
-
-        // 2.插入一条扣减日志表
-        log.info("插入一条扣减日志表");
-        productStockLogDao.save(buildStockLog(deductStock));
-
+        productStockDao.increaseSaledStock(skuCode,saleQuantity);
+        //移除标识
         TccResultHolder.removeResult(getClass(),skuCode,xid);
 
     }
@@ -104,18 +124,50 @@ public class LockMysqlStockTccServiceImpl implements LockMysqlStockTccService {
      */
     private ProductStockLogDO buildStockLog(DeductStockDTO deductStock) {
 
+        ProductStockDO productStock = deductStock.getProductStockDO();
+
+        Integer saleQuantity =deductStock.getSaleQuantity().intValue();
+        Long originSaleStock = productStock.getSaleStockQuantity();
+        Long originSaledStocck = getOriginSaledStock(productStock);
+
+
         ProductStockLogDO logDO = new ProductStockLogDO();
         logDO.setOrderId(deductStock.getOrderId());
         logDO.setSkuCode(deductStock.getSkuCode());
-        logDO.setOriginSaleStockQuantity(deductStock.getOriginSaleStock().longValue());
-        logDO.setOriginSaledStockQuantity(deductStock.getOriginSaledStock().longValue());
-        logDO.setDeductedSaleStockQuantity(deductStock.getOriginSaleStock().longValue() - deductStock.getSaleQuantity().longValue());
-        logDO.setIncreasedSaledStockQuantity(deductStock.getOriginSaledStock().longValue() + deductStock.getSaleQuantity().longValue());
+        logDO.setOriginSaleStockQuantity(originSaleStock);
+        logDO.setOriginSaledStockQuantity(originSaledStocck);
+        logDO.setDeductedSaleStockQuantity(originSaleStock - saleQuantity);
+        logDO.setIncreasedSaledStockQuantity(originSaleStock + saleQuantity);
 
         return logDO;
 
 
 
+    }
+    
+    /** 
+     * @description: 获取sku的原始已销售库存
+     * @param productStock 商品库存数据
+     * @return  java.lang.Long
+     * @author Long
+     * @date: 2022/6/20 13:40
+     */ 
+    private Long getOriginSaledStock(ProductStockDO productStock) {
+        //1.查询sku库存最近一笔扣减日志
+        ProductStockLogDO lateStLog = productStockLogDao.getLatestOne(productStock.getSkuCode());
+
+        //2.获取原始的已销售库存
+        Long originSaledStock = null;
+
+        if (ObjectUtils.isEmpty(lateStLog)){
+            //第一次扣减，直接取productStockDO的saledStockQuantity
+            originSaledStock = productStock.getSaledStockQuantity();
+        } else {
+            //取最近一次扣减日志的increasedSaledStockQuantity
+            originSaledStock = lateStLog.getIncreasedSaledStockQuantity();
+        }
+
+        return originSaledStock;
     }
 
     @Override
@@ -124,15 +176,29 @@ public class LockMysqlStockTccServiceImpl implements LockMysqlStockTccService {
         String xid = actionContext.getXid();
         DeductStockDTO deductStock = ((JSONObject)actionContext.getActionContext("deductStock")).toJavaObject(DeductStockDTO.class);
         String skuCode = deductStock.getSkuCode();
-        Integer saleQuantity = deductStock.getSaleQuantity();
-        Integer originSaleStock = deductStock.getOriginSaleStock();
-        Integer originSaledStock = deductStock.getOriginSaledStock();
+        Long saleQuantity = deductStock.getSaleQuantity();
 
-        log.info("回滚：增加mysql销售库存，deductStock={}，xid={}",JSONObject.toJSONString(deductStock));
+        String traceId = (String) actionContext.getActionContext("traceId");
+        MdcUtil.setTraceId(traceId);
+
+
+        log.info(LoggerFormat
+                .build()
+                .remark("回滚：增加mysql销售库存")
+                .data("deductStock",deductStock)
+                .data("xid",xid)
+                .finish());
 
         // 空回滚处理
+        //try阶段没有完成的情况下，不必执行回滚，因为try阶段有本地事务，事务失败时已经进行了回滚
+        //如果try阶段成功，而其他全局事务参与者失败，这里会执行回滚
         if (TccResultHolder.isTrgNull(getClass(),skuCode,xid)){
-        log.info("mysql：出现空回滚");
+            log.info(LoggerFormat
+                    .build()
+                    .remark("mysql：出现空回滚")
+                    .data("deductStock",deductStock)
+                    .data("xid",xid)
+                    .finish());
         insertEmptyRollbackTag(deductStock);
         return;
         }
@@ -142,25 +208,63 @@ public class LockMysqlStockTccServiceImpl implements LockMysqlStockTccService {
         //如果 try阶段成功，而且全局事务参与者失败，这里执行回滚
 
         if (!TccResultHolder.isTrySuccess(getClass(),skuCode,xid)){
-            log.info("mysql:无需回滚");
+            log.info(LoggerFormat
+                    .build()
+                    .remark("mysql:无需回滚")
+                    .data("deductStock",deductStock)
+                    .data("xid",xid)
+                    .finish());
             return;
         }
+        //加锁
+        String lockKey = RedisLockKeyConstants.DEDUCT_PRODUCT_STOCK_KEY + skuCode;
 
-    // 1.还原 销售库存
-    productStockDao.restoreSaleStock(skuCode,saleQuantity,originSaleStock-saleQuantity);
-    // 2 删除库存扣减日志
+        redisLock.lock(lockKey);
+        try {
 
-    ProductStockLogDO productStockLogDO = productStockLogDao.getLog(deductStock.getOrderId(),deductStock.getSkuCode());
-
-    if (ObjectUtils.isNotEmpty(productStockLogDO)){
-        productStockLogDao.removeById(productStockLogDO.getId());
-    }
-
+            // 1.还原 销售库存
+            productStockDao.restoreSaleStock(skuCode,saleQuantity);
+            // 2 插入反向日志
+            productStockLogDao.save(buildReverseStock(deductStock));
+        }finally {
+            redisLock.unLock(lockKey);
+        }
     // 移除标识
         TccResultHolder.removeResult(getClass(),skuCode,xid);
 
     }
-    
+
+    /** 
+     * @description: 构建逆向扣减库存日志
+     * @param deductStock
+
+     * @author Long
+     * @date: 2022/6/20 13:16
+     */ 
+    private ProductStockLogDO buildReverseStock(DeductStockDTO deductStock) {
+
+        ProductStockDO productStockLogDO = deductStock.getProductStockDO();
+
+        Long saleQuantity = deductStock.getSaleQuantity();
+
+        //查询sku库存最近一笔扣减日志
+
+        ProductStockLogDO latestLog = productStockLogDao.getLatestOne(productStockLogDO.getSkuCode());
+
+        ProductStockLogDO reverseStockLog = new ProductStockLogDO();
+
+        reverseStockLog.setOrderId(deductStock.getOrderId());
+        reverseStockLog.setSkuCode(deductStock.getSkuCode());
+
+        reverseStockLog.setOriginSaleStockQuantity(latestLog.getOriginSaleStockQuantity() + saleQuantity);
+        reverseStockLog.setOriginSaledStockQuantity(latestLog.getOriginSaledStockQuantity() - saleQuantity);
+        reverseStockLog.setDeductedSaleStockQuantity(latestLog.getDeductedSaleStockQuantity() + saleQuantity);
+        reverseStockLog.setIncreasedSaledStockQuantity(latestLog.getIncreasedSaledStockQuantity() - saleQuantity);
+
+        return reverseStockLog;
+
+    }
+
     /** 
      * @description: 构造扣减库存日志
      * @param 

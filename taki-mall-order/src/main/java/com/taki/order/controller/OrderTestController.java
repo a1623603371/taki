@@ -256,7 +256,7 @@ public class OrderTestController {
 
         String message = JSONObject.toJSONString(paidOrderSuccessMessage);
 
-        defaultProducer.sendMessage(RocketMQConstant.PAID_ORDER_SUCCESS_TOPIC,message,"订单支付已完成支付");
+        defaultProducer.sendMessage(RocketMQConstant.PAID_ORDER_SUCCESS_TOPIC,message,"订单支付已完成支付","","");
 
         return ResponseData.success(true);
     }

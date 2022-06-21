@@ -53,10 +53,9 @@ public class OrderWmsShipResultListener extends AbstractMessageListenerConcurren
 
                 // 2.加分布式锁  防止前置状态 效验防止 消息重复消费
                 String key = RedisLockKeyConstants.ORDER_WMS_RESULT_KEY + wmsShipDTO.getOrderId();
-                boolean lock = redisLock.lock(key);
+                boolean lock = redisLock.tryLock(key);
                 if (!lock){
                     log.error(" order  has  not  acquired lock, cannot inform order  wms result  orderId={}",wmsShipDTO.getOrderId());
-
                     throw new OrderBizException(OrderErrorCodeEnum.ORDER_NOT_ALLOW_INFORM_WMS_RESULT);
                 }
 

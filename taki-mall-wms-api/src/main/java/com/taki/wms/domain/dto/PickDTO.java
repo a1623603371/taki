@@ -17,7 +17,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PickDto extends AbstractObject implements Serializable {
+public class PickDTO extends AbstractObject implements Serializable {
 
 
     private static final long serialVersionUID = 7224981348870745138L;

@@ -114,7 +114,7 @@ public class AfterSaleApiImpl implements AfterSaleApi {
             //2 加锁防止并发
             String lockKey = RedisLockKeyConstants.LACK_REQUEST_KEY + lackRequest.getOrderId();
 
-            if (!redisLock.lock(lockKey)){
+            if (!redisLock.tryLock(lockKey)){
                 throw new OrderBizException(OrderErrorCodeEnum.ORDER_NOT_ALLOW_TO_LACK);
             }
 
@@ -370,7 +370,7 @@ public class AfterSaleApiImpl implements AfterSaleApi {
         //2.1 防止并发
         //2.2 业务上考虑 ：只涉及售后表更新 ，就需要加锁，锁定整个售后表，否则算钱的时候，就由于突然撤销，导致钱多算
 
-        if (!redisLock.lock(lockKey)){
+        if (!redisLock.tryLock(lockKey)){
             throw new OrderBizException(OrderErrorCodeEnum.AFTER_SALE_CANNOT_REVOKE);
         }
 

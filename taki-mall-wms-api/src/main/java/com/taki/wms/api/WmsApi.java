@@ -1,7 +1,8 @@
 package com.taki.wms.api;
 
 import com.taki.common.utlis.ResponseData;
-import com.taki.wms.domain.dto.PickDto;
+import com.taki.wms.domain.dto.PickDTO;
+
 import com.taki.wms.domain.request.PickGoodsRequest;
 
 /**
@@ -19,7 +20,7 @@ public interface WmsApi {
      * @author Long
      * @date: 2022/5/16 18:00
      */
-    ResponseData<PickDto> pickGoods(PickGoodsRequest request);
+    ResponseData<PickDTO> pickGoods(PickGoodsRequest request);
 
 
     /** 

@@ -76,7 +76,7 @@ public class PaidOrderSuccessListener extends AbstractMessageListenerConcurrentl
                 }
 
                 String key = RedisLockKeyConstants.ORDER_FULFILL_KEY + orderId;
-                boolean lock =  redisLock.lock(key);
+                boolean lock =  redisLock.tryLock(key);
 
                 if (!lock){
                     log.error("order has not  acquired lock cannot  fulfill  orderId ={}",orderId);

@@ -155,7 +155,7 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
         String key = RedisLockKeyConstants.CANCEL_KEY + orderId;
 
         try {
-            Boolean lock = redisLock.lock(key);
+            Boolean lock = redisLock.tryLock(key);
 
             if (!lock){
                 throw new OrderBizException(OrderErrorCodeEnum.CANCEL_ORDER_REPEAT);
@@ -210,7 +210,7 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
 
             List<AfterSaleItemDO> afterSaleItems = afterSaleItemDao.getOrderIdAndSkuCode(orderId,skuCode);
             if (!afterSaleItems.isEmpty()){
-                Long afterSaleId = afterSaleItems.get(0).getAfterSaleId();
+                String afterSaleId = afterSaleItems.get(0).getAfterSaleId();
                 // 用售后 id 查询 支付表
                 AfterSaleRefundDO afterSaleRefundDO =  afterSaleRefundDAO.getByAfterSaleId(afterSaleId);
                 // 幂等效验： 售后支付表里存在当前这笔未退款的记录 不能重复发起售后
@@ -330,13 +330,13 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
         String afterSaleId = actualRefundMessage.getAfterSaleId();
         String key = RedisLockKeyConstants.REFUND_KEY + afterSaleId;
         try {
-            Boolean lock = redisLock.lock(key);
+            Boolean lock = redisLock.tryLock(key);
             if (!lock){
                 throw new OrderBizException(OrderErrorCodeEnum.REFUND_MONEY_REPEAT);
             }
             AfterSaleInfoDO afterSaleInfoDO = afterSaleInfoDao.getByAfterSaleId(afterSaleId);
 
-            AfterSaleRefundDO afterSaleRefundDO = afterSaleRefundDAO.getByAfterSaleId(Long.valueOf(afterSaleId));
+            AfterSaleRefundDO afterSaleRefundDO = afterSaleRefundDAO.getByAfterSaleId(afterSaleId);
 
             //1.封装调用支付退款接口数据
             PayRefundRequest payRefundRequest = buildPayRefundRequest(actualRefundMessage,afterSaleRefundDO);
@@ -475,7 +475,7 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
         String orderId = cancelOrderAssembleRequest.getOrderId();
 
         String key = RedisLockKeyConstants.REFUND_KEY + orderId;
-        Boolean lock = redisLock.lock(key);
+        Boolean lock = redisLock.tryLock(key);
 
         if (!lock){
             throw new OrderBizException(OrderErrorCodeEnum.PROCESS_REFUND_FAILED);
@@ -597,7 +597,7 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
 
         String key = RedisLockKeyConstants.REFUND_KEY + orderId;
 
-        boolean lock = redisLock.lock(key);
+        boolean lock = redisLock.tryLock(key);
 
         if (!lock){
             throw new OrderBizException(OrderErrorCodeEnum.PROCESS_PAY_REFUND_CALLBACK_REPEAT);
@@ -808,7 +808,7 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
         ParamCheckUtil.checkObjectNonNull(refundTime, OrderErrorCodeEnum.PROCESS_PAY_REFUND_CALLBACK_AFTER_SALE_REFUND_TIME_IS_NULL);
 
         //  数据库中当前售后单不是未退款状态，表示已经退款成功 or 失败，那么本次就不能再执行支付回调退款
-        AfterSaleRefundDO afterSaleByDatabase = afterSaleRefundDAO.getByAfterSaleId(Long.valueOf(afterSaleId));
+        AfterSaleRefundDO afterSaleByDatabase = afterSaleRefundDAO.getByAfterSaleId(afterSaleId);
         if (!RefundStatusEnum.UN_REFUND.getCode().equals(afterSaleByDatabase.getRefundStatus())) {
             throw new OrderBizException(OrderErrorCodeEnum.REPEAT_CALLBACK);
         }
@@ -993,7 +993,7 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
         List<AfterSaleItemDO> afterSaleItemDOS = new ArrayList<>();
         refundOrderItems.forEach(orderItemDTO -> {
             AfterSaleItemDO afterSaleItemDO = new AfterSaleItemDO();
-            afterSaleItemDO.setAfterSaleId(Long.valueOf(afterSaleId));
+            afterSaleItemDO.setAfterSaleId(afterSaleId);
             afterSaleItemDO.setOrderId(orderId);
             afterSaleItemDO.setSkuCode(orderItemDTO.getSkuCode());
             afterSaleItemDO.setProductName(orderItemDTO.getProductName());

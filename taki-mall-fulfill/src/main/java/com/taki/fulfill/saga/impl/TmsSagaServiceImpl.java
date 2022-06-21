@@ -9,12 +9,14 @@ import com.taki.fulfill.domain.entity.OrderFulfillDO;
 import com.taki.fulfill.domain.request.ReceiveFulFillRequest;
 import com.taki.fulfill.exection.FulfillBizException;
 import com.taki.fulfill.exection.FulfillErrorCodeEnum;
+import com.taki.fulfill.remote.TmsRemote;
 import com.taki.fulfill.saga.TmsSagaService;
 import com.taki.tms.api.TmsApi;
 import com.taki.tms.domain.dto.SendOutDTO;
 import com.taki.tms.domain.request.SendOutRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.stylesheets.LinkStyle;
 
@@ -31,8 +33,8 @@ import java.util.List;
 @Slf4j
 public class TmsSagaServiceImpl implements TmsSagaService {
 
-    @DubboReference(version = "1.0.0",retries = 0)
-    private TmsApi tmsApi;
+    @Autowired
+    private TmsRemote tmsRemote;
 
     private OrderFulfillDao orderFulfillDao;
     @Override
@@ -40,21 +42,16 @@ public class TmsSagaServiceImpl implements TmsSagaService {
         log.info("发货，request={}", JSONObject.toJSONString(request));
 
         //1.调用tms进行发货
-        ResponseData<SendOutDTO> result = tmsApi.sendOut(buildSendOutRequest(request));
+        SendOutDTO sendOut = tmsRemote.sendOut(buildSendOutRequest(request));
 
-        log.info("发货结果,result={}",JSONObject.toJSONString(result));
+        log.info("发货结果,SendOutDTO={}",JSONObject.toJSONString(sendOut));
 
-        if (!result.getSuccess()){
-
-            throw new FulfillBizException(FulfillErrorCodeEnum.TMS_IS_ERROR);
-
-        }
 
         //2.查询 履约单
         OrderFulfillDO orderFulfillDO = orderFulfillDao.getOne(request.getOrderId());
 
         //3.查询物流单好
-        String logisticCode =   result.getData().getLogisticsCode();
+        String logisticCode =  sendOut.getLogisticsCode();
 
         orderFulfillDao.saveLogisticsCode(orderFulfillDO.getFulFillId(), logisticCode);
 
@@ -83,12 +80,9 @@ public class TmsSagaServiceImpl implements TmsSagaService {
     public Boolean canOutCompensate(ReceiveFulFillRequest request) {
         log.info("补偿发货，request={}",JSONObject.toJSONString(request));
 
-        ResponseData<Boolean> result = tmsApi.cancelSendOut(request.getOrderId());
+        Boolean result = tmsRemote.cancelSendOut(request.getOrderId());
 
-        if (!result.getSuccess()){
-            throw new FulfillBizException(FulfillErrorCodeEnum.TMS_IS_ERROR);
-        }
-        log.info("补偿发货结果，result={}",JSONObject.toJSONString(request));
+        log.info("补偿发货结果，result={}",result);
 
 
         return true;

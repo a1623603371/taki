@@ -254,7 +254,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
      * @date: 2022/6/8 14:05
      */
     private void prePayOrderKey( String lockKey){
-        boolean lock = redisLock.lock(lockKey);
+        boolean lock = redisLock.tryLock(lockKey);
         if (!lock){
             throw new OrderBizException(OrderErrorCodeEnum.ORDER_PRE_PAY_ERROR);
         }

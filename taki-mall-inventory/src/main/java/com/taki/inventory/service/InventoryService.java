@@ -2,6 +2,8 @@ package com.taki.inventory.service;
 
 import com.taki.inventory.domain.request.*;
 
+import java.util.Map;
+
 /**
  * @ClassName InventoryService
  * @Description 库存 service
@@ -66,4 +68,13 @@ public interface InventoryService {
      * @date: 2022/5/13 19:11
      */
     Boolean syncStockToCache(SyncStockToCacheRequest syncStockToCacheRequest);
+
+    /**
+     * @description:
+     * @param skuCode
+     * @return  java.lang.Object
+     * @author Long
+     * @date: 2022/6/20 14:31
+     */
+    Map<String,Object> getStockInfo(String skuCode);
 }

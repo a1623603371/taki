@@ -47,7 +47,7 @@ public class FulFillServiceImpl implements FulfillService {
 
     @Autowired
     private RedisLock redisLock;
-
+    @Autowired
     private SpringApplicationContext springApplicationContext;
 
 
@@ -114,7 +114,7 @@ public class FulFillServiceImpl implements FulfillService {
         // 加入分布式锁
         String lockKey = RedisLockKeyConstants.ORDER_FULFILL_KEY + orderId;
 
-        boolean lock = redisLock.lock(lockKey);
+        boolean lock = redisLock.tryLock(lockKey);
 
         if (!lock){
             throw new FulfillBizException(FulfillErrorCodeEnum.ORDER_FULFILL_ERROR);

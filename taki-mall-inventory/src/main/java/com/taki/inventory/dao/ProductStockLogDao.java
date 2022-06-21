@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.taki.common.BaseDAO;
 import com.taki.inventory.domain.entity.ProductStockDO;
 import com.taki.inventory.domain.entity.ProductStockLogDO;
+import com.taki.inventory.enums.StockLogStatusEnum;
 import com.taki.inventory.mapper.ProductStockLogMapper;
 import org.springframework.stereotype.Repository;
 
@@ -32,5 +33,33 @@ public class ProductStockLogDao extends BaseDAO<ProductStockLogMapper, ProductSt
 
         return this.getOne(new QueryWrapper<ProductStockLogDO>().eq(ProductStockLogDO.ORDER_ID,orderId).eq(ProductStockLogDO.SKU_CODE,skuCode)) ;
 
+    }
+
+    
+    /** 
+     * @description:  查询sku库存最近一笔扣减日志
+     * @param skuCode
+     * @return
+     * @author Long
+     * @date: 2022/6/20 13:47
+     */ 
+    public ProductStockLogDO getLatestOne(String skuCode) {
+
+        return this.getOne(new QueryWrapper<ProductStockLogDO>()
+                .eq(ProductStockLogDO.SKU_CODE,skuCode)
+                .orderByDesc(ProductStockLogDO.ID).last("limit 1"));
+    }
+
+    /**
+     * @description: 修改库存日志状态
+     * @param id
+     * @paramrelease
+     * @return  void
+     * @author Long
+     * @date: 2022/6/20 16:14
+     */
+    public Boolean updateStatus(Long id, StockLogStatusEnum release) {
+
+        return this.update().set(ProductStockLogDO.STATUS,release.getCode()).eq(ProductStockLogDO.ID,id).update();
     }
 }
