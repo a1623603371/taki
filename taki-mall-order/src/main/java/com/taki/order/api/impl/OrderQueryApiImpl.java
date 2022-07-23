@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @Date 2022/3/2 23:19
  * @Version 1.0
  */
-@DubboService(version = "1.0.0",retries = 1)
+@DubboService(version = "1.0.0",interfaceClass =OrderQueryApi.class ,retries = 1)
 @Slf4j
 public class OrderQueryApiImpl implements OrderQueryApi {
 

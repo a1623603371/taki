@@ -33,7 +33,7 @@ public class DefaultProducer {
     public DefaultProducer(RocketMQProperties rocketMQProperties) {
      //   this.producer =
         this.producer = new TransactionMQProducer(RocketMQConstant.ORDER_DEFAULT_PRODUCER_GROUP);
-        producer.setNamespace(rocketMQProperties.getNameServer());
+        producer.setNamesrvAddr(rocketMQProperties.getNameServer());
         start();
     }
     /*** 

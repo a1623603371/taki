@@ -20,6 +20,5 @@ import java.io.Serializable;
 @Setter
 @Accessors(chain = true)
 @TableName("order_auto_no")
-@ApiModel(value = "OrderAutoNoDO对象", description = "订单id自动生成表")
 public class OrderAutoNoDO extends BaseEntity implements Serializable {
 }

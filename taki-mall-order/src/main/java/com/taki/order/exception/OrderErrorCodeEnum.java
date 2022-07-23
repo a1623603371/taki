@@ -157,6 +157,6 @@ public enum OrderErrorCodeEnum implements BaseErrorCodeEnum{
 
     @Override
     public String getErrorMsg() {
-        return null;
+        return errorMsg;
     }
 }

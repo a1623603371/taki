@@ -7,10 +7,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
 
 /**
@@ -25,40 +22,34 @@ import lombok.experimental.Accessors;
 @Setter
 @Accessors(chain = true)
 @TableName("order_operate_log")
-@ApiModel(value = "OrderOperateLogDO对象", description = "订单操作⽇志表")
 @Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class OrderOperateLogDO extends BaseEntity implements Serializable{
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty("订单编号")
+    //("订单编号")
     @TableField("order_id")
     private String orderId;
 
-    @ApiModelProperty("操作类型")
+   //("操作类型")
     @TableField("operate_type")
     private Integer operateType;
 
-    @ApiModelProperty("前置状态")
+    //("前置状态")
     @TableField("pre_status")
     private Integer preStatus;
 
-    @ApiModelProperty("当前状态")
+    //("当前状态")
     @TableField("current_status")
     private Integer currentStatus;
 
-    @ApiModelProperty("备注说明")
+    //("备注说明")
     @TableField("remark")
     private String remark;
 
-    @ApiModelProperty("创建时间")
-    @TableField("gmt_create")
-    private LocalDateTime gmtCreate;
 
-    @ApiModelProperty("更新时间")
-    @TableField("gmt_modified")
-    private LocalDateTime gmtModified;
 
 
     public static final String ORDER_ID = "order_id";
@@ -71,9 +62,7 @@ public class OrderOperateLogDO extends BaseEntity implements Serializable{
 
     public static final String REMARK = "remark";
 
-    public static final String GMT_CREATE = "gmt_create";
 
-    public static final String GMT_MODIFIED = "gmt_modified";
 
 
 

@@ -5,7 +5,9 @@ package com.taki.common.web;
 import com.taki.common.utlis.JsonUtil;
 import com.taki.common.utlis.ResponseData;
 import com.taki.common.utlis.ServletUtil;
+import io.swagger.models.Swagger;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -25,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
  * @Version 1.0
  */
 @Slf4j
-//@ControllerAdvice
+@ControllerAdvice
 public class GlobalResponseBodyAdvice<T> implements ResponseBodyAdvice<Object> {
     /**
      * @description: 是否开启结果响应拦截
@@ -38,10 +40,20 @@ public class GlobalResponseBodyAdvice<T> implements ResponseBodyAdvice<Object> {
     @Override
     public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> aClass) {
         Class<?> declaringClass = aClass.getDeclaringClass();
-        if (declaringClass.equals(ApiResourceController.class) ||  declaringClass.equals(null)){
+        if (null == declaringClass || declaringClass.equals(ApiResourceController.class)  ){
             return false;
         }
         return true;
+//        Class<?> declaringClass = aClass.getDeclaringClass();
+//        if (declaringClass.equals(ApiResourceController.class) || declaringClass.equals(Swagger2Controller.class)) {
+//            return false;
+//        }
+//
+//        if (declaringClass.equals(BasicErrorController.class)) {
+//            return false;
+//        }
+//
+//        return true;
     }
     /**
      * @description:  拦截响应

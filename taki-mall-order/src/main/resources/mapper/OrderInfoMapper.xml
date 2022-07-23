@@ -65,7 +65,7 @@
             </if>
 
             <if test="query.orderTypes != null  and query.orderTypes.size != 0">
-                <foreach collection="query.orderTypes" item="type"open = "AND  o.order_type in (' close = ')"separator=",">
+                <foreach collection="query.orderTypes" item="type" open = "AND  o.order_type in (' close = ')" separator=",">
                     #{type}
                 </foreach>
             </if>

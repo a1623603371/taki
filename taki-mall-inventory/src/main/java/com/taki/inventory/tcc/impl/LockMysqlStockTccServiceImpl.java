@@ -20,6 +20,9 @@ import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /**
  * @ClassName LockMysqlStockTccServiceImpl
  * @Description mysql TCC
@@ -109,6 +112,8 @@ public class LockMysqlStockTccServiceImpl implements LockMysqlStockTccService {
         if (!TccResultHolder.isTrySuccess(getClass(),skuCode,xid)){
             return;
         }
+        ExecutorService executorService = Executors.newCachedThreadPool();
+        Executors.newFixedThreadPool(20);
         // 1.增加已销售库存
         productStockDao.increaseSaledStock(skuCode,saleQuantity);
         //移除标识

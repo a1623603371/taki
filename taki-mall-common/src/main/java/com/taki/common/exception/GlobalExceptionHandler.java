@@ -29,7 +29,7 @@ import java.util.MissingFormatArgumentException;
  */
 @RestControllerAdvice
 @Slf4j
-@Order
+//@Order
 public class GlobalExceptionHandler {
 
     /**
@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseData<Object>  handle(Exception ex, HttpServletRequest request){
 
-        ExceptionResult.ExceptionResultBuilder result = ExceptionResult.builder();
+        ExceptionResult.ExceptionResultBuilder result = null;
         log.error("[系统未知错误]",ex);
          result =  ExceptionResult.builder().timestamp(new Date())
                 .message(ex.getMessage())
@@ -65,7 +65,7 @@ public class GlobalExceptionHandler {
      */ 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public  ResponseData<Object> handle(HttpRequestMethodNotSupportedException e,HttpServletRequest request){
-        ExceptionResult.ExceptionResultBuilder result = ExceptionResult.builder();
+        ExceptionResult.ExceptionResultBuilder result = null;
         log.error("[客户端 HTTP 请求方法类型错误]",e);
         result =  ExceptionResult.builder().timestamp(new Date())
                 .message(e.getMessage())
@@ -83,9 +83,9 @@ public class GlobalExceptionHandler {
      * @author Long
      * @date: 2022/6/9 14:10
      */ 
-    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     public  ResponseData<Object> handle(MethodArgumentNotValidException e, HttpServletRequest request){
-        ExceptionResult.ExceptionResultBuilder result = ExceptionResult.builder();
+        ExceptionResult.ExceptionResultBuilder result = null;
         log.error("[客户端 HTTP 请求参数效验不通过]",e);
         result =  ExceptionResult.builder()
                 .respMsg(handle(e.getBindingResult().getFieldErrors()))
@@ -120,7 +120,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public  ResponseData<Object> handle(HttpMessageNotReadableException e, HttpServletRequest request){
-        ExceptionResult.ExceptionResultBuilder result = ExceptionResult.builder();
+         ExceptionResult.ExceptionResultBuilder result = null;
         log.error("[客户端请求体JSON 格式 错误 字段类型 不匹配]",e);
         result =  ExceptionResult.builder()
                 .timestamp(new Date())
@@ -141,7 +141,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(BindException.class)
     public  ResponseData<Object> handle(BindException e, HttpServletRequest request){
-        ExceptionResult.ExceptionResultBuilder result = ExceptionResult.builder();
+         ExceptionResult.ExceptionResultBuilder result = null;
         log.error("[客户端URL 中 的参数类型错误]",e);
         result =  ExceptionResult.builder()
                 .timestamp(new Date())
@@ -162,7 +162,7 @@ public class GlobalExceptionHandler {
      */ 
     @ExceptionHandler(ConstraintViolationException.class)
     public  ResponseData<Object> handle(ConstraintViolationException e, HttpServletRequest request){
-        ExceptionResult.ExceptionResultBuilder result = ExceptionResult.builder();
+         ExceptionResult.ExceptionResultBuilder result = null;
         log.error("[客户端请求参数效验不通过]",e);
         result =  ExceptionResult.builder()
                 .timestamp(new Date())
@@ -183,7 +183,7 @@ public class GlobalExceptionHandler {
      */ 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public  ResponseData<Object> handle(MissingServletRequestParameterException e, HttpServletRequest request){
-        ExceptionResult.ExceptionResultBuilder result = ExceptionResult.builder();
+         ExceptionResult.ExceptionResultBuilder result = null;
         log.error("[客户端请求缺少必填字段]",e);
         String errorMsg = null;
         String parameterName = e.getParameterName();
@@ -211,7 +211,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public  ResponseData<Object> handle(IllegalArgumentException e, HttpServletRequest request){
-        ExceptionResult.ExceptionResultBuilder result = ExceptionResult.builder();
+         ExceptionResult.ExceptionResultBuilder result = null;
         log.error("[业务方法参数检查不通过]",e);
      
         result =  ExceptionResult.builder()

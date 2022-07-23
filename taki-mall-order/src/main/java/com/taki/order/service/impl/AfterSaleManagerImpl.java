@@ -257,7 +257,7 @@ public class AfterSaleManagerImpl implements AfterSaleManager {
         List<AfterSaleItemDO> afterSaleItems = new ArrayList<>();
         orderItemDTOS.forEach(orderItemDTO -> {
             AfterSaleItemDO afterSaleItemDO = new AfterSaleItemDO();
-            afterSaleItemDO.setAfterSaleId(Long.valueOf(afterSaleId));
+            afterSaleItemDO.setAfterSaleId(afterSaleId);
             afterSaleItemDO.setOrderId(orderId);
             afterSaleItemDO.setOriginAmount(orderItemDTO.getOriginAmount());
             afterSaleItemDO.setProductImg(orderItemDTO.getProductImg());
@@ -283,7 +283,7 @@ public class AfterSaleManagerImpl implements AfterSaleManager {
      */
     private void insertCancelOrderAfterSaleInfoTable(OrderInfoDO orderInfoDO, Integer cancelOrderAfterSaleStatus, AfterSaleInfoDO afterSaleInfoDO, String afterSaleId) {
 
-        afterSaleInfoDO.setAfterSaleId(Long.valueOf(afterSaleId));
+        afterSaleInfoDO.setAfterSaleId(afterSaleId);
         afterSaleInfoDO.setBusinessIdentifier(BusinessIdentifierEnum.SELF_MALL.getCode());
         afterSaleInfoDO.setOrderId(orderInfoDO.getOrderId());
         afterSaleInfoDO.setOrderSourceChannel(BusinessIdentifierEnum.SELF_MALL.getCode());

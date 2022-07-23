@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class MarketRemote {
 
-    @DubboReference
+    @DubboReference(version = "1.0.0",retries = 0)
     private MarketApi marketApi;
 
 

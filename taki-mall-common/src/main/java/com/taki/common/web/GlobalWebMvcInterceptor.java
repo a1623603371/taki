@@ -43,7 +43,7 @@ public class GlobalWebMvcInterceptor implements HandlerInterceptor {
 
         // 处理其他全局参数  token 等
 
-        return false;
+        return true;
     }
 
     @Override

@@ -108,17 +108,11 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
     private AfterSaleLogDAO afterSaleLogDAO;
 
     @Autowired
-    private DefaultProducer defaultProducer;
-
-    @Autowired
     private CancelOrderSendReleaseAssetsProducer cancelOrderSendReleaseAssetsProducer;
 
 
     @Autowired
     private AfterSaleApplySendActualRefundProducer afterSaleApplySendActualRefundProducer;
-
-    @Autowired
-    private RefundOrderSendReleaseCouponProducer refundOrderSendReleaseCouponProducer;
 
     @Autowired
     private OrderNoManager orderNoManager;
@@ -131,14 +125,7 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
     @Autowired
     private AfterSaleManager afterSaleManager;
 
-
-    @DubboReference
-    private FulFillApi fulFillApi;
-
-    @DubboReference
-    private CustomerApi customerApi;
-
-    @DubboReference
+    @Autowired
     private PayRemote payRemote;
 
     private Integer returnGoodsItemNum = 1;
@@ -209,6 +196,7 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
              */
 
             List<AfterSaleItemDO> afterSaleItems = afterSaleItemDao.getOrderIdAndSkuCode(orderId,skuCode);
+
             if (!afterSaleItems.isEmpty()){
                 String afterSaleId = afterSaleItems.get(0).getAfterSaleId();
                 // 用售后 id 查询 支付表

@@ -24,120 +24,88 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 @TableName("order_info")
-@ApiModel(value = "OrderInfoDO对象", description = "")
 public class OrderInfoDO extends BaseEntity implements Serializable{
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty("接入方业务标识 1，自营商城")
+   //("接入方业务标识 1，自营商城")
     @TableField("business_identifier")
     private Integer businessIdentifier;
 
-    @ApiModelProperty("订单编号")
+   //("订单编号")
     @TableField("order_id")
     private String orderId;
 
-    @ApiModelProperty("订单状态 10：已创建，30 ：已履约，40：已出库 	50 ：已配送 60：已签收 70：已取消 100： 已拒收	255 ：无效订单")
+   //("订单状态 10：已创建，30 ：已履约，40：已出库 	50 ：已配送 60：已签收 70：已取消 100： 已拒收	255 ：无效订单")
     @TableField("order_status")
     private Integer orderStatus;
 
-    @ApiModelProperty("订单取消类型")
+   //("订单取消类型")
     @TableField("cancel_type")
     private Integer cancelType;
 
-    @ApiModelProperty("取消时间")
+   //("取消时间")
     @TableField("cancel_time")
     private LocalDateTime cancelTime;
 
-    @ApiModelProperty("卖家编号")
+  //("卖家编号")
     @TableField("seller_id")
     private String sellerId;
 
-    @ApiModelProperty("父订单编号")
+    //("父订单编号")
     @TableField("parent_order_id")
     private String parentOrderId;
 
-    @ApiModelProperty("接入系统id")
+    //("接入系统id")
     @TableField("business_order_id")
     private String businessOrderId;
 
-    @ApiModelProperty("订单类型：1 一般类型 255 其他类型")
+   //("订单类型：1 一般类型 255 其他类型")
     @TableField("order_type")
     private Integer orderType;
 
-    @ApiModelProperty("用户id")
+    //("用户id")
     @TableField("user_id")
     private String userId;
 
-    @ApiModelProperty("订单总金额")
+    //("订单总金额")
     @TableField("total_amount")
     private BigDecimal totalAmount;
 
-    @ApiModelProperty("支付金额")
+    //("支付金额")
     @TableField("pay_amount")
     private BigDecimal payAmount;
 
-    @ApiModelProperty("支付方式 1.支付宝，2微信，3银联")
+   //("支付方式 1.支付宝，2微信，3银联")
     @TableField("pay_type")
     private Integer payType;
 
-    @ApiModelProperty("使用优惠券编号")
+   //("使用优惠券编号")
     @TableField("coupon_id")
     private String couponId;
 
-    @ApiModelProperty("支付时间")
+    //("支付时间")
     @TableField("pay_time")
     private LocalDateTime payTime;
 
-    @ApiModelProperty("支付订单截止时间")
+    //("支付订单截止时间")
     @TableField("expire_time")
     private LocalDateTime expireTime;
 
-    @ApiModelProperty("支付方式代码")
-    @TableField("payment_code")
-    private String paymentCode;
 
-    @ApiModelProperty("折扣金额")
-    @TableField("discount_amount")
-    private BigDecimal discountAmount;
-
-    @ApiModelProperty("优惠券金额")
-    @TableField("coupon_amount")
-    private BigDecimal couponAmount;
-
-    @ApiModelProperty("应付金额，订单总金额 - 促销活动折扣金额 - 优惠券抵扣金额 + 运费")
-    @TableField("payable_amount")
-    private BigDecimal payableAmount;
-
-    @ApiModelProperty("发票抬头")
-    @TableField("invoice_title")
-    private String invoiceTitle;
-
-    @ApiModelProperty("纳税人号")
-    @TableField("taxpayer_id")
-    private String taxpayerId;
-
-    @ApiModelProperty("确认收货时间")
-    @TableField("confirm_receipt_time")
-    private LocalDateTime confirmReceiptTime;
-
-    @ApiModelProperty("订单备注")
+   //("订单备注")
     @TableField("user_remark")
     private String userRemark;
 
-    @ApiModelProperty("订单删除状态：0：未删除 1 已删除")
+   //("订单删除状态：0：未删除 1 已删除")
     @TableField("delete_status")
     private Integer deleteStatus;
 
-    @ApiModelProperty("是否评论 0 未评论 1 已评论")
+    //("是否评论 0 未评论 1 已评论")
     @TableField("comment_status")
     private Integer commentStatus;
 
-    @ApiModelProperty("运费")
-    @TableField("freigth")
-    private BigDecimal freigth;
-
-    @ApiModelProperty("扩展信息")
+   //("扩展信息")
     @TableField("ext_json")
     private String extJson;
 

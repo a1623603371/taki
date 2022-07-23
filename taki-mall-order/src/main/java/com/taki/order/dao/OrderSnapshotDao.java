@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.taki.common.BaseDAO;
 import com.taki.order.domain.entity.OrderSnapshotDO;
 import com.taki.order.mapper.OrderSnapshotMapper;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ import java.util.List;
  * @Date 2022/1/2 16:22
  * @Version 1.0
  */
+@Repository
 public class OrderSnapshotDao extends BaseDAO<OrderSnapshotMapper, OrderSnapshotDO> {
 
     public List<OrderSnapshotDO> listByOrderId(String orderId) {

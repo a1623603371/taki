@@ -58,7 +58,7 @@ import java.util.List;
  * @Version 1.0
  */
 @Slf4j
-@DubboService(version = "1.0.0",retries = 0)
+@DubboService(version = "1.0.0",interfaceClass = AfterSaleApi.class,retries = 0)
 public class AfterSaleApiImpl implements AfterSaleApi {
 
 

@@ -5,6 +5,7 @@ import com.taki.order.mq.config.RocketMQProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.TransactionMQProducer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * @ClassName LackItemProducer
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @Version 1.0
  */
 @Slf4j
+@Component
 public class LackItemProducer extends AbstractTransactionProducer{
 
 

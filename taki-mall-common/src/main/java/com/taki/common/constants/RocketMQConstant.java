@@ -132,7 +132,13 @@ public class RocketMQConstant {
     public static  final  String   RELEASE_INVENTORY_CONSUMER_GROUP = "release_inventory_consumer_group";
 
     /**
-     * 监听释放资产分组
+     * 监听释放资产 PRODUCER 分组
+     */
+    public static  final  String    RELEASE_ASSETS_PRODUCER_GROUP = "release_assets_producer_group";
+
+
+    /**
+     * 监听释放资产 CONSUMER 分组
      */
     public static  final  String    RELEASE_ASSETS_CONSUMER_GROUP = "release_assets_consumer_group";
 

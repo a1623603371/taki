@@ -20,7 +20,7 @@ public class CancelOrderSendPreparationProducer extends AbstractTransactionProdu
     @Autowired
     public CancelOrderSendPreparationProducer(RocketMQProperties rocketMQProperties) {
 
-        transactionMQProducer = new TransactionMQProducer(RocketMQConstant.ACTUAL_REFUND_CONSUMER_GROUP);
+        transactionMQProducer = new TransactionMQProducer(RocketMQConstant.ACTUAL_REFUND_PRODUCER_GROUP);
         transactionMQProducer.setNamesrvAddr(rocketMQProperties.getNameServer());
         start();
 

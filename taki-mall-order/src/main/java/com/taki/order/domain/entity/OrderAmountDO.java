@@ -24,30 +24,23 @@ import lombok.experimental.Accessors;
 @Setter
 @Accessors(chain = true)
 @TableName("order_amount")
-@ApiModel(value = "OrderAmountDO对象", description = "订单费⽤表")
 public class OrderAmountDO extends BaseEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty("订单编号")
+    //"订单编号")
     @TableField("order_id")
     private String orderId;
 
-    @ApiModelProperty("收费类型")
+    //("收费类型")
     @TableField("amount_type")
     private Integer amountType;
 
-    @ApiModelProperty("收费⾦额")
+    //("收费⾦额")
     @TableField("amount")
     private BigDecimal amount;
 
-    @ApiModelProperty("创建时间")
-    @TableField("gmt_create")
-    private LocalDateTime gmtCreate;
 
-    @ApiModelProperty("更新时间")
-    @TableField("gmt_modified")
-    private LocalDateTime gmtModified;
 
 
     public static final String ORDER_ID = "order_id";
@@ -56,9 +49,6 @@ public class OrderAmountDO extends BaseEntity implements Serializable {
 
     public static final String AMOUNT = "amount";
 
-    public static final String GMT_CREATE = "gmt_create";
-
-    public static final String GMT_MODIFIED = "gmt_modified";
 
 
 }

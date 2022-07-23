@@ -56,7 +56,7 @@ public class AfterSaleQueryApiImpl implements AfterSaleQueryApi {
             //1.参数效验
             ParamCheckUtil.checkObjectNonNull(afterSaleId, OrderErrorCodeEnum.AFTER_SALE_ID_IS_NULL);
 
-            return ResponseData.success(afterSaleQueryService.afterSaleDetail(afterSaleId));
+            return ResponseData.success(afterSaleQueryService.afterSaleDetail(String.valueOf(afterSaleId)));
         }catch (OrderBizException e){
             log.error("biz error",e);
 

@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 public class XxlJobConfig {
 
-    @Value("${xxl.job.admin.address}")
+    @Value("${xxl.job.admin.addresses}")
     private String adminAddress;
 
     @Value("${xxl.job.executor.appname}")

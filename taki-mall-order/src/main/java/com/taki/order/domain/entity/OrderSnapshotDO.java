@@ -23,20 +23,19 @@ import lombok.experimental.Accessors;
 @Setter
 @Accessors(chain = true)
 @TableName("order_snapshot")
-@ApiModel(value = "OrderSnapshotDO对象", description = "订单快照表")
 public class OrderSnapshotDO extends BaseEntity implements Serializable{
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty("订单号")
+    //"订单号"
     @TableField("order_id")
     private String orderId;
 
-    @ApiModelProperty("快照类型")
+    //"快照类型"
     @TableField("snapshot_type")
     private Integer snapshotType;
 
-    @ApiModelProperty("订单快照内容")
+   //"订单快照内容"
     @TableField("snapshot_json")
     private String snapshotJson;
 

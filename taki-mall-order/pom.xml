@@ -19,6 +19,12 @@
 
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
         <!--核心包-->
         <dependency>
             <groupId>com.taki</groupId>

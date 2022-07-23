@@ -28,7 +28,7 @@ public class LogAopConfig {
     private Logger log = LoggerFactory.getLogger(LogAopConfig.class);
 
 
-    @Pointcut("within(@org.springframework.web.bind.annotation.RestController)")
+    @Pointcut("within(@org.springframework.web.bind.annotation.RestController *)")
     public void apiLogAop(){
 
     }

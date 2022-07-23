@@ -19,7 +19,7 @@ public class CancelOrderSendReleaseAssetsProducer extends AbstractTransactionPro
     @Autowired
     public CancelOrderSendReleaseAssetsProducer(RocketMQProperties rocketMQProperties) {
 
-        transactionMQProducer = new TransactionMQProducer(RocketMQConstant.ACTUAL_REFUND_PRODUCER_GROUP);
+        transactionMQProducer = new TransactionMQProducer(RocketMQConstant.RELEASE_ASSETS_PRODUCER_GROUP);
         transactionMQProducer.setNamesrvAddr(rocketMQProperties.getNameServer());
         start();
 

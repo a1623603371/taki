@@ -21,6 +21,8 @@ import com.taki.order.domain.query.OrderQuery;
 import com.taki.order.domain.request.RemoveOrderRequest;
 import com.taki.order.domain.request.*;
 import com.taki.order.mq.producer.DefaultProducer;
+import com.taki.order.service.OrderInfoService;
+import com.taki.order.service.OrderQueryService;
 import com.taki.order.service.impl.OrderFulFillServiceImpl;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -44,12 +46,14 @@ import org.springframework.web.bind.annotation.*;
 public class OrderTestController {
 
 
-    @DubboReference(version = "1.0.0",retries = 0)
-    private OrderApi orderInfoService;
+    @Autowired
+    private OrderInfoService orderInfoService;
 
 
-    @DubboReference(version = "1.0.0",retries = 0)
-    private OrderQueryApi orderQueryApi;
+    @Autowired
+    private OrderQueryService orderQueryService;
+
+
 
 
     @DubboReference(version = "1.0.0",retries = 0)
@@ -75,7 +79,7 @@ public class OrderTestController {
     @PostMapping("/genOrderId")
     public ResponseData<GenOrderIdDTO> genOrderId(@RequestBody GenOrderIdRequest genOrderIdRequest){
 
-        return  orderInfoService.genOrderId(genOrderIdRequest);
+        return ResponseData.success(orderInfoService.getGenOrderId(genOrderIdRequest)) ;
     }
 
     /**
@@ -89,7 +93,7 @@ public class OrderTestController {
     @PostMapping("/createOrder")
     public  ResponseData<CreateOrderDTO> createOrder(@RequestBody CreateOrderRequest createOrderRequest){
 
-        return orderInfoService.createOrder(createOrderRequest);
+        return ResponseData.success(orderInfoService.createOrder(createOrderRequest));
     }
 
 
@@ -104,7 +108,7 @@ public class OrderTestController {
     @PostMapping("/prepayOrder")
     public ResponseData<PrePayOrderDTO> prepayOrder(@RequestBody PrePayOrderRequest payOrderRequest) {
 
-        return orderInfoService.prePayOrder(payOrderRequest);
+        return  ResponseData.success(orderInfoService.prePayOrder(payOrderRequest));
     }
 
     /**
@@ -117,9 +121,8 @@ public class OrderTestController {
     @ApiOperation("支付回调")
     @PostMapping("/payCallback")
     public ResponseData<Boolean> payCallback(@RequestBody PayCallbackRequest payCallbackRequest){
-
-
-        return orderInfoService.payCallback(payCallbackRequest);
+        orderInfoService.payCallback(payCallbackRequest);
+        return ResponseData.success(true);
     }
 
 
@@ -132,8 +135,9 @@ public class OrderTestController {
      */
     @ApiOperation("移除订单")
     @PostMapping("/removeOrders")
-    public ResponseData<RemoveOrderDTO> removeOrder(@RequestBody RemoveOrderRequest removeOrderRequest){
-        return  orderInfoService.removeOrder(removeOrderRequest);
+    public ResponseData<RemoveOrderDTO> removeOrders(@RequestBody RemoveOrderRequest removeOrderRequest){
+      //  return  orderInfoService.removeOrder(removeOrderRequest);
+        return null;
     }
 
     /** 
@@ -146,8 +150,8 @@ public class OrderTestController {
     @ApiOperation("调整订单地址")
     @PostMapping("/adjustDeliveryAddress")
     public ResponseData<AdjustDeliveryAddressDTO>  adjustDeliveryAddress(@RequestBody AdjustDeliveryAddressRequest adjustDeliveryAddressRequest){
-
-        return orderInfoService.adjustDeliveryAddress(adjustDeliveryAddressRequest);
+        Boolean result =   orderInfoService.adjustDeliveryAddress(adjustDeliveryAddressRequest);
+        return ResponseData.success(new AdjustDeliveryAddressDTO(result));
     }
 
     /**
@@ -161,7 +165,7 @@ public class OrderTestController {
     @PostMapping("/listOrders")
     public  ResponseData<PagingInfo<OrderListDTO>> listOrders(@RequestBody OrderQuery orderQuery){
 
-        return orderQueryApi.listOrders(orderQuery);
+        return ResponseData.success(orderQueryService.executeListOrderQuery(orderQuery));
     }
 
     /**
@@ -172,10 +176,12 @@ public class OrderTestController {
      * @date: 2022/3/3 23:21
      */
     @ApiOperation("订单详情")
-    @PostMapping("/listOrders")
-    public ResponseData<OrderDetailDTO> orderDetail(@RequestParam("orderId") String orderId){
-
-        return orderQueryApi.orderDetail(orderId);
+    @GetMapping("/orderDetail")
+    public ResponseData<OrderDetailDTO> orderDetail(@RequestParam("orderId") String orderId) throws Exception {
+//        if (true) {
+//            throw new Exception();
+//        }
+        return ResponseData.success(orderQueryService.orderDetail(orderId));
     }
 
     /**
@@ -226,7 +232,7 @@ public class OrderTestController {
      * @date: 2022/3/3 23:25
      */
     @ApiOperation("触发订单收货")
-    @PostMapping("/triggerOrderDeliveredWmsEvent")
+    @PostMapping("/triggerOrderSignedWmsEvent")
     public ResponseData<Boolean> triggerOrderSignedWmsEvent( @RequestParam("orderId")  String orderId,
                                                              @RequestParam("fulfillId") String fulfillId,@RequestBody OrderSignedWmsEvent event){
         log.info("orderId={},fulfillId = {},event={}",event.getOrderId(),fulfillId ,JSONObject.toJSONString(event));

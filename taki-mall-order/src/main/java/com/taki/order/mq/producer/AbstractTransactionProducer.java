@@ -28,7 +28,7 @@ public abstract class AbstractTransactionProducer {
         try {
             this.transactionMQProducer.start();
         } catch (MQClientException e) {
-            log.error("producer  start error");
+            log.error("producer  start error={}",e);
         }
 
     }
