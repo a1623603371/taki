@@ -17,7 +17,12 @@ public class OrderApplication {
 
 
     public static void main(String[] args) {
-        SpringApplication.run(OrderApplication.class,args);
+        try {
+            SpringApplication.run(OrderApplication.class,args);
+        }catch (Exception e){
+           e.printStackTrace();
+        }
+
     }
 
 

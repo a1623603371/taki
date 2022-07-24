@@ -12,9 +12,9 @@ import org.springframework.context.annotation.Import;
  * @Description  工具自动主人配置
  * @Author Long
  * @Date 2022/1/15 15:10
- * @Version 1.0  ,DefaultWebMvcConfigurer.class,
+ * @Version 1.0  ,
  */
 @Configuration
-@Import({RedisLock.class, SpringApplicationContext.class, RedisConfig.class,MybatisPlusConfig.class})
+@Import({RedisLock.class, SpringApplicationContext.class,DefaultWebMvcConfigurer.class, RedisConfig.class,MybatisPlusConfig.class})
 public class CommonAutoConfiguration {
 }

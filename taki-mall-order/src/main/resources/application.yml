@@ -123,6 +123,7 @@ dubbo:
     threads: 800
     actives: 200
 
+
 #***************rocketMq 配置********************
 rocketmq:
   name-server: localhost:8091

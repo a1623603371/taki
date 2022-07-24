@@ -117,12 +117,12 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-logging</artifactId>
-                <exclusions>
-                    <exclusion>
-                        <groupId>*</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions>
+<!--                <exclusions>-->
+<!--                    <exclusion>-->
+<!--                        <groupId>*</groupId>-->
+<!--                        <artifactId>*</artifactId>-->
+<!--                    </exclusion>-->
+<!--                </exclusions>-->
             </dependency>
             <!--swagger -->
             <dependency>
@@ -181,7 +181,6 @@
             </dependency>
 
 
-
             <!-- httpClient 工具 -->
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
@@ -231,13 +230,6 @@
                 <version>${redisson.version}</version>
             </dependency>
 
-
-            <!-- dubbo -->
-            <dependency>
-                <groupId>com.alibaba.cloud</groupId>
-                <artifactId>spring-cloud-starter-dubbo</artifactId>
-                <version>${spring.dubbo.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>org.apache.dubbo</groupId>

@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: taki-eshop-inventory
+  profiles:
+    active: local
+  cloud:
+    nacos:
+      config:
+        namespace: 1bb72209-82b9-46ed-a0ed-ae812b722ca4
+        shared-configs:
+          - data-id: taki-eshop-common-${spring.profiles.active}.yaml
+            group: DEFAULT_GROUP
+            refresh: true
+          - data-id: taki-eshop-inventory-${spring.profiles.active}.yaml
+            group: DEFAULT_GROUP
+            refresh: true
+        server-addr: 192.168.33.12:8848
+        file-extension: yaml
+        username: nacos
+        password: nacos
+
+
