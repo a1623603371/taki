@@ -1,16 +1,16 @@
 server:
-  port: 9300
+  port: 9006
 
 
 spring:
   application:
-    name: taki-mall-risk
+    name: taki-mall-market
   # *****************数据库***********************
   datasource:
     # 数据库连接池
     type: com.alibaba.druid.pool.DruidDataSource
     #数据库连接地址
-    url: jdbc:mysql://192.168.33.11:3306/taki-mall?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull
+    url: jdbc:mysql://192.168.33.11:3306/taki_eshop_market?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password: Pzk2020@
     # 数据库驱动
@@ -81,42 +81,19 @@ spring:
         allow: 127.0.0.1
         # 黑名单
         deny: 192.168.33.11
-
-#************ nacos 配置 *****************
-  cloud:
-    nacos:
-      discovery:
-        server-addr: localhost:8084
-
-
-
-#********Mybatis-plus**********
-
-mybatis-plus:
-  configuration:
-    # 日志打印
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-    # 驼峰命名
-    map-underscore-to-camel-case: true
-  mapper-locations: classpath:mapper/*.xml
-
-
 #********************dubbo 配置**************************
 dubbo:
   scan:
-    base-packages: com.taki.order.api
+    base-packages: com.taki.market.api
   registry:
-    address: spring-cloud://localhost
-  protocol:
+    address: spring-cloud://192.168.33.12
     name: dubbo
-    port: 28085
+    port: 20880
   consumer:
     check: false
   provider:
     threads: 800
     actives: 200
-
-#***************rocketMq 配置********************
-rocketmq:
-  name-server: localhost:8091
-
+    port: 20880
+  cloud:
+    subscribed-services: taki-eshop-market

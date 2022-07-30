@@ -1,16 +1,16 @@
 server:
-  port: 9002
+  port: 9001
 
 
 spring:
   application:
-    name: taki-mall-market
+    name: taki-mall-inventory
   # *****************数据库***********************
   datasource:
     # 数据库连接池
     type: com.alibaba.druid.pool.DruidDataSource
     #数据库连接地址
-    url: jdbc:mysql://192.168.33.11:3306/taki-mall?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull
+    url: jdbc:mysql://192.168.33.11:3306/taki-eshop-inventory?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password: Pzk2020@
     # 数据库驱动
@@ -81,50 +81,62 @@ spring:
         allow: 127.0.0.1
         # 黑名单
         deny: 192.168.33.11
-
-#************ nacos 配置 *****************
-  cloud:
+  #***************Redis 配置**********************
+  redis:
+    host: 192.168.33.11
+    port: 6379
+    password: redis
+    timeout: 3000
+#***************rocketMq 配置********************
+rocketmq:
+  name-server: 192.168.33.13:9876
+#**************SEATA 配置 **********************
+# seata:
+#   tx-service-group: my_test_tx_group
+#   service:
+#     grouplist:
+#       defult: 192.168.33.12:8091
+#     vgroup-mapping:
+#       my_test_tx_group: defult
+seata:
+  enable-auto-data-source-proxy: false # 如果引入的是seata-spring-boot-starter 请关闭自动代理，需要关闭自动代理
+  application-id: seata-server # Seata应用的名称
+  tx-service-group: my_test_tx_group # 事务组
+  service:
+    vgroup-mapping:
+      my_test_tx_group: default
+  config:
+    type: nacos
     nacos:
-      discovery:
-        server-addr: localhost:8084
-
-#********Mybatis-plus**********
-
-mybatis-plus:
-  configuration:
-    # 日志打印
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-    # 驼峰命名
-    map-underscore-to-camel-case: true
-  mapper-locations: classpath:mapper/*.xml
-
+      server-addr: 192.168.33.12:8848 # Nacos服务地址
+      namespace: seata # Seata的NameSpace ID
+      group: SEATA_GROUP
+      username: nacos
+      password: nacos
+  registry:
+    type: nacos # 基于Nacos实现分布式事务管理
+    nacos:
+      server-addr: 192.168.33.12:8848 # Nacos服务地址
+      namespace: seata # Seata的NameSpace ID
+      group: SEATA_GROUP
+      username: nacos
+      password: nacos
+      cluster: default
+      application: seata-server
 
 #********************dubbo 配置**************************
 dubbo:
   scan:
     base-packages: com.taki.order.api
   registry:
-    address: spring-cloud://localhost
-  protocol:
+    address: spring-cloud://192.168.33.12
     name: dubbo
-    port: 28085
+    port: 20880
   consumer:
     check: false
   provider:
     threads: 800
     actives: 200
-
-#***************rocketMq 配置********************
-rocketmq:
-  name-server: localhost:8091
-
-
-#**************SEATA 配置 **********************
-
-seata:
-  tx-service-group: taki-eshop-order-group
-  service:
-    grouplist:
-      taki-eshop-seata: 127.0.0.1:8091
-    vgroup-mapping:
-      taki-eshop-order-group: taki-eshop-seata
+    port: 20880
+  cloud:
+    subscribed-services: taki-eshop-order,taki-eshop-product,taki-eshop-market,taki-eshop-inventory,taki-eshop-pay,taki-eshop-customer,taki-eshop-risk,taki-eshop-address,taki-eshop-fulfill,taki-eshop-wms,taki-eshop-tms

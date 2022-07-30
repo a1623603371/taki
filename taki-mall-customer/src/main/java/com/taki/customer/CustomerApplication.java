@@ -1,22 +1,21 @@
-package com.taki.risk;
+package com.taki.customer;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
- * @ClassName RiskApplication
+ * @ClassName CustomerApplication
  * @Description TODO
  * @Author Long
- * @Date 2022/2/17 14:58
+ * @Date 2022/7/30 19:56
  * @Version 1.0
  */
 @SpringBootApplication
 @EnableDiscoveryClient
-public class RiskApplication {
-
+public class CustomerApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(RiskApplication.class,args);
+        SpringApplication.run(CustomerApplication.class,args);
     }
 }
