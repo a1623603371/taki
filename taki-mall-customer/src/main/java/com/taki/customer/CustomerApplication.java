@@ -11,7 +11,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * @Date 2022/7/30 19:56
  * @Version 1.0
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.taki.common"})
 @EnableDiscoveryClient
 public class CustomerApplication {
 

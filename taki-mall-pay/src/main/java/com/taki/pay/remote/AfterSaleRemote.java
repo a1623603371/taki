@@ -5,6 +5,7 @@ import com.taki.order.api.AfterSaleApi;
 import com.taki.order.domain.request.RefundCallbackRequest;
 import com.taki.pay.exception.PayBizException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class AfterSaleRemote {
 
-    @Autowired
+    @DubboReference(version = "1.0.0",retries = 0)
     private AfterSaleApi afterSaleApi;
 
 

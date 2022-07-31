@@ -41,6 +41,7 @@
         <module>taki-mall-tms-api</module>
         <module>taki-mall-tms</module>
         <module>taki-mall-gateway</module>
+        <module>taki-mall-address</module>
     </modules>
 
 
