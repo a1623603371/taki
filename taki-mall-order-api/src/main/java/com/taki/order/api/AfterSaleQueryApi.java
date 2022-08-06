@@ -1,11 +1,10 @@
 package com.taki.order.api;
 
 import com.taki.common.page.PagingInfo;
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.order.domain.dto.AfterSaleOrderDetailDTO;
 import com.taki.order.domain.dto.AfterSaleOrderListDTO;
 import com.taki.order.domain.query.AfterSaleQuery;
-import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * @ClassName AfterSaleQueryApi

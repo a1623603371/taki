@@ -1,6 +1,6 @@
 package com.taki.tms.service.impl;
 
-import com.taki.common.utlis.RandomUtil;
+import com.taki.common.utli.RandomUtil;
 import com.taki.tms.dao.LogisticOrderDao;
 import com.taki.tms.domain.dto.PlaceLogisticOrderDTO;
 import com.taki.tms.domain.dto.SendOutDTO;
@@ -11,7 +11,6 @@ import com.taki.tms.service.LogisticOrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.PlaceholderConfigurerSupport;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

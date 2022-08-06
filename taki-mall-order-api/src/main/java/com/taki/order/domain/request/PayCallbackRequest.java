@@ -38,7 +38,7 @@ public class PayCallbackRequest extends AbstractObject implements Serializable {
     /**
      * 支付系统交易Id
      */
-    private String outTraderNo;
+    private String outTradeNo;
 
     /**
      * 支付类型

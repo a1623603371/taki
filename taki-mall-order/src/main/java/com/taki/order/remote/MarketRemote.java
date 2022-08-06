@@ -1,6 +1,6 @@
 package com.taki.order.remote;
 
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.market.api.MarketApi;
 import com.taki.market.domain.dto.CalculateOrderAmountDTO;
 import com.taki.market.request.CalculateOrderAmountRequest;
@@ -35,7 +35,7 @@ public class MarketRemote {
 
         ResponseData<CalculateOrderAmountDTO> responseResult = marketApi.calculateOrderAmount(calculateOrderAmountRequest);
 
-        if (responseResult.getSuccess()){
+        if (!responseResult.getSuccess()){
             log.error("调用营销服务计算价格失败错误信息：{}",responseResult.getMessage());
             throw new OrderBizException(responseResult.getCode(),responseResult.getMessage());
         }

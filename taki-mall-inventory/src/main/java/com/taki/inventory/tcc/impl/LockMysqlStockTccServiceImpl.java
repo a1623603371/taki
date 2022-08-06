@@ -1,11 +1,10 @@
 package com.taki.inventory.tcc.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import com.taki.common.constants.RedisLockKeyConstants;
 import com.taki.common.redis.RedisLock;
-import com.taki.common.utlis.LoggerFormat;
-import com.taki.common.utlis.MdcUtil;
+import com.taki.common.utli.LoggerFormat;
+import com.taki.common.utli.MdcUtil;
 import com.taki.inventory.dao.ProductStockDao;
 import com.taki.inventory.dao.ProductStockLogDao;
 import com.taki.inventory.domain.dto.DeductStockDTO;
@@ -16,7 +15,6 @@ import com.taki.inventory.tcc.TccResultHolder;
 import io.seata.rm.tcc.api.BusinessActionContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -112,8 +110,6 @@ public class LockMysqlStockTccServiceImpl implements LockMysqlStockTccService {
         if (!TccResultHolder.isTrySuccess(getClass(),skuCode,xid)){
             return;
         }
-        ExecutorService executorService = Executors.newCachedThreadPool();
-        Executors.newFixedThreadPool(20);
         // 1.增加已销售库存
         productStockDao.increaseSaledStock(skuCode,saleQuantity);
         //移除标识
@@ -142,7 +138,7 @@ public class LockMysqlStockTccServiceImpl implements LockMysqlStockTccService {
         logDO.setOriginSaleStockQuantity(originSaleStock);
         logDO.setOriginSaledStockQuantity(originSaledStocck);
         logDO.setDeductedSaleStockQuantity(originSaleStock - saleQuantity);
-        logDO.setIncreasedSaledStockQuantity(originSaleStock + saleQuantity);
+        logDO.setIncreasedSaledStockQuantity(originSaledStocck + saleQuantity);
 
         return logDO;
 
@@ -260,9 +256,17 @@ public class LockMysqlStockTccServiceImpl implements LockMysqlStockTccService {
 
         reverseStockLog.setOrderId(deductStock.getOrderId());
         reverseStockLog.setSkuCode(deductStock.getSkuCode());
+        reverseStockLog.setStatus(2);
 
-        reverseStockLog.setOriginSaleStockQuantity(latestLog.getOriginSaleStockQuantity() + saleQuantity);
-        reverseStockLog.setOriginSaledStockQuantity(latestLog.getOriginSaledStockQuantity() - saleQuantity);
+
+        if (latestLog.getOriginSaledStockQuantity().compareTo(0L) == 0){
+            reverseStockLog.setOriginSaleStockQuantity(latestLog.getOriginSaleStockQuantity());
+            reverseStockLog.setOriginSaledStockQuantity(latestLog.getOriginSaledStockQuantity());
+        }else {
+            reverseStockLog.setOriginSaleStockQuantity(latestLog.getOriginSaleStockQuantity() + saleQuantity);
+            reverseStockLog.setOriginSaledStockQuantity(latestLog.getOriginSaledStockQuantity() - saleQuantity);
+        }
+        reverseStockLog.setDeductedSaleStockQuantity(latestLog.getDeductedSaleStockQuantity() + saleQuantity);
         reverseStockLog.setDeductedSaleStockQuantity(latestLog.getDeductedSaleStockQuantity() + saleQuantity);
         reverseStockLog.setIncreasedSaledStockQuantity(latestLog.getIncreasedSaledStockQuantity() - saleQuantity);
 

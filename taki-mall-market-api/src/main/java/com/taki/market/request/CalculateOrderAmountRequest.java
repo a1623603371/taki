@@ -114,6 +114,6 @@ public class CalculateOrderAmountRequest  extends AbstractObject implements Seri
         /**
          * 费用
          */
-        private Integer amount;
+        private BigDecimal amount;
     }
 }

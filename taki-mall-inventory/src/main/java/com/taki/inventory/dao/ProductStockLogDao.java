@@ -31,7 +31,7 @@ public class ProductStockLogDao extends BaseDAO<ProductStockLogMapper, ProductSt
      */
     public ProductStockLogDO getLog(String orderId, String skuCode) {
 
-        return this.getOne(new QueryWrapper<ProductStockLogDO>().eq(ProductStockLogDO.ORDER_ID,orderId).eq(ProductStockLogDO.SKU_CODE,skuCode)) ;
+        return this.getOne(new QueryWrapper<ProductStockLogDO>().eq(ProductStockLogDO.ORDER_ID,orderId).eq(ProductStockLogDO.SKU_CODE,skuCode).eq(ProductStockLogDO.STATUS,1)) ;
 
     }
 

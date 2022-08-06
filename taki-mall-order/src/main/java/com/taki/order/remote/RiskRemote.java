@@ -1,12 +1,11 @@
 package com.taki.order.remote;
 
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.order.exception.OrderBizException;
 import com.taki.risk.api.RiskApi;
 import com.taki.risk.domain.dto.CheckOrderRiskDTO;
 import com.taki.risk.domain.request.CheckOrderRiskRequest;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,7 +19,7 @@ import org.springframework.stereotype.Component;
 public class RiskRemote {
 
 
-    @DubboReference(version = "1.0.0",retries = 1)
+    @DubboReference(version = "1.0.0",retries = 0)
     private RiskApi riskApi;
 
     /** 

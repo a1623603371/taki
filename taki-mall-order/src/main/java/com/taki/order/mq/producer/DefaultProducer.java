@@ -34,6 +34,7 @@ public class DefaultProducer {
      //   this.producer =
         this.producer = new TransactionMQProducer(RocketMQConstant.ORDER_DEFAULT_PRODUCER_GROUP);
         producer.setNamesrvAddr(rocketMQProperties.getNameServer());
+        producer.setSendMsgTimeout(6000);
         start();
     }
     /*** 

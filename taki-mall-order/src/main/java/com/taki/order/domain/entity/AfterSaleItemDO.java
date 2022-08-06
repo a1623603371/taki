@@ -1,5 +1,6 @@
 package com.taki.order.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.taki.common.core.AbstractObject;
 import lombok.Data;
 
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
  * @Version 1.0
  */
 @Data
+@TableName("after_sale_item")
 public class AfterSaleItemDO extends AbstractObject implements Serializable {
 
 

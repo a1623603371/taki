@@ -3,7 +3,7 @@ package com.taki.order.bulider;
 import com.taki.common.enums.AmountTypeEnum;
 import com.taki.common.enums.OrderOperateTypeEnum;
 import com.taki.common.enums.OrderStatusEnum;
-import com.taki.common.utlis.ObjectUtil;
+import com.taki.common.utli.ObjectUtil;
 import com.taki.market.domain.dto.CalculateOrderAmountDTO;
 import com.taki.order.config.OrderProperties;
 import com.taki.order.domain.dto.OrderAmountDTO;
@@ -108,8 +108,8 @@ public class NewOrderBuilder {
 
         Integer expireTime = orderProperties.getExpireTime();
 
-        orderInfo.setExpireTime(LocalDateTime.ofEpochSecond(currentTimeMillis + expireTime / 1000,0, ZoneOffset.ofHours(8)));
-
+        orderInfo.setExpireTime(LocalDateTime.ofEpochSecond((currentTimeMillis + expireTime) / 1000 ,0, ZoneOffset.ofHours(8)));
+        //orderInfo.setExpireTime(LocalDateTime.now());
         orderInfo.setUserRemark(createOrderRequest.getUserRemark());
 
         orderInfo.setDeleteStatus(DeleteStatusEnum.NO.getCode());
@@ -118,6 +118,7 @@ public class NewOrderBuilder {
         fullOrderData.setOrderInfo(orderInfo);
         return this;
     }
+
 
     /** 
      * @description: 构建OrderItem对象
@@ -152,12 +153,13 @@ public class NewOrderBuilder {
                     orderItemDO.setSaleQuantity(orderItemRequest.getSaleQuantity());
                     break;
                 }
+            }
             orderItemDO.setSalePrice(productSkuDTO.getSalePrice());
             orderItemDO.setOriginAmount(orderItemDO.getSalePrice().multiply(new BigDecimal(orderItemDO.getSaleQuantity())));
 
             // 商品项目实际支付金额，默认是originAmount，当是 有优惠 抵扣 的时候需要 分摊
             BigDecimal realAmount = BigDecimal.ZERO;
-            List<OrderAmountDetailDO> orderAmountDetails = ObjectUtil.convertList(calculateOrderAmount.getOrderAmountDetailDTOList(),OrderAmountDetailDO.class);
+            List<OrderAmountDetailDTO> orderAmountDetails = ObjectUtil.convertList(calculateOrderAmount.getOrderAmountDetailDTOList(),OrderAmountDetailDTO.class);
 
             // 判断 是否存在优惠券抵扣费用
              orderAmountDetails = orderAmountDetails.stream().filter(
@@ -166,8 +168,8 @@ public class NewOrderBuilder {
 
             if (!orderAmountDetails.isEmpty()){
 
-                Map<Integer,OrderAmountDetailDO> orderAmountDetailDOMap = orderAmountDetails.stream().collect(
-                        Collectors.toMap(OrderAmountDetailDO::getAmountType, Function.identity()));
+                Map<Integer,OrderAmountDetailDTO> orderAmountDetailDOMap = orderAmountDetails.stream().collect(
+                        Collectors.toMap(OrderAmountDetailDTO::getAmountType, Function.identity()));
 
                 if (orderAmountDetailDOMap.get(AmountTypeEnum.COUPON_DISCOUNT_AMOUNT.getCode()) != null ){
 
@@ -187,7 +189,7 @@ public class NewOrderBuilder {
             orderItemDO.setSellerId(sellerId);
             orderItems.add(orderItemDO);
 
-            }
+
         }
         fullOrderData.setOrderItems(orderItems);
         return this;
@@ -297,7 +299,7 @@ public class NewOrderBuilder {
             orderAmountDetailDO.setProductType(orderAmountDetailDTO.getProductType());
 
             fullOrderData.getOrderItems().forEach(orderItemDO -> {
-                if (orderItemDO.getSkuCode().equals(orderAmountDetailDO.getSkuCode())){
+                if (orderItemDO.getSkuCode().equals(orderAmountDetailDTO.getSkuCode())){
                     orderAmountDetailDO.setOrderItemId(orderItemDO.getOrderItemId());
                     orderAmountDetailDO.setProductId(orderItemDO.getProductId());
                 }
@@ -305,7 +307,7 @@ public class NewOrderBuilder {
 
             orderAmountDetailDO.setSkuCode(orderAmountDetailDTO.getSkuCode());
             orderAmountDetailDO.setSaleQuantity(orderAmountDetailDTO.getSaleQuantity());
-            orderAmountDetailDO.setSalePrice(orderAmountDetailDO.getSalePrice());
+            orderAmountDetailDO.setSalePrice(orderAmountDetailDTO.getSalePrice());
             orderAmountDetailDO.setAmountType(orderAmountDetailDTO.getAmountType());
             orderAmountDetailDO.setAmount(orderAmountDetailDTO.getAmount());
             orderAmountDetails.add(orderAmountDetailDO);
@@ -351,7 +353,6 @@ public class NewOrderBuilder {
        if(StringUtils.isNotBlank(couponId)){
         //優惠券信息
         OrderSnapshotDO orderCouponSnapshot = new OrderSnapshotDO();
-
         orderCouponSnapshot.setOrderId(orderId);
         orderCouponSnapshot.setSnapshotType(SnapshotTypeEnum.ORDER_COUPON.getCode());
         orderCouponSnapshot.setSnapshotJson(null);
@@ -368,12 +369,11 @@ public class NewOrderBuilder {
 
         // 訂單條目信息
         OrderSnapshotDO orderItemSnapshot = new OrderSnapshotDO();
-
         orderItemSnapshot.setOrderId(orderId);
         orderItemSnapshot.setSnapshotType(SnapshotTypeEnum.ORDER_ITEM.getCode());
         orderItemSnapshot.setSnapshotJson(null);
         orderSnapshots.add(orderItemSnapshot);
-
+        fullOrderData.setOrderSnapshots(orderSnapshots);
         return this;
     }
 

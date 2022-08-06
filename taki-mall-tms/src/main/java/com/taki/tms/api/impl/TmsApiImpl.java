@@ -1,8 +1,7 @@
 package com.taki.tms.api.impl;
 
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.tms.api.TmsApi;
-import com.taki.tms.dao.LogisticOrderDao;
 import com.taki.tms.domain.dto.SendOutDTO;
 import com.taki.tms.domain.request.SendOutRequest;
 import com.taki.tms.exception.TmsBizException;
@@ -10,7 +9,6 @@ import com.taki.tms.service.LogisticOrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 /**
  * @ClassName TmsApiImpl

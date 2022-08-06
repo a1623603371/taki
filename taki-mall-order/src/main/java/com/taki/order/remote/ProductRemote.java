@@ -1,6 +1,6 @@
 package com.taki.order.remote;
 
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.order.exception.OrderBizException;
 import com.taki.product.api.ProductApi;
 import com.taki.product.domian.dto.ProductSkuDTO;

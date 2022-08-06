@@ -1,9 +1,10 @@
 package com.taki.risk.api.impl;
 
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.risk.api.RiskApi;
 import com.taki.risk.domain.dto.CheckOrderRiskDTO;
 import com.taki.risk.domain.request.CheckOrderRiskRequest;
+import org.apache.dubbo.config.annotation.DubboService;
 
 /**
  * @ClassName RiskApiImpl
@@ -12,6 +13,7 @@ import com.taki.risk.domain.request.CheckOrderRiskRequest;
  * @Date 2022/2/17 15:00
  * @Version 1.0
  */
+@DubboService(version = "1.0.0",interfaceClass = RiskApi.class)
 public class RiskApiImpl implements RiskApi {
     
     /** 

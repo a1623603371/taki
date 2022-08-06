@@ -1,5 +1,6 @@
 package com.taki.fulfill.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.taki.common.domin.BaseEntity;
 import lombok.Data;
 
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
  * @Version 1.0
  */
 @Data
+@TableName("order_fulfill")
 public class OrderFulfillDO extends BaseEntity implements Serializable {
 
 
@@ -28,7 +30,7 @@ public class OrderFulfillDO extends BaseEntity implements Serializable {
     /**
      * 履约单Id
      */
-    private String fulFillId;
+    private String fulfillId;
 
     /**
      * 订单Id

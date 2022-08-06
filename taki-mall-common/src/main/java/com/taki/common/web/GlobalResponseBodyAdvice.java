@@ -2,18 +2,17 @@ package com.taki.common.web;
 
 
 
-import com.taki.common.utlis.JsonUtil;
-import com.taki.common.utlis.ResponseData;
-import com.taki.common.utlis.ServletUtil;
-import io.swagger.models.Swagger;
+import com.taki.common.utli.JsonUtil;
+import com.taki.common.utli.ResponseData;
+import com.taki.common.utli.ServletUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import springfox.documentation.swagger.web.ApiResourceController;
 
@@ -27,7 +26,7 @@ import javax.servlet.http.HttpServletResponse;
  * @Version 1.0
  */
 @Slf4j
-@ControllerAdvice
+@RestControllerAdvice()
 public class GlobalResponseBodyAdvice<T> implements ResponseBodyAdvice<Object> {
     /**
      * @description: 是否开启结果响应拦截

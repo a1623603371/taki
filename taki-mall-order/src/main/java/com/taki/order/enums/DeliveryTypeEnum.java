@@ -50,7 +50,7 @@ public enum DeliveryTypeEnum {
 
         for (DeliveryTypeEnum element : DeliveryTypeEnum.values()) {
 
-            if (element.equals(code)){
+            if (element.getCode().equals(code)){
                 return element;
             }
 

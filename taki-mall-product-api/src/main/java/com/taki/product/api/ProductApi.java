@@ -1,6 +1,6 @@
 package com.taki.product.api;
 
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.product.domian.dto.ProductSkuDTO;
 import com.taki.product.domian.query.ListProductSkuQuery;
 import com.taki.product.domian.query.ProductSkuQuery;

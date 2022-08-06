@@ -121,7 +121,7 @@ public abstract class AbstractObject {
                     Field targetField = null;
 
                     try {
-                    targetField =getTargetClazzField(targetField,targetClazz);
+                    targetField =getTargetClazzField(thisField,targetClazz);
                     }catch (NoSuchFieldException e){
                         continue;
                     }
@@ -152,7 +152,7 @@ public abstract class AbstractObject {
                     Field targetField = null;
 
                     try {
-                        targetField =getTargetClazzField(targetField,targetClazz);
+                        targetField = getTargetClazzField(thisField,targetClazz);
                     }catch (NoSuchFieldException e){
                         continue;
                     }

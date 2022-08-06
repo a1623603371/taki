@@ -22,9 +22,9 @@ import com.baomidou.mybatisplus.core.toolkit.AES;
  */
 public class DBDataEncryption {
 
-    public static void main(String[] args) {
-        String randomKey = AES.generateRandomKey();
-        String result = AES.encrypt("hello word", randomKey);
-        System.out.println(result);
-    }
+//    public static void main(String[] args) {
+//        String randomKey = AES.generateRandomKey();
+//        String result = AES.encrypt("hello word", randomKey);
+//        System.out.println(result);
+//    }
 }

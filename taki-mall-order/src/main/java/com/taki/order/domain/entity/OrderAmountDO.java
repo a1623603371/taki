@@ -22,7 +22,6 @@ import lombok.experimental.Accessors;
  */
 @Getter
 @Setter
-@Accessors(chain = true)
 @TableName("order_amount")
 public class OrderAmountDO extends BaseEntity implements Serializable {
 

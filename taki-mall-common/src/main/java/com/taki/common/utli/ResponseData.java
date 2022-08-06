@@ -1,8 +1,6 @@
-package com.taki.common.utlis;
+package com.taki.common.utli;
 
 import com.taki.common.exception.BaseErrorCodeEnum;
-import com.taki.common.exception.ErrorCodeEnum;
-import com.taki.common.exception.ErrorCodeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

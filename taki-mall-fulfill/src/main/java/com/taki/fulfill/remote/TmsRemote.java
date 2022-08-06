@@ -1,13 +1,11 @@
 package com.taki.fulfill.remote;
 
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.fulfill.exection.FulfillBizException;
 import com.taki.tms.api.TmsApi;
 import com.taki.tms.domain.dto.SendOutDTO;
 import com.taki.tms.domain.request.SendOutRequest;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.apache.rocketmq.client.producer.SendResult;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**

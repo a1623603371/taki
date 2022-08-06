@@ -5,15 +5,13 @@ import com.taki.common.constants.RocketMQConstant;
 import com.taki.common.enums.OrderStatusChangEnum;
 import com.taki.common.message.PaidOrderSuccessMessage;
 import com.taki.common.page.PagingInfo;
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.fulfill.api.FulFillApi;
 import com.taki.fulfill.domain.evnet.OrderDeliveredWmsEvent;
 import com.taki.fulfill.domain.evnet.OrderOutStockWmsEvent;
 import com.taki.fulfill.domain.evnet.OrderSignedWmsEvent;
 import com.taki.fulfill.domain.request.ReceiveFulFillRequest;
 import com.taki.fulfill.domain.request.TriggerOrderWmsShipEventRequest;
-import com.taki.order.api.OrderApi;
-import com.taki.order.api.OrderQueryApi;
 import com.taki.order.dao.OrderInfoDao;
 import com.taki.order.domain.dto.*;
 import com.taki.order.domain.entity.OrderInfoDO;
@@ -28,7 +26,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -91,7 +88,7 @@ public class OrderTestController {
      */
     @ApiOperation("创建订单")
     @PostMapping("/createOrder")
-    public  ResponseData<CreateOrderDTO> createOrder(@RequestBody CreateOrderRequest createOrderRequest){
+    public  ResponseData<CreateOrderDTO> createOrder(@RequestBody CreateOrderRequest createOrderRequest)  {
 
         return ResponseData.success(orderInfoService.createOrder(createOrderRequest));
     }
@@ -105,7 +102,7 @@ public class OrderTestController {
      * @date: 2022/2/16 15:43
      */
     @ApiOperation("预支付")
-    @PostMapping("/prepayOrder")
+    @PostMapping("/prePayOrder")
     public ResponseData<PrePayOrderDTO> prepayOrder(@RequestBody PrePayOrderRequest payOrderRequest) {
 
         return  ResponseData.success(orderInfoService.prePayOrder(payOrderRequest));

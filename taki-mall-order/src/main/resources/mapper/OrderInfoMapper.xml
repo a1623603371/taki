@@ -23,8 +23,8 @@
         <result column="delete_status" property="deleteStatus"/>
         <result column="comment_status" property="commentStatus"/>
         <result column="ext_json" property="extJson"/>
-        <result column="create_time" property="createTime"/>
-        <result column="update_time" property="updateTime"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_modified" property="gmtModified"/>
     </resultMap>
 
     <!-- 通用查询结果列 -->
@@ -46,7 +46,7 @@
         o.coupon_id  as couponId,
         o.pay_time as payTime,
         o.pay_amount as payAmount,
-        o.user_remoark as userRemark,
+        o.user_remark as userRemark,
         o.comment_status as commentStatus,
         item.product_img as productImg,
         item.product_name as productName,
@@ -138,7 +138,7 @@
                 AND o.pay_amount <![CDATA[<=]]> #{query.payAmountInterval.right}
             </if>
         </where>
-        ORDER BY o.create_time DESC
+        ORDER BY o.gmt_create DESC
 
     </select>
 

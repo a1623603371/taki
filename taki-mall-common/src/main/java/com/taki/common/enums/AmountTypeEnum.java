@@ -54,7 +54,7 @@ public enum AmountTypeEnum {
 
         for (AmountTypeEnum element : AmountTypeEnum.values()) {
 
-            if (element.equals(code)){
+            if (element.getCode().equals(code)){
                 return element;
             }
 

@@ -1,8 +1,8 @@
 package com.taki.common.web;
 
 import com.taki.common.core.CoreConstants;
-import com.taki.common.utlis.MdcUtil;
-import com.taki.common.utlis.SnowFlake;
+import com.taki.common.utli.MdcUtil;
+import com.taki.common.utli.SnowFlake;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.HandlerInterceptor;
 

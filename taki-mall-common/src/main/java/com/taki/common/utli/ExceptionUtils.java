@@ -1,4 +1,4 @@
-package com.taki.common.utlis;
+package com.taki.common.utli;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

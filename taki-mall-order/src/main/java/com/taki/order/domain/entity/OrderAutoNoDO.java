@@ -18,7 +18,6 @@ import java.io.Serializable;
  */
 @Getter
 @Setter
-@Accessors(chain = true)
 @TableName("order_auto_no")
 public class OrderAutoNoDO extends BaseEntity implements Serializable {
 }

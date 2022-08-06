@@ -3,7 +3,7 @@ package com.taki.order.remote;
 import com.taki.address.api.AddressApi;
 import com.taki.address.domian.dto.AddressDTO;
 import com.taki.address.domian.request.AddressQuery;
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Component;
 

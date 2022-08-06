@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Import;
  * @version 1.0
  */
 @Configuration
-@Import(value = {GlobalExceptionHandler.class , GlobalResponseBodyAdvice.class})
+@Import(value = {GlobalExceptionHandler.class ,GlobalResponseBodyAdvice.class})
 public class WebConfiguration {
 
     @Bean

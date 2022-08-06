@@ -1,8 +1,8 @@
 package com.taki.common.dubbo;
 
 import com.taki.common.core.CoreConstants;
-import com.taki.common.utlis.MdcUtil;
-import com.taki.common.utlis.SnowFlake;
+import com.taki.common.utli.MdcUtil;
+import com.taki.common.utli.SnowFlake;
 import org.apache.dubbo.common.extension.Activate;
 import org.apache.dubbo.rpc.*;
 

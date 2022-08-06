@@ -1,6 +1,6 @@
 package com.taki.fulfill.builder;
 
-import com.taki.common.utlis.ObjectUtil;
+import com.taki.common.utli.ObjectUtil;
 import com.taki.fulfill.domain.entity.OrderFulfillDO;
 import com.taki.fulfill.domain.entity.OrderFulfillItemDO;
 import com.taki.fulfill.domain.request.ReceiveFulFillRequest;
@@ -47,7 +47,7 @@ public class FulfillDataBuilder {
 
         orderFulfill = receiveFulFillRequest.clone(OrderFulfillDO.class);
 
-        orderFulfill.setFulFillId(fulfillId);
+        orderFulfill.setFulfillId(fulfillId);
 
         return this;
 
@@ -59,7 +59,7 @@ public class FulfillDataBuilder {
 
         //设置履约单ID
         for(OrderFulfillItemDO item : orderFulFillItems) {
-            item.setFulfillId(orderFulfill.getFulFillId());
+            item.setFulfillId(orderFulfill.getFulfillId());
         }
 
         return this;

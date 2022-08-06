@@ -1,9 +1,12 @@
 package com.taki.product.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.taki.common.core.AbstractObject;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * @ClassName ProductSkuDO
@@ -13,6 +16,7 @@ import java.io.Serializable;
  * @Version 1.0
  */
 @Data
+@TableName("product_sku")
 public class ProductSkuDO extends AbstractObject implements Serializable {
 
 
@@ -53,13 +57,14 @@ public class ProductSkuDO extends AbstractObject implements Serializable {
     /**
      * 商品销售价格
      */
-    private Integer salePrice;
+    private BigDecimal salePrice;
 
 
     /**
      * 商品采购价格
      */
-    private Integer purchasePrice;
+    @TableField("")
+    private BigDecimal purchasePrice;
 
 
 

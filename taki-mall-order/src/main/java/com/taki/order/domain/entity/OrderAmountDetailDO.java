@@ -22,7 +22,6 @@ import java.time.LocalDateTime;
  * @since 2022-01-02
  */
 @Data
-@Accessors(chain = true)
 @TableName("order_amount_detail")
 public class OrderAmountDetailDO extends BaseEntity implements Serializable {
 
@@ -54,7 +53,7 @@ public class OrderAmountDetailDO extends BaseEntity implements Serializable {
 
   //("销售单价")
     @TableField("sale_price")
-    private Integer salePrice;
+    private BigDecimal salePrice;
 
    //("收费类型")
     @TableField("amount_type")

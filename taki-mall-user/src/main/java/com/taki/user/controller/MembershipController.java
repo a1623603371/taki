@@ -2,7 +2,7 @@ package com.taki.user.controller;
 
 
 
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 
 import com.taki.user.domain.request.ChangePasswordRequest;
 import com.taki.user.domain.request.RegisterRequest;

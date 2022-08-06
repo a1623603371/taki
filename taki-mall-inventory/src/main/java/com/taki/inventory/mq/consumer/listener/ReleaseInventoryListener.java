@@ -1,10 +1,8 @@
 package com.taki.inventory.mq.consumer.listener;
 
 import com.alibaba.fastjson.JSONObject;
-import com.google.gson.JsonObject;
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.inventory.api.InventoryApi;
-import com.taki.inventory.domain.request.CancelOrderReleaseProductStockRequest;
 import com.taki.inventory.domain.request.ReleaseProductStockRequest;
 import com.taki.inventory.exception.InventoryBizException;
 import com.taki.inventory.exception.InventoryErrorCodeEnum;

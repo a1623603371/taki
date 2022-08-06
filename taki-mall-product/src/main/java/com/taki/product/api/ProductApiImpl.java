@@ -1,8 +1,8 @@
 package com.taki.product.api;
 
 import com.alibaba.fastjson.JSONObject;
-import com.taki.common.utlis.ParamCheckUtil;
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ParamCheckUtil;
+import com.taki.common.utli.ResponseData;
 import com.taki.product.domian.dto.ProductSkuDTO;
 import com.taki.product.domian.query.ListProductSkuQuery;
 import com.taki.product.domian.query.ProductSkuQuery;
@@ -11,7 +11,6 @@ import com.taki.product.service.ProductService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.ObjectUtils;
 
 import java.util.List;
 
@@ -37,7 +36,7 @@ public class ProductApiImpl implements ProductApi {
             ParamCheckUtil.checkObjectNonNull(productSkuQuery);
             String skuCode = productSkuQuery.getSkuCode();
             ProductSkuDTO productSkuDTO = productService.getProductSkuByCode(skuCode);
-            log.error("ProductSkuDTO={},productSkuQuery={}", JSONObject.toJSONString(productSkuDTO),JSONObject.toJSONString(productSkuQuery));
+            log.info("ProductSkuDTO={},productSkuQuery={}", JSONObject.toJSONString(productSkuDTO),JSONObject.toJSONString(productSkuQuery));
             return ResponseData.success(productSkuDTO);
         }catch (ProductBizException e){
             log.error("biz error",e);
@@ -59,7 +58,7 @@ public class ProductApiImpl implements ProductApi {
             ParamCheckUtil.checkObjectNonNull(listProductSkuQuery);
            List<String> skuCodes = listProductSkuQuery.getSkuCodes();
            List<ProductSkuDTO>  productSkus = productService.listProductSkuByCode(skuCodes);
-            log.error("productSkuDTO={},listProductSkuQuery={}", JSONObject.toJSONString(productSkus),JSONObject.toJSONString(listProductSkuQuery));
+            log.info("productSkuDTO={},listProductSkuQuery={}", JSONObject.toJSONString(productSkus),JSONObject.toJSONString(listProductSkuQuery));
 
             return ResponseData.success(productSkus);
 

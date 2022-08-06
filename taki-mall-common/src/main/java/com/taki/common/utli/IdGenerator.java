@@ -1,8 +1,6 @@
-package com.taki.common.utlis;
+package com.taki.common.utli;
 
 import org.apache.commons.lang3.time.FastDateFormat;
-import org.springframework.util.AlternativeJdkIdGenerator;
-import org.springframework.util.SimpleIdGenerator;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

@@ -59,7 +59,7 @@ private String smg;
 
         for (PayTypeEnum element : PayTypeEnum.values()) {
 
-            if (element.equals(code)){
+            if (element.getCode().equals(code)){
                 return element;
             }
 

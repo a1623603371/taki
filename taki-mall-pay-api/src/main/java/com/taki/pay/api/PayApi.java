@@ -1,6 +1,6 @@
 package com.taki.pay.api;
 
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.pay.domian.dto.PayOrderDTO;
 import com.taki.pay.domian.rquest.PayOrderRequest;
 import com.taki.pay.domian.rquest.PayRefundRequest;

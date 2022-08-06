@@ -1,10 +1,9 @@
 package com.taki.customer.remote;
 
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.customer.domain.request.CustomReviewReturnGoodsRequest;
 import com.taki.customer.domain.request.CustomerReceiveAfterSaleRequest;
 import com.taki.customer.exception.CustomerBizException;
-import com.taki.customer.exception.CustomerErrorCodeEnum;
 import com.taki.order.api.AfterSaleApi;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Component;

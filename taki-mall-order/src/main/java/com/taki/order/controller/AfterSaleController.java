@@ -1,10 +1,9 @@
 package com.taki.order.controller;
 
 import com.taki.common.page.PagingInfo;
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.order.api.AfterSaleApi;
 import com.taki.order.api.AfterSaleQueryApi;
-import com.taki.order.api.impl.AfterSaleApiImpl;
 import com.taki.order.domain.dto.AfterSaleOrderDetailDTO;
 import com.taki.order.domain.dto.AfterSaleOrderListDTO;
 import com.taki.order.domain.dto.LackDTO;

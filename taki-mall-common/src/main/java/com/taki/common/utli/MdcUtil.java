@@ -1,4 +1,4 @@
-package com.taki.common.utlis;
+package com.taki.common.utli;
 
 import com.taki.common.core.CoreConstants;
 import lombok.extern.slf4j.Slf4j;

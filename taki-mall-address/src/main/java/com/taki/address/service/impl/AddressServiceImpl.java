@@ -1,7 +1,6 @@
 package com.taki.address.service.impl;
 
 import com.google.common.collect.Lists;
-import com.taki.address.api.AddressApi;
 import com.taki.address.dao.AreaDAO;
 import com.taki.address.dao.CityDAO;
 import com.taki.address.dao.ProvinceDAO;
@@ -15,8 +14,7 @@ import com.taki.address.domian.request.AddressQuery;
 import com.taki.address.exception.AddressErrorCodeError;
 import com.taki.address.exception.AddressException;
 import com.taki.address.service.AddressService;
-import com.taki.common.utlis.LoggerFormat;
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.LoggerFormat;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

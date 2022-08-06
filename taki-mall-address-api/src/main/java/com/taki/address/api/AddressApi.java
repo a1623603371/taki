@@ -2,7 +2,7 @@ package com.taki.address.api;
 
 import com.taki.address.domian.dto.AddressDTO;
 import com.taki.address.domian.request.AddressQuery;
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 
 /**
  * @ClassName AddressApi

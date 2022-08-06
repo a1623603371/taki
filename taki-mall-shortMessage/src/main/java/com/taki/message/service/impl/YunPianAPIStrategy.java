@@ -2,7 +2,7 @@ package com.taki.message.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.taki.common.exception.ServiceException;
-import com.taki.common.utlis.HttpClientUtils;
+import com.taki.common.utli.HttpClientUtils;
 import com.taki.message.domian.dto.ShortMessagePlatformDTO;
 import com.taki.message.domian.dto.YunPianReuqst;
 import com.taki.message.service.SendMessageStrategy;

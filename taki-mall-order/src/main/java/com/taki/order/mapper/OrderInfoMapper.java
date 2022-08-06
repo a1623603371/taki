@@ -7,6 +7,7 @@ import com.taki.order.domain.dto.OrderListDTO;
 import com.taki.order.domain.dto.OrderListQueryDTO;
 import com.taki.order.domain.entity.OrderInfoDO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -27,5 +28,5 @@ public interface OrderInfoMapper extends BaseMapper<OrderInfoDO> {
      * @author Long
      * @date: 2022/3/3 17:29
      */ 
-    Page<OrderListDTO> listByPage(Page<OrderListDTO> page,@RequestParam("query") OrderListQueryDTO query);
+    Page<OrderListDTO> listByPage(Page<OrderListDTO> page,@Param("query") OrderListQueryDTO query);
 }

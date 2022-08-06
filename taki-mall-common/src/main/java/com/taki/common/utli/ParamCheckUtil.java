@@ -1,4 +1,4 @@
-package com.taki.common.utlis;
+package com.taki.common.utli;
 
 import com.taki.common.exception.BaseErrorCodeEnum;
 import com.taki.common.exception.ErrorCodeEnum;
@@ -58,7 +58,7 @@ public class ParamCheckUtil {
      */
     public  static void checkStringNonEmpty(String s) {
 
-        if (StringUtils.isNotBlank(s)) {
+        if (StringUtils.isBlank(s)) {
             throw new ServiceException(ErrorCodeEnum.SERVER_ILLEGAL_ARGUMENT_ERROR);
 
         }
@@ -76,7 +76,7 @@ public class ParamCheckUtil {
      */
     public static void  checkStringNonEmpty(String s,BaseErrorCodeEnum errorCodeEnum,Object ... args){
 
-        if (StringUtils.isNotBlank(s)){
+        if (StringUtils.isBlank(s)){
             throw new ServiceException(errorCodeEnum.getErrorCode(),errorCodeEnum.getErrorMsg(),args);
         }
 

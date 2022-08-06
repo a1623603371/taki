@@ -6,9 +6,10 @@ import com.taki.address.domian.request.AddressQuery;
 import com.taki.common.enums.AmountTypeEnum;
 import com.taki.common.enums.OrderOperateTypeEnum;
 import com.taki.common.enums.OrderStatusEnum;
-import com.taki.common.utlis.JsonUtil;
-import com.taki.common.utlis.ObjectUtil;
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.JsonUtil;
+import com.taki.common.utli.LoggerFormat;
+import com.taki.common.utli.ObjectUtil;
+import com.taki.common.utli.ResponseData;
 import com.taki.inventory.api.InventoryApi;
 import com.taki.inventory.domain.request.DeductProductStockRequest;
 import com.taki.market.api.MarketApi;
@@ -22,7 +23,6 @@ import com.taki.order.config.OrderProperties;
 import com.taki.order.dao.*;
 import com.taki.order.domain.entity.*;
 import com.taki.order.domain.request.CreateOrderRequest;
-import com.taki.order.domain.request.PayCallbackRequest;
 import com.taki.order.enums.PayStatusEnum;
 import com.taki.order.enums.SnapshotTypeEnum;
 import com.taki.order.exception.OrderBizException;
@@ -37,6 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -108,15 +109,22 @@ public class OrderMangerImpl implements OrderManager {
 
     @Override
     @GlobalTransactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     public Boolean createOrder(CreateOrderRequest createOrderRequest, List<ProductSkuDTO> productSkus, CalculateOrderAmountDTO calculateOrderAmount) {
 
         // 1锁定优惠券
         lockUserCoupon(createOrderRequest);
 
-
+        log.info(LoggerFormat.build()
+                .remark("OrderManager.createOrder-> before deduct stock")
+                .finish());
 
         //2. 扣减商品库存
         deductProductStock(createOrderRequest);
+
+        log.info(LoggerFormat.build()
+                .remark("OrderManager.createOrder-> after deduct stock")
+                .finish());
 
 
         // 2 生成订单
@@ -401,7 +409,7 @@ public class OrderMangerImpl implements OrderManager {
                 // 进行封装
                 newOrderDataHolder.appendOrderData(fullSubOrderData);
             });
-
+        }
             // 保存 订单到数据库
             List<OrderInfoDO> orderInfoDOList = newOrderDataHolder.getOrderInfos();
 
@@ -411,7 +419,7 @@ public class OrderMangerImpl implements OrderManager {
 
             // 保存订单 条目 到数据库
             List<OrderItemDO> orderItemDOList = newOrderDataHolder.getOrderItems();
-            if (! orderItemDOList.isEmpty()){
+            if (!orderItemDOList.isEmpty()){
                 orderItemDao.saveBatch(orderItemDOList);
             }
 
@@ -453,7 +461,7 @@ public class OrderMangerImpl implements OrderManager {
                 orderSnapshotDao.saveBatch(orderSnapshotList);
             }
 
-        }
+
     }
 
     /**

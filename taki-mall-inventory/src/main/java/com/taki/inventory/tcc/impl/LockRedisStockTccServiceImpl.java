@@ -2,14 +2,13 @@ package com.taki.inventory.tcc.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.taki.common.redis.RedisCache;
-import com.taki.common.utlis.LoggerFormat;
-import com.taki.common.utlis.MdcUtil;
+import com.taki.common.utli.LoggerFormat;
+import com.taki.common.utli.MdcUtil;
 import com.taki.inventory.cache.CacheSupport;
 import com.taki.inventory.cache.LuaScript;
 import com.taki.inventory.domain.dto.DeductStockDTO;
 import com.taki.inventory.tcc.LockRedisStockTccService;
 import com.taki.inventory.tcc.TccResultHolder;
-import io.seata.rm.DefaultResourceManager;
 import io.seata.rm.tcc.api.BusinessActionContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +53,7 @@ public class LockRedisStockTccServiceImpl implements LockRedisStockTccService {
 
         String luaScript = LuaScript.DEDUCT_SALE_STOCK;
         String saleStockKey = CacheSupport.SALE_STOCK;
-        String productStockKey = CacheSupport.PREFIX_PRODUCT_STOCK;
+        String productStockKey = CacheSupport.buildProductStockKey(skuCode);
 
         Long result = redisCache.execute(new DefaultRedisScript<>(luaScript,Long.class),
                 Arrays.asList(productStockKey,saleStockKey),String.valueOf(saleQuantity));
@@ -144,7 +143,7 @@ public class LockRedisStockTccServiceImpl implements LockRedisStockTccService {
         }
 
         // 幂等
-        if (TccResultHolder.isTrySuccess(getClass(),skuCode,xid)){
+        if (!TccResultHolder.isTrySuccess(getClass(),skuCode,xid)){
             log.info(LoggerFormat.build()
                     .remark("redis: 重复回滚")
                     .data("deductStock",deductStock)
@@ -153,14 +152,18 @@ public class LockRedisStockTccServiceImpl implements LockRedisStockTccService {
             return;
         }
 
-        String luaScript = LuaScript.RELEASE_PRODUCT_STOCK;
+        String luaScript = LuaScript.RESTORE_SALE_STOCK;
         String productStockKey = CacheSupport.buildProductStockKey(skuCode);
         String saleStockKey = CacheSupport.SALE_STOCK;
 
         Long result =   redisCache.execute(new DefaultRedisScript<>(luaScript,Long.class),Arrays.asList(productStockKey,saleStockKey),String.valueOf(saleQuantity));
 
-        if (result > 0){
 
+        if (result > 0){
+            log.info(LoggerFormat.build()
+                    .remark("执行完毕会滚脚本")
+                    .data("saleQuantity:",saleQuantity)
+                    .finish());
             TccResultHolder.removeResult(getClass(),skuCode,xid);
         }
 

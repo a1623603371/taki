@@ -1,4 +1,4 @@
-package com.taki.common.utlis;
+package com.taki.common.utli;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.taki.common.config.ObjectMapperImpl;
@@ -8,7 +8,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.ws.spi.http.HttpContext;
 import java.io.IOException;
 import java.io.PrintWriter;
 

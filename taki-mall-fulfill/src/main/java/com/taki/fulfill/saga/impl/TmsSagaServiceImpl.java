@@ -1,24 +1,17 @@
 package com.taki.fulfill.saga.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.taki.common.utlis.ObjectUtil;
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ObjectUtil;
 import com.taki.fulfill.dao.OrderFulfillDao;
-import com.taki.fulfill.dao.OrderFulfillItemDao;
 import com.taki.fulfill.domain.entity.OrderFulfillDO;
 import com.taki.fulfill.domain.request.ReceiveFulFillRequest;
-import com.taki.fulfill.exection.FulfillBizException;
-import com.taki.fulfill.exection.FulfillErrorCodeEnum;
 import com.taki.fulfill.remote.TmsRemote;
 import com.taki.fulfill.saga.TmsSagaService;
-import com.taki.tms.api.TmsApi;
 import com.taki.tms.domain.dto.SendOutDTO;
 import com.taki.tms.domain.request.SendOutRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.stylesheets.LinkStyle;
 
 import java.util.List;
 
@@ -53,7 +46,7 @@ public class TmsSagaServiceImpl implements TmsSagaService {
         //3.查询物流单好
         String logisticCode =  sendOut.getLogisticsCode();
 
-        orderFulfillDao.saveLogisticsCode(orderFulfillDO.getFulFillId(), logisticCode);
+        orderFulfillDao.saveLogisticsCode(orderFulfillDO.getFulfillId(), logisticCode);
 
         return true;
     }

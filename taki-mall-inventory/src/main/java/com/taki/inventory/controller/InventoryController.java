@@ -1,12 +1,10 @@
 package com.taki.inventory.controller;
 
-import com.taki.common.utlis.ResponseData;
-import com.taki.inventory.api.InventoryApi;
+import com.taki.common.utli.ResponseData;
 import com.taki.inventory.dao.ProductStockDao;
 import com.taki.inventory.domain.request.*;
 import com.taki.inventory.service.InventoryService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 

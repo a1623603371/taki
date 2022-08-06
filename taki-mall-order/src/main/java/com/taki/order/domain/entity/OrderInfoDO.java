@@ -22,7 +22,6 @@ import lombok.experimental.Accessors;
  * @since 2022-01-02
  */
 @Data
-@Accessors(chain = true)
 @TableName("order_info")
 public class OrderInfoDO extends BaseEntity implements Serializable{
 

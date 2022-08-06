@@ -1,6 +1,6 @@
 package com.taki.inventory.api;
 
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.inventory.domain.request.DeductProductStockRequest;
 import com.taki.inventory.domain.request.ReleaseProductStockRequest;
 /**

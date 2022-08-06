@@ -1,10 +1,9 @@
 package com.taki.product.controller;
 
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.product.domain.entity.vo.ProductSkuVO;
 import com.taki.product.domian.dto.ProductSkuDTO;
 import com.taki.product.service.ProductService;
-import jdk.nashorn.internal.objects.annotations.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

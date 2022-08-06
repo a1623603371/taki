@@ -2,7 +2,7 @@ package com.taki.order.mq.consumer.listener;
 
 import com.alibaba.fastjson.JSONObject;
 import com.taki.common.mq.AbstractMessageListenerConcurrently;
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.order.domain.request.CancelOrderAssembleRequest;
 import com.taki.order.exception.OrderBizException;
 import com.taki.order.exception.OrderErrorCodeEnum;
@@ -10,7 +10,6 @@ import com.taki.order.service.OrderAfterSaleService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
-import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

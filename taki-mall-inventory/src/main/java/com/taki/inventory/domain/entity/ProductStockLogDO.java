@@ -38,7 +38,7 @@ public class ProductStockLogDO extends BaseEntity implements Serializable {
     private Long originSaleStockQuantity;
 
     /**
-     *原始销售库存
+     *原始已销售库存
      */
     private Long originSaledStockQuantity;
 

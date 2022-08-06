@@ -1,12 +1,11 @@
 package com.taki.fulfill.remote;
 
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.fulfill.exection.FulfillBizException;
 import com.taki.wms.api.WmsApi;
 import com.taki.wms.domain.dto.PickDTO;
 import com.taki.wms.domain.request.PickGoodsRequest;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**

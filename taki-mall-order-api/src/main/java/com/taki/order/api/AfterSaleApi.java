@@ -1,6 +1,6 @@
 package com.taki.order.api;
 
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.customer.domain.request.CustomReviewReturnGoodsRequest;
 import com.taki.customer.domain.request.CustomerReceiveAfterSaleRequest;
 import com.taki.order.domain.dto.LackDTO;

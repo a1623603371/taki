@@ -1,13 +1,12 @@
 package com.taki.inventory.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import com.taki.common.constants.RedisLockKeyConstants;
 import com.taki.common.core.CoreConstants;
 import com.taki.common.redis.RedisCache;
 import com.taki.common.redis.RedisLock;
-import com.taki.common.utlis.LoggerFormat;
-import com.taki.common.utlis.ParamCheckUtil;
+import com.taki.common.utli.LoggerFormat;
+import com.taki.common.utli.ParamCheckUtil;
 import com.taki.inventory.cache.CacheSupport;
 import com.taki.inventory.dao.ProductStockDao;
 import com.taki.inventory.dao.ProductStockLogDao;
@@ -21,13 +20,10 @@ import com.taki.inventory.exception.InventoryErrorCodeEnum;
 import com.taki.inventory.service.InventoryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.config.CacheManagementConfigUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
-import org.w3c.dom.stylesheets.LinkStyle;
 
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

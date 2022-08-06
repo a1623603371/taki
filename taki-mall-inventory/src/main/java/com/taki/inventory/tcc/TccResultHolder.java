@@ -72,7 +72,6 @@ public class TccResultHolder {
   */ 
  public static boolean isTrgNull(Class<?> tccClass,String bizKey,String xid){
         String v = getResult(tccClass,bizKey,xid);
-
         if (StringUtils.isBlank(v)){
             return true;
         }
@@ -103,7 +102,7 @@ public class TccResultHolder {
      Map<String,String> results = map.get(tccClass);
 
      if (results != null){
-        return results.get(getTccExecution(bizKey,xid));
+        return results.get(getTccExecution(xid,bizKey));
      }
 
     return null;

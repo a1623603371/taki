@@ -1,12 +1,11 @@
 package com.taki.pay.remote;
 
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.order.api.AfterSaleApi;
 import com.taki.order.domain.request.RefundCallbackRequest;
 import com.taki.pay.exception.PayBizException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**

@@ -1,6 +1,6 @@
 package com.taki.market.service.impl;
 
-import com.taki.common.utlis.ParamCheckUtil;
+import com.taki.common.utli.ParamCheckUtil;
 import com.taki.market.dao.CouponConfigDao;
 import com.taki.market.dao.CouponDao;
 import com.taki.market.domain.dto.UserCouponDTO;

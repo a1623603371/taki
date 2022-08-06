@@ -69,7 +69,7 @@ public class CalculateOrderAmountDTO extends AbstractObject implements Serializa
      * @Version 1.0
      */
     @Data
-    public static class OrderAmountDetailDTO extends AbstractObject implements Serializable {
+    public static class  OrderAmountDetailDTO extends AbstractObject implements Serializable {
 
 
         private static final long serialVersionUID = 343559812774360119L;

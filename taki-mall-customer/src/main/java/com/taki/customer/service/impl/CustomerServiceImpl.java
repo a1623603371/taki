@@ -2,8 +2,7 @@ package com.taki.customer.service.impl;
 
 import com.taki.common.constants.RedisLockKeyConstants;
 import com.taki.common.redis.RedisLock;
-import com.taki.common.utlis.ParamCheckUtil;
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ParamCheckUtil;
 import com.taki.customer.dao.CustomerReceivesAfterSaleInfoDAO;
 import com.taki.customer.domain.enetity.CustomerReceivesAfterSaleInfoDO;
 import com.taki.customer.domain.request.CustomReviewReturnGoodsRequest;

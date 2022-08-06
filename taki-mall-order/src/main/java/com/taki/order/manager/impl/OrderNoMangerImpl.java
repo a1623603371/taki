@@ -1,9 +1,9 @@
 package com.taki.order.manager.impl;
 
 import com.taki.common.exception.ServiceException;
-import com.taki.common.utlis.DateFormatUtils;
-import com.taki.common.utlis.LoggerFormat;
-import com.taki.common.utlis.NumberUtils;
+import com.taki.common.utli.DateFormatUtils;
+import com.taki.common.utli.LoggerFormat;
+import com.taki.common.utli.NumberUtils;
 import com.taki.order.dao.OrderAutoNoDao;
 
 import com.taki.order.domain.entity.OrderAutoNoDO;
@@ -40,7 +40,7 @@ public class OrderNoMangerImpl implements OrderNoManager {
         if (orderAutoType == null){
             throw new ServiceException(OrderErrorCodeEnum.ORDER_TYPE_IS_NULL);
         }
-        return orderAutoType + genOrderIdKey(userId);
+        return orderNoType + genOrderIdKey(userId);
     }
     
     /*** 

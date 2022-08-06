@@ -5,6 +5,7 @@ import lombok.Data;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.util.CollectionUtils;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Set;
 
@@ -77,7 +78,7 @@ public class OrderListQueryDTO {
     /**
      * 支付金额-查询区间
      */
-    private Pair<Integer,Integer> payAmountInterval;
+    private Pair<BigDecimal,BigDecimal> payAmountInterval;
 
 
     /**

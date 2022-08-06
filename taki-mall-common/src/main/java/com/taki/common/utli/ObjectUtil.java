@@ -1,4 +1,4 @@
-package com.taki.common.utlis;
+package com.taki.common.utli;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;

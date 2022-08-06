@@ -14,7 +14,7 @@ import java.io.Serializable;
  * @Version 1.0
  */
 @Data
-@TableName("")
+@TableName("product_stock")
 public class ProductStockDO extends BaseEntity  implements Serializable {
 
 

@@ -1,7 +1,7 @@
 package com.taki.product.service.impl;
 
-import com.taki.common.utlis.ObjectUtil;
-import com.taki.common.utlis.ParamCheckUtil;
+import com.taki.common.utli.ObjectUtil;
+import com.taki.common.utli.ParamCheckUtil;
 import com.taki.product.dao.ProductSkuDao;
 import com.taki.product.domain.entity.ProductSkuDO;
 import com.taki.product.domian.dto.ProductSkuDTO;

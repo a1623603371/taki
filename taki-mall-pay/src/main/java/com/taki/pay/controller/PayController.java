@@ -1,6 +1,6 @@
 package com.taki.pay.controller;
 
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.order.domain.request.RefundCallbackRequest;
 import com.taki.pay.remote.AfterSaleRemote;
 import lombok.extern.slf4j.Slf4j;

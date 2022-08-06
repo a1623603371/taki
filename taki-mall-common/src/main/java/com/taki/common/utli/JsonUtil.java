@@ -1,6 +1,5 @@
-package com.taki.common.utlis;
+package com.taki.common.utli;
 
-import cn.hutool.core.annotation.AnnotationUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.taki.common.config.ObjectMapperImpl;

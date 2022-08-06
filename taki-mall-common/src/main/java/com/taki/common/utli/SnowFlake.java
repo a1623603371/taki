@@ -1,4 +1,4 @@
-package com.taki.common.utlis;
+package com.taki.common.utli;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -222,13 +222,13 @@ public class SnowFlake {
     /**
      * 测试
      */
-    public static void main(String[] args) {
-        System.out.println(System.currentTimeMillis());
-        long startTime = System.nanoTime();
-        for (int i = 0; i < 5000000; i++) {
-            long id = SnowFlake.generateId();
-            System.out.println(id);
-        }
-        System.out.println((System.nanoTime() - startTime) / 1000000 + "ms");
-    }
+//    public static void main(String[] args) {
+//        System.out.println(System.currentTimeMillis());
+//        long startTime = System.nanoTime();
+//        for (int i = 0; i < 5000000; i++) {
+//            long id = SnowFlake.generateId();
+//            System.out.println(id);
+//        }
+//        System.out.println((System.nanoTime() - startTime) / 1000000 + "ms");
+//    }
 }

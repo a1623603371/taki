@@ -1,6 +1,6 @@
 package com.taki.customer.api.impl;
 
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.customer.api.CustomerApi;
 import com.taki.customer.domain.request.CustomReviewReturnGoodsRequest;
 import lombok.extern.slf4j.Slf4j;

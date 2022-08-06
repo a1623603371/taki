@@ -1,4 +1,4 @@
-package com.taki.common.utlis;
+package com.taki.common.utli;
 
 import com.alibaba.fastjson.JSONObject;
 

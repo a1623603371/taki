@@ -1,6 +1,6 @@
 package com.taki.tms.api;
 
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.tms.domain.dto.SendOutDTO;
 import com.taki.tms.domain.request.SendOutRequest;
 

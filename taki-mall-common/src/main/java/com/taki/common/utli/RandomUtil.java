@@ -1,4 +1,4 @@
-package com.taki.common.utlis;
+package com.taki.common.utli;
 
 import java.util.Random;
 
@@ -40,8 +40,8 @@ public class RandomUtil {
     }
 
 
-    public static void main(String[] args) {
-        System.out.println(genRandomNumber(20));
-    }
+//    public static void main(String[] args) {
+//        System.out.println(genRandomNumber(20));
+//    }
 
 }

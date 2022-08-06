@@ -41,7 +41,7 @@ public enum BusinessIdentifierEnum {
     public static BusinessIdentifierEnum getByCode(Integer code){
         for (BusinessIdentifierEnum element : BusinessIdentifierEnum.values()) {
 
-            if (code.equals(element)){
+            if (code.equals(element.getCode())){
                 return element;
             }
         }

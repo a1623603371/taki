@@ -1,7 +1,7 @@
 package com.taki.message.controller;
 
 
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.message.domian.entity.ShortMessagePlatformDO;
 import com.taki.message.domian.dto.ShortMessagePlatformDTO;
 import com.taki.message.domian.vo.ShortMessagePlatformVO;

@@ -1,7 +1,8 @@
 package com.taki.common.exception;
 
-import com.taki.common.utlis.ExceptionUtils;
-import com.taki.common.utlis.ResponseData;
+
+import com.alibaba.druid.proxy.jdbc.DataSourceProxy;
+import com.taki.common.utli.ResponseData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -18,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolationException;
 import java.util.Date;
 import java.util.List;
-import java.util.MissingFormatArgumentException;
 
 /**
  * @ClassName GlobalExceptionHandler
@@ -29,7 +29,7 @@ import java.util.MissingFormatArgumentException;
  */
 @RestControllerAdvice
 @Slf4j
-//@Order
+@Order
 public class GlobalExceptionHandler {
 
     /**
@@ -53,7 +53,6 @@ public class GlobalExceptionHandler {
 
         return ResponseData.error(ErrorCodeEnum.SYSTEM_ERROR,result.build());
     }
-
 
 
     /** 

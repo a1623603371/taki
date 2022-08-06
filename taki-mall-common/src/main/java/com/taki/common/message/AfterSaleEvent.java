@@ -1,7 +1,9 @@
 package com.taki.common.message;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Tolerate;
 
 import java.io.Serializable;
@@ -15,6 +17,7 @@ import java.io.Serializable;
  */
 @Data
 @Builder
+@AllArgsConstructor
 public class AfterSaleEvent<T> implements Serializable {
 
 

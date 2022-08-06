@@ -22,7 +22,6 @@ import lombok.experimental.Accessors;
  */
 @Getter
 @Setter
-@Accessors(chain = true)
 @TableName("order_delivery_detail")
 public class OrderDeliveryDetailDO extends BaseEntity {
 

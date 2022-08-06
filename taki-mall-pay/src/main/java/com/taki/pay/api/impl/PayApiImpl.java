@@ -1,8 +1,8 @@
 package com.taki.pay.api.impl;
 
 import com.taki.common.enums.PayTypeEnum;
-import com.taki.common.utlis.RandomUtil;
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.RandomUtil;
+import com.taki.common.utli.ResponseData;
 import com.taki.pay.api.PayApi;
 import com.taki.pay.domian.dto.PayOrderDTO;
 import com.taki.pay.domian.rquest.PayOrderRequest;

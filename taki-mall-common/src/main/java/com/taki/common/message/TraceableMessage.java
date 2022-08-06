@@ -1,5 +1,6 @@
 package com.taki.common.message;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

@@ -30,60 +30,60 @@ import javax.sql.DataSource;
  * @Date 2021/11/24 15:54
  * @Version 1.0
  */
-@Configuration
-public class DruidConfig {
-
-    /**
-     * @description: servlet 注册 bean
-     * @param:
-     * @return:
-     * @author Long
-     * @date: 2021/11/24 16:08
-     */
-    @Bean
-    public ServletRegistrationBean druidServlet(){
-        // 进行druid 监控配置处理操作
-        ServletRegistrationBean servletRegistrationBean =
-                new ServletRegistrationBean(new StatViewServlet(),"/druid/*");
-        // 设置白名单
-        servletRegistrationBean.addInitParameter("allow","127.0.0.1,10.1.1.1");
-        // 设置黑名单
-        servletRegistrationBean.addInitParameter("deny","192.168.33.15");
-        // 设置登陆账号
-        servletRegistrationBean.addInitParameter("loginUsername","admin");
-        // 设置登陆密码
-        servletRegistrationBean.addInitParameter("loginPassword","password");
-        return  servletRegistrationBean;
-    }
-
-    /**
-     * @description: 过滤器 注册bean
-     * @param:
-     * @return:
-     * @author Long
-     * @date: 2021/11/24 16:08
-     */
-    @Bean
-    public FilterRegistrationBean filterRegistrationBean(){
-        FilterRegistrationBean<WebStatFilter> filterRegistrationBean = new FilterRegistrationBean();
-        filterRegistrationBean.setFilter(new WebStatFilter());
-        //所有请求进行监控
-        filterRegistrationBean.addUrlPatterns("/*");
-
-        filterRegistrationBean.addInitParameter("exclusions","*.js,*.gif,*jpg,*.css,/druid/*");
-        return filterRegistrationBean;
-    }
-
-    /**
-     * @description: 数据源
-     * @param:
-     * @return:
-     * @author Long
-     * @date: 2021/11/24 16:10
-     */
-    @Bean
-    @ConfigurationProperties(prefix = "spring.datasource")
-    public DataSource druidDataSource(){
-        return new DruidDataSource();
-    }
-}
+//@Configuration
+//public class DruidConfig {
+//
+//    /**
+//     * @description: servlet 注册 bean
+//     * @param:
+//     * @return:
+//     * @author Long
+//     * @date: 2021/11/24 16:08
+//     */
+//    @Bean
+//    public ServletRegistrationBean druidServlet(){
+//        // 进行druid 监控配置处理操作
+//        ServletRegistrationBean servletRegistrationBean =
+//                new ServletRegistrationBean(new StatViewServlet(),"/druid/*");
+//        // 设置白名单
+//        servletRegistrationBean.addInitParameter("allow","127.0.0.1,10.1.1.1");
+//        // 设置黑名单
+//        servletRegistrationBean.addInitParameter("deny","192.168.33.15");
+//        // 设置登陆账号
+//        servletRegistrationBean.addInitParameter("loginUsername","admin");
+//        // 设置登陆密码
+//        servletRegistrationBean.addInitParameter("loginPassword","password");
+//        return  servletRegistrationBean;
+//    }
+//
+//    /**
+//     * @description: 过滤器 注册bean
+//     * @param:
+//     * @return:
+//     * @author Long
+//     * @date: 2021/11/24 16:08
+//     */
+//    @Bean
+//    public FilterRegistrationBean filterRegistrationBean(){
+//        FilterRegistrationBean<WebStatFilter> filterRegistrationBean = new FilterRegistrationBean();
+//        filterRegistrationBean.setFilter(new WebStatFilter());
+//        //所有请求进行监控
+//        filterRegistrationBean.addUrlPatterns("/*");
+//
+//        filterRegistrationBean.addInitParameter("exclusions","*.js,*.gif,*jpg,*.css,/druid/*");
+//        return filterRegistrationBean;
+//    }
+//
+//    /**
+//     * @description: 数据源
+//     * @param:
+//     * @return:
+//     * @author Long
+//     * @date: 2021/11/24 16:10
+//     */
+//    @Bean
+//    @ConfigurationProperties(prefix = "spring.datasource")
+//    public DataSource druidDataSource(){
+//        return new DruidDataSource();
+//    }
+//}

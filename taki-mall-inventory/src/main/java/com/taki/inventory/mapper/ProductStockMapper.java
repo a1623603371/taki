@@ -24,7 +24,7 @@ public interface ProductStockMapper extends BaseMapper<ProductStockDO> {
      * @author Long
      * @date: 2022/2/17 9:39
      */
-    @Update("UPDATE inventory_product_stock SET sale_stock_quantity = sale_stock_quantity - #{saleQuantity}, " +
+    @Update("UPDATE product_stock SET sale_stock_quantity = sale_stock_quantity - #{saleQuantity}, " +
             "locked_stock_quantity + #{saleQuantity}  WHERE  sku_code = #{skuCode} AND sale_stock_qantity >= #{saleQuantity}")
     Boolean lockProductStock(@Param("skuCode") String skuCode,@Param("saleQuantity") Integer saleQuantity);
 
@@ -36,7 +36,7 @@ public interface ProductStockMapper extends BaseMapper<ProductStockDO> {
      * @author Long
      * @date: 2022/2/17 10:06
      */
-    @Update("UPDATE inventory_product_stock SET sale_stock_quantity = sale_stock_quantity + #{saleQuantity}, " +
+    @Update("UPDATE product_stock SET sale_stock_quantity = sale_stock_quantity + #{saleQuantity}, " +
             "locked_stock_quantity - #{saleQuantity}  WHERE  sku_code = #{skuCode} AND sale_stock_qantity >= #{saleQuantity}")
     Boolean releaseProductStock(@Param("skuCode") String skuCode,@Param("saleQuantity") Integer saleQuantity);
 
@@ -49,8 +49,8 @@ public interface ProductStockMapper extends BaseMapper<ProductStockDO> {
      * @author Long
      * @date: 2022/5/12 15:33
      */
-    @Update("UPDATE inventory_prodcut_stock set sale_stock_quantity = sale_stock_quantity - #{saleQuantity}" +
-            " WHERE sku_code=#{skucode} ")
+    @Update("UPDATE product_stock set sale_stock_quantity = sale_stock_quantity - #{saleQuantity}" +
+            " WHERE sku_code=#{skuCode} ")
     Boolean deductSaleStock(@Param("skuCode") String skuCode, @Param("saleQuantity") Integer saleQuantity);
 
       /** @description:  增加已销售库存
@@ -60,8 +60,8 @@ public interface ProductStockMapper extends BaseMapper<ProductStockDO> {
      * @author Long
      * @date: 2022/5/12 15:57
             */
-    @Update("UPDATE inventory_prodcut_stock set saled_stock_quantity = sale_stock_quantity + #{saleQuantity}" +
-              " WHERE sku_code=#{skucode} ")
+    @Update("UPDATE product_stock set saled_stock_quantity = saled_stock_quantity + #{saleQuantity}" +
+              " WHERE sku_code=#{skuCode} ")
     Boolean increaseSaledStock(@Param("skuCode") String skuCode,@Param("saleQuantity") Integer saleQuantity);
 
 
@@ -74,8 +74,8 @@ public interface ProductStockMapper extends BaseMapper<ProductStockDO> {
      * @author Long
      * @date: 2022/5/12 15:57
      */
-    @Update("UPDATE inventory_prodcut_stock set sale_stock_quantity = sale_stock_quantity + #{saleQuantity}" +
-            " WHERE sku_code=#{skucode} ")
+    @Update("UPDATE product_stock set sale_stock_quantity = sale_stock_quantity + #{saleQuantity}" +
+            " WHERE sku_code=#{skuCode} ")
     Boolean restoreSaleStock(@Param("skuCode")String skuCode, @Param("saleQuantity")Integer saleQuantity);
 
     /**
@@ -87,7 +87,7 @@ public interface ProductStockMapper extends BaseMapper<ProductStockDO> {
      * @author Long
      * @date: 2022/5/13 19:05
      */
-    @Update("UPDATE inventory_prodcut_stock set sale_stock_quantity = sale_stock_quantity + #{stockIncremental}" +
-            " WHERE sku_code=#{skucode} AND sale_stock_quantity = #{originSaleStockQuantity}")
+    @Update("UPDATE product_stock set sale_stock_quantity = sale_stock_quantity + #{stockIncremental}" +
+            " WHERE sku_code=#{skuCode} AND sale_stock_quantity = #{originSaleStockQuantity}")
     Boolean modifyProductStock(@Param("skuCode")String skuCode,@Param("originSaleStockQuantity") Long originSaleStockQuantity,@Param("stockIncremental") Long stockIncremental);
 }

@@ -1,14 +1,13 @@
 package com.taki.common.mq;
 
 import com.taki.common.core.CoreConstants;
-import com.taki.common.utlis.MdcUtil;
+import com.taki.common.utli.MdcUtil;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.springframework.util.CollectionUtils;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

@@ -1,7 +1,7 @@
 package com.taki.order.api;
 
 import com.taki.common.page.PagingInfo;
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.order.domain.dto.OrderDetailDTO;
 import com.taki.order.domain.dto.OrderListDTO;
 import com.taki.order.domain.query.OrderQuery;

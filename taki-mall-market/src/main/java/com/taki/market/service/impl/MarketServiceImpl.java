@@ -1,9 +1,8 @@
 package com.taki.market.service.impl;
 
-import cn.hutool.db.sql.Order;
 import com.taki.common.enums.AmountTypeEnum;
-import com.taki.common.utlis.ObjectUtil;
-import com.taki.common.utlis.ParamCheckUtil;
+import com.taki.common.utli.ObjectUtil;
+import com.taki.common.utli.ParamCheckUtil;
 import com.taki.market.dao.CouponDao;
 import com.taki.market.dao.FreightTemplateDao;
 import com.taki.market.domain.dto.CalculateOrderAmountDTO;
@@ -91,18 +90,18 @@ public class MarketServiceImpl implements MarketService {
         String couponId = calculateOrderAmountRequest.getCouponId();
         String regionId = calculateOrderAmountRequest.getRegion();
 
-    // 优惠券抵扣价格
+        // 优惠券抵扣价格
         BigDecimal discountAmount = BigDecimal.ZERO;
 
-        if (StringUtils.isNotBlank(couponId)){
+        if (StringUtils.isNotBlank(couponId)) {
             // 锁定优惠券
-            CouponDO couponDO = getCoupAchieve(userId,couponId);
+            CouponDO couponDO = getCoupAchieve(userId, couponId);
             discountAmount = couponDO.getAmount();
         }
 
         // 原订单费用信息
         List<CalculateOrderAmountDTO.OrderAmountDTO> orderAmounts = ObjectUtil.convertList(
-                calculateOrderAmountRequest.getOrderAmountRequests(), CalculateOrderAmountDTO.OrderAmountDTO.class,orderAmountDTO -> {
+                calculateOrderAmountRequest.getOrderAmountRequests(), CalculateOrderAmountDTO.OrderAmountDTO.class, orderAmountDTO -> {
                     orderAmountDTO.setOrderId(orderId);
                 });
         // 订单 条目费用 信息
@@ -125,28 +124,28 @@ public class MarketServiceImpl implements MarketService {
 
         for (CalculateOrderAmountRequest.OrderItemRequest orderItemRequest : orderItemRequests) {
             // 订单条目支付原价
-            CalculateOrderAmountDTO.OrderAmountDetailDTO  originPayAmountDetail = createOrderAmountDetailDTO(
-            orderId, AmountTypeEnum.REAL_PAY_AMOUNT.getCode(),null,null,orderItemRequest);
+            CalculateOrderAmountDTO.OrderAmountDetailDTO originPayAmountDetail = createOrderAmountDetailDTO(
+                    orderId, AmountTypeEnum.ORIGIN_PAY_AMOUNT.getCode(), null, null, orderItemRequest);
             orderAmountDetails.add(originPayAmountDetail);
 
             // 优惠券抵扣价格
             CalculateOrderAmountDTO.OrderAmountDetailDTO couponDiscountAmountDetail;
 
-            if (++index < totalNum){
+            if (++index < totalNum) {
                 // 订单条目分摊的优惠金额
                 BigDecimal productAmount = orderItemRequest.getSalePrice().multiply(new BigDecimal(orderItemRequest.getSaleQuantity()));
                 // 商品分摊 优惠金额
-                BigDecimal partDiscountAmount = discountAmount.multiply(productAmount).divide(totalProductAmount,2,BigDecimal.ROUND_HALF_UP);
+                BigDecimal partDiscountAmount = discountAmount.multiply(productAmount).divide(totalProductAmount, 2, BigDecimal.ROUND_HALF_UP);
                 couponDiscountAmountDetail = createOrderAmountDetailDTO(
-                        orderId,AmountTypeEnum.COUPON_DISCOUNT_AMOUNT.getCode(),partDiscountAmount,null,orderItemRequest);
+                        orderId, AmountTypeEnum.COUPON_DISCOUNT_AMOUNT.getCode(), partDiscountAmount, null, orderItemRequest);
 
-                notLastItemTotalDiscountAmount =notLastItemTotalDiscountAmount.add(couponDiscountAmountDetail.getAmount());
+                notLastItemTotalDiscountAmount = notLastItemTotalDiscountAmount.add(couponDiscountAmountDetail.getAmount());
 
-            }else {
+            } else {
                 couponDiscountAmountDetail = createOrderAmountDetailDTO(
-                        orderId,AmountTypeEnum.COUPON_DISCOUNT_AMOUNT.getCode(),
+                        orderId, AmountTypeEnum.COUPON_DISCOUNT_AMOUNT.getCode(),
                         notLastItemTotalDiscountAmount.subtract(discountAmount),
-                        null,orderItemRequest);
+                        null, orderItemRequest);
             }
             orderAmountDetails.add(couponDiscountAmountDetail);
 
@@ -154,62 +153,59 @@ public class MarketServiceImpl implements MarketService {
             BigDecimal realPayAmount = originPayAmountDetail.getAmount().subtract(couponDiscountAmountDetail.getAmount());
 
             CalculateOrderAmountDTO.OrderAmountDetailDTO realPayAmountDetail = createOrderAmountDetailDTO(
-                    orderId,AmountTypeEnum.REAL_PAY_AMOUNT.getCode(),null,realPayAmount,orderItemRequest);
+                    orderId, AmountTypeEnum.REAL_PAY_AMOUNT.getCode(), null, realPayAmount, orderItemRequest);
             orderAmountDetails.add(realPayAmountDetail);
 
+        }
+        // 重新计算订单支付价格原价，优惠券抵扣金额，实际支付
+        BigDecimal totalOriginPayAmount = BigDecimal.ZERO;
+        BigDecimal totalDiscountAmount = BigDecimal.ZERO;
+        BigDecimal totalRealPayAmount = BigDecimal.ZERO;
 
-            // 重新计算订单支付价格原价，优惠券抵扣金额，实际支付
-            BigDecimal totalOriginPayAmount = BigDecimal.ZERO;
-            BigDecimal totalDiscountAmount = BigDecimal.ZERO;
-            BigDecimal totalRealPayAmount = BigDecimal.ZERO;
+        for (CalculateOrderAmountDTO.OrderAmountDetailDTO orderAmountDetail : orderAmountDetails) {
 
-            for (CalculateOrderAmountDTO.OrderAmountDetailDTO orderAmountDetail : orderAmountDetails) {
+            Integer amountType = orderAmountDetail.getAmountType();
+            BigDecimal amount = orderAmountDetail.getAmount();
 
-                Integer amountType = orderAmountDetail.getAmountType();
-                BigDecimal amount = orderAmountDetail.getAmount();
-
-                if (AmountTypeEnum.ORIGIN_PAY_AMOUNT.getCode().compareTo(amountType) == 0){
-                    totalOriginPayAmount =     totalOriginPayAmount.add(amount);
-                }else if (AmountTypeEnum.COUPON_DISCOUNT_AMOUNT.getCode().compareTo(amountType) == 0){
-                    totalDiscountAmount =    totalDiscountAmount.add(amount);
-                }else if (AmountTypeEnum.REAL_PAY_AMOUNT.getCode().compareTo(amountType) == 0){
-                    totalRealPayAmount =  totalRealPayAmount.add(amount);
-                }
+            if (AmountTypeEnum.ORIGIN_PAY_AMOUNT.getCode().compareTo(amountType) == 0) {
+                totalOriginPayAmount = totalOriginPayAmount.add(amount);
+            } else if (AmountTypeEnum.COUPON_DISCOUNT_AMOUNT.getCode().compareTo(amountType) == 0) {
+                totalDiscountAmount = totalDiscountAmount.add(amount);
+            } else if (AmountTypeEnum.REAL_PAY_AMOUNT.getCode().compareTo(amountType) == 0) {
+                totalRealPayAmount = totalRealPayAmount.add(amount);
             }
-                // 总支付实际金额 加运费
-                Map<Integer, CalculateOrderAmountDTO.OrderAmountDTO> orderAmountMap =orderAmountMap =
-                        orderAmounts.stream().collect(Collectors.toMap(
-                                CalculateOrderAmountDTO.OrderAmountDTO::getAmountType, Function.identity()));
-                // 运费
-                BigDecimal shippingAmount = calculateOrderShippingAmount(regionId,orderAmountMap);
+        }
+        // 总支付实际金额 加运费
+        Map<Integer, CalculateOrderAmountDTO.OrderAmountDTO> orderAmountMap = orderAmountMap =
+                orderAmounts.stream().collect(Collectors.toMap(
+                        CalculateOrderAmountDTO.OrderAmountDTO::getAmountType, Function.identity()));
+        // 运费
+        BigDecimal shippingAmount = calculateOrderShippingAmount(regionId, orderAmountMap);
 
-                if (ObjectUtils.isNotEmpty(shippingAmount)){
-                    totalRealPayAmount =   totalRealPayAmount.add(shippingAmount);
-                }
-
-                for (CalculateOrderAmountDTO.OrderAmountDTO orderAmount : orderAmounts) {
-                    Integer amountType = orderAmount.getAmountType();
-                    BigDecimal amount = orderAmount.getAmount();
-                    if (AmountTypeEnum.ORIGIN_PAY_AMOUNT.getCode().compareTo(amountType) == 0){
-                        orderAmount.setAmount(totalOriginPayAmount);
-                    }
-                    if (AmountTypeEnum.REAL_PAY_AMOUNT.getCode().compareTo(amountType) == 0){
-                        orderAmount.setAmount(totalRealPayAmount);
-                    }
-                    if (AmountTypeEnum.COUPON_DISCOUNT_AMOUNT.getCode().compareTo(amountType) == 0){
-                        orderAmount.setAmount(totalDiscountAmount);
-                    }
-                }
-
-            CalculateOrderAmountDTO calculateOrderAmount = new CalculateOrderAmountDTO();
-                calculateOrderAmount.setOrderAmountDTOList(orderAmounts);
-                calculateOrderAmount.setOrderAmountDetailDTOList(orderAmountDetails);
-
-                return calculateOrderAmount;
-
+        if (ObjectUtils.isNotEmpty(shippingAmount)) {
+            totalRealPayAmount = totalRealPayAmount.add(shippingAmount);
         }
 
-        return null;
+        for (CalculateOrderAmountDTO.OrderAmountDTO orderAmount : orderAmounts) {
+            Integer amountType = orderAmount.getAmountType();
+            BigDecimal amount = orderAmount.getAmount();
+            if (AmountTypeEnum.ORIGIN_PAY_AMOUNT.getCode().compareTo(amountType) == 0) {
+                orderAmount.setAmount(totalOriginPayAmount);
+            }
+            if (AmountTypeEnum.REAL_PAY_AMOUNT.getCode().compareTo(amountType) == 0) {
+                orderAmount.setAmount(totalRealPayAmount);
+            }
+            if (AmountTypeEnum.COUPON_DISCOUNT_AMOUNT.getCode().compareTo(amountType) == 0) {
+                orderAmount.setAmount(totalDiscountAmount);
+            }
+        }
+
+
+        CalculateOrderAmountDTO calculateOrderAmount = new CalculateOrderAmountDTO();
+        calculateOrderAmount.setOrderAmountDTOList(orderAmounts);
+        calculateOrderAmount.setOrderAmountDetailDTOList(orderAmountDetails);
+
+        return calculateOrderAmount;
     }
 
     /**

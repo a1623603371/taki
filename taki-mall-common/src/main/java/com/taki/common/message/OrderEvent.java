@@ -1,8 +1,10 @@
 package com.taki.common.message;
 
 import com.taki.common.enums.OrderStatusChangEnum;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Tolerate;
 
 import java.io.Serializable;
@@ -16,6 +18,8 @@ import java.io.Serializable;
  */
 @Data
 @Builder
+@AllArgsConstructor
+
 public class OrderEvent<T> implements Serializable {
 
 

@@ -1,6 +1,6 @@
 package com.taki.risk.api;
 
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.risk.domain.dto.CheckOrderRiskDTO;
 import com.taki.risk.domain.request.CheckOrderRiskRequest;
 

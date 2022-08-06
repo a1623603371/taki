@@ -1,6 +1,6 @@
 package com.taki.wms.api;
 
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.wms.domain.dto.PickDTO;
 
 import com.taki.wms.domain.request.PickGoodsRequest;

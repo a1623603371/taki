@@ -4,8 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.taki.common.bean.SpringApplicationContext;
 import com.taki.common.constants.RedisLockKeyConstants;
 import com.taki.common.redis.RedisLock;
-import com.taki.common.utlis.ObjectUtil;
-import com.taki.common.utlis.RandomUtil;
+import com.taki.common.utli.RandomUtil;
 import com.taki.fulfill.builder.FulfillDataBuilder;
 import com.taki.fulfill.dao.OrderFulfillDao;
 import com.taki.fulfill.dao.OrderFulfillItemDao;
@@ -93,7 +92,7 @@ public class FulFillServiceImpl implements FulfillService {
 
             // 3 查询 履约条目
 
-            List<OrderFulfillItemDO> orderFulfillItems = orderFulfillItemDao.listByFulfillId(orderFulfillDO.getFulFillId());
+            List<OrderFulfillItemDO> orderFulfillItems = orderFulfillItemDao.listByFulfillId(orderFulfillDO.getFulfillId());
 
             // 4.删除 履约条目
 

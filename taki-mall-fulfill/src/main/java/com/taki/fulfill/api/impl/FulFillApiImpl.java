@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.taki.common.bean.SpringApplicationContext;
 import com.taki.common.constants.RocketMQConstant;
 import com.taki.common.enums.OrderStatusChangEnum;
-import com.taki.common.utlis.ResponseData;
+import com.taki.common.utli.ResponseData;
 import com.taki.fulfill.api.FulFillApi;
 import com.taki.fulfill.domain.evnet.*;
 import com.taki.fulfill.domain.request.CancelFulfillRequest;
@@ -20,18 +20,7 @@ import com.taki.fulfill.service.impl.OrderSignedWmsEventProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.dubbo.config.annotation.DubboService;
-import org.apache.rocketmq.client.exception.MQBrokerException;
-import org.apache.rocketmq.client.exception.MQClientException;
-import org.apache.rocketmq.client.producer.DefaultMQProducer;
-import org.apache.rocketmq.client.producer.MessageQueueSelector;
-import org.apache.rocketmq.client.producer.SendResult;
-import org.apache.rocketmq.common.message.Message;
-import org.apache.rocketmq.common.message.MessageQueue;
-import org.apache.rocketmq.remoting.exception.RemotingException;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 /**
  * @ClassName FulFillApiImpl

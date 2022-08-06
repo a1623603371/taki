@@ -20,7 +20,6 @@ import lombok.experimental.Accessors;
  */
 @Getter
 @Setter
-@Accessors(chain = true)
 @TableName("order_operate_log")
 @Builder
 @NoArgsConstructor

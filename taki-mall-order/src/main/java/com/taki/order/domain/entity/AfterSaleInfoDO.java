@@ -1,5 +1,6 @@
 package com.taki.order.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.taki.common.core.AbstractObject;
 import com.taki.common.domin.BaseEntity;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@TableName("after_sale_info")
 public class AfterSaleInfoDO extends BaseEntity implements Serializable {
 
 

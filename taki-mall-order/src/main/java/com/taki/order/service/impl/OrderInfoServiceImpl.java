@@ -2,32 +2,20 @@ package com.taki.order.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
-import com.taki.address.api.AddressApi;
-import com.taki.address.domian.dto.AddressDTO;
-import com.taki.address.domian.request.AddressQuery;
 import com.taki.common.constants.RedisLockKeyConstants;
 import com.taki.common.constants.RocketDelayedLevel;
 import com.taki.common.constants.RocketMQConstant;
 import com.taki.common.core.CloneDirection;
 import com.taki.common.enums.AmountTypeEnum;
-import com.taki.common.enums.OrderOperateTypeEnum;
 import com.taki.common.enums.OrderStatusEnum;
 import com.taki.common.enums.PayTypeEnum;
 import com.taki.common.exception.ServiceException;
 import com.taki.common.message.PaidOrderSuccessMessage;
 import com.taki.common.message.PayOrderTimeOutDelayMessage;
 import com.taki.common.redis.RedisLock;
-import com.taki.common.utlis.*;
-import com.taki.inventory.api.InventoryApi;
-import com.taki.market.api.MarketApi;
+import com.taki.common.utli.*;
 import com.taki.market.domain.dto.CalculateOrderAmountDTO;
-import com.taki.market.domain.dto.UserCouponDTO;
 import com.taki.market.request.CalculateOrderAmountRequest;
-import com.taki.market.request.LockUserCouponRequest;
-import com.taki.market.domain.query.UserCouponQuery;
-import com.taki.order.bulider.FullOrderData;
-import com.taki.order.bulider.NewOrderBuilder;
-import com.taki.order.config.OrderProperties;
 import com.taki.order.dao.*;
 import com.taki.order.domain.dto.*;
 import com.taki.order.domain.request.*;
@@ -36,7 +24,6 @@ import com.taki.order.manager.OrderManager;
 import com.taki.order.mq.producer.DefaultProducer;
 import com.taki.order.mq.producer.PaidOrderSuccessProducer;
 import com.taki.order.remote.*;
-import com.taki.pay.api.PayApi;
 import com.taki.pay.domian.dto.PayOrderDTO;
 import com.taki.pay.domian.rquest.PayOrderRequest;
 import com.taki.pay.domian.rquest.PayRefundRequest;
@@ -46,17 +33,11 @@ import com.taki.order.exception.OrderBizException;
 import com.taki.order.exception.OrderErrorCodeEnum;
 import com.taki.order.manager.OrderNoManager;
 import com.taki.order.service.OrderInfoService;
-import com.taki.product.api.ProductApi;
 import com.taki.product.domian.dto.ProductSkuDTO;
-import com.taki.product.domian.query.ProductSkuQuery;
-import com.taki.risk.api.RiskApi;
-import com.taki.risk.domain.dto.CheckOrderRiskDTO;
 import com.taki.risk.domain.request.CheckOrderRiskRequest;
-import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.rocketmq.client.exception.MQClientException;
 import org.apache.rocketmq.client.producer.*;
 import org.apache.rocketmq.common.message.Message;
@@ -167,7 +148,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
    // @GlobalTransactional(rollbackFor = Exception.class)
     @Override
-    public CreateOrderDTO createOrder(CreateOrderRequest createOrderRequest) {
+    public CreateOrderDTO createOrder(CreateOrderRequest createOrderRequest)  {
 
         log.info(LoggerFormat.build()
                 .remark("createOrder -> request")
@@ -191,13 +172,14 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         checkRealPayAmount(createOrderRequest,calculateOrderAmount);
 
         //6. 生成订单到数据库
+
         createOrder(createOrderRequest,productSkus,calculateOrderAmount);
 
         // 7.发送延时订单消息用于支付超时自动关单
         sendPayOrderTimeoutDelayMessage(createOrderRequest);
         // 返回订单数据
         CreateOrderDTO createOrderDTO = new CreateOrderDTO();
-        createOrderDTO.setOrderId(createOrderDTO.getOrderId());
+        createOrderDTO.setOrderId(createOrderRequest.getOrderId());
         return createOrderDTO;
     }
 
@@ -262,6 +244,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void payCallback(PayCallbackRequest payCallbackRequest) {
 
         log.info(LoggerFormat.build()
@@ -473,6 +456,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean removeOrders(List<String> orderIds) {
         List<OrderInfoDO> orderInfos = orderInfoDao.listByOrderIds(orderIds);
 
@@ -506,6 +490,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean adjustDeliveryAddress(AdjustDeliveryAddressRequest adjustDeliveryAddressRequest) {
         // 1.根据 id 查询订单
     OrderInfoDO orderInfo = orderInfoDao.getByOrderId(adjustDeliveryAddressRequest.getOrderId());
@@ -575,7 +560,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         ParamCheckUtil.checkObjectNonNull(payAmount);
 
         // 支付系统交易流水号
-        String outTradeNo = payCallbackRequest.getOutTraderNo();
+        String outTradeNo = payCallbackRequest.getOutTradeNo();
         ParamCheckUtil.checkStringNonEmpty(outTradeNo);
 
         // 支付类型
@@ -595,7 +580,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
             throw new OrderBizException(OrderErrorCodeEnum.ORDER_INFO_IS_NULL);
         }
 
-        if (payAmount.compareTo(orderInfo.getPayAmount()) == 0){
+        if (payAmount.compareTo(orderInfo.getPayAmount()) != 0){
             throw new ServiceException(OrderErrorCodeEnum.ORDER_PAY_AMOUNT_ERROR);
         }
 
@@ -810,11 +795,6 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         String orderId = createOrderRequest.getOrderId();
 
         PayOrderTimeOutDelayMessage payOrderTimeOutDelayMessage = PayOrderTimeOutDelayMessage.builder()
-
-
-
-
-
                 .orderId(orderId)
                 .businessIdentifier(createOrderRequest.getBusinessIdentifier())
                 .cancelType(OrderCancelTypeEnum.TIMEOUT_CANCELED.getCode())
@@ -841,7 +821,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
      * @author Long
      * @date: 2022/5/10 14:42
      */
-    private void createOrder(CreateOrderRequest createOrderRequest,List<ProductSkuDTO> productSkus,CalculateOrderAmountDTO calculateOrderAmount ){
+    private void createOrder(CreateOrderRequest createOrderRequest,List<ProductSkuDTO> productSkus,CalculateOrderAmountDTO calculateOrderAmount ) {
 
         orderManager.createOrder(createOrderRequest,productSkus, calculateOrderAmount );
     }
@@ -891,12 +871,12 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         calculateOrderAmountRequest.getOrderItemRequests().forEach(orderItemRequest -> {
             String skuCode = orderItemRequest.getSkuCode();
             ProductSkuDTO productSku = productSkuDTOMap.get(skuCode);
-            productSku.setSalePrice(orderItemRequest.getSalePrice());
-            productSku.setProductId(orderItemRequest.getProductId());
+            orderItemRequest.setSalePrice(productSku.getSalePrice());
+            orderItemRequest.setProductId(productSku.getProductId());
         });
         // 调用营销服务计算订单价格
         CalculateOrderAmountDTO calculateOrderAmount = marketRemote.calculateOrderAmount(calculateOrderAmountRequest);
-        if (!ObjectUtils.isNotEmpty(calculateOrderAmount)){
+        if (ObjectUtils.isEmpty(calculateOrderAmount)){
             throw new OrderBizException(OrderErrorCodeEnum.CALCULATE_ORDER_AMOUNT_ERROR);
         }
         // 订单费用
@@ -1065,20 +1045,20 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         Map<Integer,BigDecimal> orderAmountMap = orderAmountRequests.stream().collect(Collectors.toMap(CreateOrderRequest.OrderAmountRequest::getAmountType, CreateOrderRequest.OrderAmountRequest::getAmount));
 
         // 订单原价不能为空
-        if (orderAmountMap.get(AmountTypeEnum.ORIGIN_PAY_AMOUNT) == null){
+        if (orderAmountMap.get(AmountTypeEnum.ORIGIN_PAY_AMOUNT.getCode()) == null){
             throw new ServiceException(OrderErrorCodeEnum.ORDER_AMOUNT_TYPE_PARAM_ERROR);
         }
         // 订单运费不能为空
-        if (orderAmountMap.get(AmountTypeEnum.SHIPPING_AMOUNT) == null){
+        if (orderAmountMap.get(AmountTypeEnum.SHIPPING_AMOUNT.getCode()) == null){
             throw new ServiceException(OrderErrorCodeEnum.ORDER_SHIPPING_AMOUNT_IS_NULL);
         }
         // 订单实付价格不能为空
-        if (orderAmountMap.get(AmountTypeEnum.REAL_PAY_AMOUNT) == null){
+        if (orderAmountMap.get(AmountTypeEnum.REAL_PAY_AMOUNT.getCode()) == null){
             throw new ServiceException(OrderErrorCodeEnum.ORDER_REAL_PAY_AMOUNT_IS_NULL);
         }
 
-        if (!StringUtils.isNotBlank(createOrderRequest.getCouponId())){
-            if(orderAmountMap.get(AmountTypeEnum.COUPON_DISCOUNT_AMOUNT) == null){
+        if (StringUtils.isNotBlank(createOrderRequest.getCouponId())){
+            if(orderAmountMap.get(AmountTypeEnum.COUPON_DISCOUNT_AMOUNT.getCode()) == null){
                 throw new ServiceException(OrderErrorCodeEnum.ORDER_DISCOUNT_AMOUNT_IS_NULL);
             }
 
