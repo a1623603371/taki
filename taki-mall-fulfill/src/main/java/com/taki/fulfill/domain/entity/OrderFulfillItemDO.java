@@ -60,7 +60,7 @@ public class OrderFulfillItemDO extends BaseEntity implements Serializable {
     /**
      * 当前商品支付原价
      */
-    private Integer originAmount;
+    private BigDecimal originAmount;
 
 
     public static final  String  FULFILL_ID = "fulfill_id";

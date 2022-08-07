@@ -64,7 +64,6 @@ public class FulFillServiceImpl implements FulfillService {
         List<OrderFulfillItemDO> orderFulfillItems = builder.getOrderFulFillItems();
 
         //3. 报错履约和履约条目
-
         orderFulfillDao.save(orderFulfill);
 
         orderFulfillItemDao.saveBatch(orderFulfillItems);

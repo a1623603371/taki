@@ -1,7 +1,7 @@
 package com.taki.wms.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.taki.wms.domain.entity.DeliverOrderDO;
+import com.taki.wms.domain.entity.DeliveryOrderDO;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -12,5 +12,5 @@ import org.apache.ibatis.annotations.Mapper;
  * @Version 1.0
  */
 @Mapper
-public interface DeliverOrderMapper extends BaseMapper<DeliverOrderDO> {
+public interface DeliverOrderMapper extends BaseMapper<DeliveryOrderDO> {
 }

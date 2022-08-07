@@ -45,7 +45,11 @@ public class FulfillDataBuilder {
 
     public  FulfillDataBuilder builderOrderFulfill(String  fulfillId){
 
-        orderFulfill = receiveFulFillRequest.clone(OrderFulfillDO.class);
+        try {
+            orderFulfill = receiveFulFillRequest.clone(OrderFulfillDO.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         orderFulfill.setFulfillId(fulfillId);
 

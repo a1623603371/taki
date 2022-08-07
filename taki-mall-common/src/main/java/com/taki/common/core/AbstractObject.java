@@ -19,7 +19,7 @@ import java.util.*;
  * @Date 2021/12/13 17:28
  * @Version 1.0
  */
-
+@Slf4j
 public abstract class AbstractObject {
 
     /** 
@@ -38,6 +38,7 @@ public abstract class AbstractObject {
             return getTarget(target);
 
         }catch (Exception e) {
+            log.error("错误信息：",e);
             throw new RuntimeException("error",e);
         }
     }

@@ -414,19 +414,19 @@ public class OrderInfoServiceImpl implements OrderInfoService {
 
                     throw new OrderBizException(OrderErrorCodeEnum.ORDER_CANCEL_PAY_CALLBACK_PAY_TYPE_NO_SAME_ERROR);
                 }
-            }else {
-                // 如果订单状态不是取消状态(那么就是 已履约，已出库，已配送 状态中)
-                if (PayStatusEnum.PAID.getCode().equals(payStatus)){
-                    // 如果是同种支付方式回调，说明用户是并m没有发起重复付款，只是支付系统 多触发了一次支付回调
-                    //  这里做幂等判断，直接 返回，不需要调用 退款接口
-                    if (payType.equals(orderPaymentDetail.getPayType())){
-                        return;
-                    }
-                    //  如果 非同种支付方式，说明用户 更换了支付方式，发起了重复支付，所以调用退款接口进行退款
-                    // 调用退款
-                    executeOrderRefund(orderInfo,orderPaymentDetail);
-                    throw new OrderBizException(OrderErrorCodeEnum.ORDER_CANCEL_PAY_CALLBACK_REPEAT_ERROR);
+            }
+        }else {
+            // 如果订单状态不是取消状态(那么就是 已履约，已出库，已配送 状态中)
+            if (PayStatusEnum.PAID.getCode().equals(payStatus)){
+                // 如果是同种支付方式回调，说明用户是并m没有发起重复付款，只是支付系统 多触发了一次支付回调
+                //  这里做幂等判断，直接 返回，不需要调用 退款接口
+                if (payType.equals(orderPaymentDetail.getPayType())){
+                    return;
                 }
+                //  如果 非同种支付方式，说明用户 更换了支付方式，发起了重复支付，所以调用退款接口进行退款
+                // 调用退款
+                executeOrderRefund(orderInfo,orderPaymentDetail);
+                throw new OrderBizException(OrderErrorCodeEnum.ORDER_CANCEL_PAY_CALLBACK_REPEAT_ERROR);
             }
         }
 
@@ -537,6 +537,9 @@ public class OrderInfoServiceImpl implements OrderInfoService {
         payRefundRequest.setRefundAmount(orderPaymentDetail.getPayAmount());
         payRefundRequest.setOutTradeNo(orderPaymentDetail.getOutTradeNo());
         payRemote.executeRefund(payRefundRequest);
+        log.info(LoggerFormat
+                .build().remark("执行退款完毕").finish());
+
     }
 
 

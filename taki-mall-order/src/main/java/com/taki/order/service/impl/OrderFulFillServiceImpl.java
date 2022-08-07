@@ -115,6 +115,7 @@ public class OrderFulFillServiceImpl implements OrderFulFillService {
 
         //构造请求
         ReceiveFulFillRequest request = ReceiveFulFillRequest.builder()
+                .businessIdentifier(orderInfoDO.getBusinessIdentifier())
                 .orderId(orderInfoDO.getOrderId())
                 .sellerId(orderInfoDO.getSellerId())
                 .userId(orderInfoDO.getUserId())
@@ -156,6 +157,7 @@ public class OrderFulFillServiceImpl implements OrderFulFillService {
             ReceiveOrderItemRequest request = ReceiveOrderItemRequest.builder()
                     .skuCode(orderItemDO.getSkuCode())
                     .productName(orderItemDO.getProductName())
+                    .productUnit(orderItemDO.getProductUnit())
                     .salePrice(orderItemDO.getSalePrice())
                     .saleQuantity(orderItemDO.getSaleQuantity())
                     .payAmount(orderItemDO.getPayAmount())

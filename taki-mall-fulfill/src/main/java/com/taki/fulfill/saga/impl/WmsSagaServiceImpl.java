@@ -21,7 +21,7 @@ import java.util.List;
  * @Date 2022/5/16 16:37
  * @Version 1.0
  */
-@Service
+@Service("wmsSageService")
 @Slf4j
 public class WmsSagaServiceImpl implements WmsSagaService {
 

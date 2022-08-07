@@ -35,13 +35,13 @@ public class WmsApiServiceImpl implements WmsApi {
             return ResponseData.success(wmsService.pickGoods(request)) ;
 
         }catch (WmsBizException e){
-          log.error("biz error",e.getErrorMessage());
+          log.error("biz error",e);
 
           return ResponseData.error(e.getErrorCode(),e.getErrorMessage());
 
         }catch (Exception e){
 
-            log.error("system error",e.getMessage());
+            log.error("system error",e);
             return ResponseData.error(e.getMessage());
         }
 
@@ -55,13 +55,13 @@ public class WmsApiServiceImpl implements WmsApi {
             return ResponseData.success(wmsService.cancelPickGoods(orderId)) ;
 
         }catch (WmsBizException e){
-            log.error("biz error",e.getErrorMessage());
+            log.error("biz error",e);
 
             return ResponseData.error(e.getErrorCode(),e.getErrorMessage());
 
         }catch (Exception e){
 
-            log.error("system error",e.getMessage());
+            log.error("system error",e);
             return ResponseData.error(e.getMessage());
         }
     }

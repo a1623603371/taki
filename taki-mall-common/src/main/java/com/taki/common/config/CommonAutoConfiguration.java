@@ -16,6 +16,6 @@ import org.springframework.context.annotation.Import;
  * @Version 1.0  ,
  */
 @Configuration
-@Import({RedisLock.class, SpringApplicationContext.class,DefaultWebMvcConfigurer.class, RedisConfig.class,MybatisPlusConfig.class, MyMetaObjectHandler.class})
+@Import({ SpringApplicationContext.class,DefaultWebMvcConfigurer.class,MybatisPlusConfig.class, MyMetaObjectHandler.class})
 public class CommonAutoConfiguration {
 }

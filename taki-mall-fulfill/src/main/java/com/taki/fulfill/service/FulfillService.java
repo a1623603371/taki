@@ -14,9 +14,9 @@ public interface FulfillService {
 
     /**
      * 创建 履约单
-     * @param request
+     * @param receiveFulFillRequest
      */
-    void createFulfillOrder(ReceiveFulFillRequest  request);
+    void createFulfillOrder(ReceiveFulFillRequest  receiveFulFillRequest);
 
 
     /**
@@ -28,8 +28,8 @@ public interface FulfillService {
 
     /**
      * 触发履约单
-     * @param request
+     * @param receiveFulFillRequest
      * @return
      */
-    Boolean receiveOrderFulFill(ReceiveFulFillRequest request);
+    Boolean receiveOrderFulFill(ReceiveFulFillRequest receiveFulFillRequest);
 }

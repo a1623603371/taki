@@ -36,7 +36,11 @@ public class ObjectUtil {
         }
         List<T>targetList = new ArrayList<>();
         sourceList.forEach(source ->{
-            targetList.add(source.clone(targetClass));
+            try {
+                targetList.add(source.clone(targetClass));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
 
         return targetList;
@@ -79,7 +83,11 @@ public class ObjectUtil {
         }
         List<T>targetList = new ArrayList<>();
         sourceList.forEach(source ->{
-            targetList.add(source.clone(targetClass));
+            try {
+                targetList.add(source.clone(targetClass));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
         targetList.forEach(consumer);
         return targetList;

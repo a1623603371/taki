@@ -1,13 +1,14 @@
 package com.taki.wms.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.taki.common.utli.ObjectUtil;
 import com.taki.common.utli.RandomUtil;
 import com.taki.wms.dao.DeliverOrderDao;
 import com.taki.wms.dao.DeliveryOrderItemDao;
 import com.taki.wms.domain.dto.PickDTO;
 import com.taki.wms.domain.dto.ScheduleDeliveryResult;
-import com.taki.wms.domain.entity.DeliverOrderDO;
+import com.taki.wms.domain.entity.DeliveryOrderDO;
 import com.taki.wms.domain.entity.DeliveryOrderItemDO;
 import com.taki.wms.domain.request.PickGoodsRequest;
 import com.taki.wms.exception.WmsBizException;
@@ -18,7 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @ClassName WmsServiceImpl
@@ -44,7 +47,7 @@ public class WmsServiceImpl implements WmsService {
         log.info("拣货 ，orderId={}，request={}",request.getOrderId(),request);
         String wmsException = request.getWmsException();
 
-        if (wmsException.equals("true")){
+        if (StringUtils.isNotBlank(wmsException) &&wmsException.equals("true")){
             throw new WmsBizException(WmsErrorCodeEnum.DELIVERY_ORDER_ID_GEN_ERROR);
         }
         //1.拣货 调度出库
@@ -72,7 +75,7 @@ public class WmsServiceImpl implements WmsService {
         // 1.生成出库单Id
         String deliveryOrderId = genDeliveryOrderId();
         //2.生成出库单
-        DeliverOrderDO deliverOrder = request.clone(DeliverOrderDO.class);
+        DeliveryOrderDO deliverOrder = request.clone(DeliveryOrderDO.class);
         deliverOrder.setDeliveryOrderId(deliveryOrderId);
 
         // 3.生成出库单条目
@@ -108,21 +111,25 @@ public class WmsServiceImpl implements WmsService {
         log.info("取消拣货，orderId={}",orderId);
 
         //1.查询出库单
-        List<DeliverOrderDO> deliverOrders = deliverOrderDao.listByOrderId(orderId);
+        List<DeliveryOrderDO> deliverOrders = deliverOrderDao.listByOrderId(orderId);
 
         //2.移除出库单和条目
         if (CollectionUtils.isNotEmpty(deliverOrders)){
 
-            deliverOrders.forEach(deliverOrderDO -> {
-                List<DeliveryOrderItemDO> deliveryOrderItems = deliveryOrderItemDao.listByDeliveryOrderId(deliverOrderDO.getDeliveryOrderId());
+            List<Long> orderIds = deliverOrders.stream().map(DeliveryOrderDO::getId).collect(Collectors.toList());
 
-                deliveryOrderItems.forEach(deliveryOrderItemDO -> {
-                    deliveryOrderItemDao.removeById(deliveryOrderItemDO);
-                });
+            deliverOrderDao.removeByIds(orderIds);
 
-                deliverOrderDao.removeById(deliverOrderDO);
+            //删除条目
 
-            });
+            List<String> deliveryOrderIds = deliverOrders.stream().map(DeliveryOrderDO::getDeliveryOrderId).collect(Collectors.toList());
+            List<DeliveryOrderItemDO> deliveryOrderItems = deliveryOrderItemDao.listByDeliveryOrderIds(deliveryOrderIds);
+            if (CollectionUtils.isNotEmpty(deliveryOrderItems)){
+                deliveryOrderItemDao.removeByIds(deliveryOrderItems);
+            }
+
+
+
         }
         return true;
     }

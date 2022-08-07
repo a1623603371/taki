@@ -22,7 +22,7 @@ import java.util.List;
  * @Date 2022/5/17 15:57
  * @Version 1.0
  */
-@Service
+@Service("tmsSagaService")
 @Slf4j
 public class TmsSagaServiceImpl implements TmsSagaService {
 

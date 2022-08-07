@@ -1,8 +1,10 @@
 package com.taki.wms.domain.request;
 
 import com.taki.common.core.AbstractObject;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Tolerate;
 
 import java.io.Serializable;
@@ -18,6 +20,8 @@ import java.util.List;
  */
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class PickGoodsRequest extends AbstractObject implements Serializable {
 
 
@@ -134,6 +138,7 @@ public class PickGoodsRequest extends AbstractObject implements Serializable {
      */
     @Data
     @Builder
+    @AllArgsConstructor
     public  static class OrderItemRequest extends AbstractObject implements Serializable{
 
 

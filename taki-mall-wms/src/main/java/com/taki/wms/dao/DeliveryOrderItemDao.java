@@ -20,13 +20,13 @@ public class DeliveryOrderItemDao extends BaseDAO<DeliverOrderItemMapper, Delive
 
     /**
      * @description: 根据 出货单Id 查询 出货单条目
-     * @param deliveryOrderId 出货单Id
+     * @param deliveryOrderIds 出货单Id 集合
      * @return
      * @author Long
      * @date: 2022/5/17 14:30
      */
-    public List<DeliveryOrderItemDO> listByDeliveryOrderId(String deliveryOrderId) {
+    public List<DeliveryOrderItemDO> listByDeliveryOrderIds(List<String> deliveryOrderIds) {
 
-        return this.list(new QueryWrapper<DeliveryOrderItemDO>().eq(DeliveryOrderItemDO.DELIVERY_ORDER_ID,deliveryOrderId));
+        return this.list(new QueryWrapper<DeliveryOrderItemDO>().in(DeliveryOrderItemDO.DELIVERY_ORDER_ID,deliveryOrderIds));
     }
 }

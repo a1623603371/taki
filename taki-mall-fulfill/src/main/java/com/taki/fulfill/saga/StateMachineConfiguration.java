@@ -6,6 +6,7 @@ import io.seata.saga.engine.impl.ProcessCtrlStateMachineEngine;
 import io.seata.saga.rm.StateMachineEngineHolder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
 
@@ -35,6 +36,7 @@ public class StateMachineConfiguration {
 
 
     @Bean
+    @Order(100)
     public DbStateMachineConfig dbStateMachineConfig(ThreadPoolExecutorFactoryBean threadPoolExecutor, DruidDataSource  druidDataSource) throws IOException {
 
     DbStateMachineConfig dbStateMachineConfig = new DbStateMachineConfig();
@@ -43,10 +45,10 @@ public class StateMachineConfiguration {
 
     dbStateMachineConfig.setThreadPoolExecutor((ThreadPoolExecutor) threadPoolExecutor.getObject());
 
-    dbStateMachineConfig.setResources(new PathMatchingResourcePatternResolver().getResources("classpath:statelang/*.json"));
+    dbStateMachineConfig.setResources(new PathMatchingResourcePatternResolver().getResources("classpath*:statelang/*.json"));
     dbStateMachineConfig.setEnableAsync(true);
 
-    dbStateMachineConfig.setTxServiceGroup("taki-eshop-fulfill-group");
+    dbStateMachineConfig.setTxServiceGroup("my_test_tx_group");
 
     return dbStateMachineConfig;
 
@@ -54,13 +56,13 @@ public class StateMachineConfiguration {
     }
 
     @Bean
-    public ProcessCtrlStateMachineEngine stateMachineEngineHolder(DbStateMachineConfig dbStateMachineConfig){
+    public ProcessCtrlStateMachineEngine stateMachineEngine(DbStateMachineConfig dbStateMachineConfig){
 
-        ProcessCtrlStateMachineEngine processCtrlStateMachineEngine = new ProcessCtrlStateMachineEngine();
+        ProcessCtrlStateMachineEngine stateMachineEngine = new ProcessCtrlStateMachineEngine();
 
-        processCtrlStateMachineEngine.setStateMachineConfig(dbStateMachineConfig);
+        stateMachineEngine.setStateMachineConfig(dbStateMachineConfig);
 
-        return processCtrlStateMachineEngine;
+        return stateMachineEngine;
     }
 
     @Bean

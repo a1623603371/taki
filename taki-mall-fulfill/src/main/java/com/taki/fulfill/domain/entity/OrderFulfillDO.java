@@ -133,7 +133,7 @@ public class OrderFulfillDO extends BaseEntity implements Serializable {
     /**
      *运费
      */
-    private Integer deliveryAmount;
+    private BigDecimal deliveryAmount;
 
 
     public static final  String FULFILL_ID = "fulfill_Id";

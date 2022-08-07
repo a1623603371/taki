@@ -50,6 +50,11 @@ public class DeliveryOrderItemDO extends BaseEntity implements Serializable {
     private String productUnit;
 
     /**
+     * 当前商品支付原总价
+     */
+    private BigDecimal originAmount;
+
+    /**
      * 付款金额
      */
     private BigDecimal payAmount;

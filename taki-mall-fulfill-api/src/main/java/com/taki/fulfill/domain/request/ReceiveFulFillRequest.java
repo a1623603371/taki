@@ -23,6 +23,12 @@ public class ReceiveFulFillRequest  extends AbstractObject implements Serializab
 
     private static final long serialVersionUID = -3267101977830300294L;
 
+
+    /**
+     * 业务标识 1, "自营商城"
+     */
+    private Integer businessIdentifier;
+
     /**
      * 订单号
      */

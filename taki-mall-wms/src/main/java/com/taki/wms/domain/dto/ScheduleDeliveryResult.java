@@ -1,6 +1,6 @@
 package com.taki.wms.domain.dto;
 
-import com.taki.wms.domain.entity.DeliverOrderDO;
+import com.taki.wms.domain.entity.DeliveryOrderDO;
 import com.taki.wms.domain.entity.DeliveryOrderItemDO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,7 +23,7 @@ public class ScheduleDeliveryResult {
     /**
      * 调度出库单
      */
-    private DeliverOrderDO deliveryOrder;
+    private DeliveryOrderDO deliveryOrder;
 
     /**
      * 出库单条目

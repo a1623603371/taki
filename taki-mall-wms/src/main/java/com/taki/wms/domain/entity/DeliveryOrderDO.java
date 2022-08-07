@@ -8,15 +8,15 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
- * @ClassName DeliverOrderDO
+ * @ClassName DeliveryOrderDO
  * @Description TODO
  * @Author Long
  * @Date 2022/5/16 20:26
  * @Version 1.0
  */
 @Data
-@TableName("deliver_order")
-public class DeliverOrderDO extends BaseEntity implements Serializable {
+@TableName("delivery_order")
+public class DeliveryOrderDO extends BaseEntity implements Serializable {
 
     /**
      * 业务标识线 1 。 “自营商城”
