@@ -1,8 +1,11 @@
 package com.taki.tms.domain.dto;
 
+import com.taki.common.core.AbstractObject;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
 
 /**
  * @ClassName SendOutDTO
@@ -14,8 +17,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SendOutDTO {
+public class SendOutDTO extends AbstractObject implements Serializable {
 
+
+    private static final long serialVersionUID = -552060326868891630L;
     /**
      * 订单Id
      */

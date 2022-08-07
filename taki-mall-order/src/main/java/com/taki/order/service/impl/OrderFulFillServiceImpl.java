@@ -84,7 +84,7 @@ public class OrderFulFillServiceImpl implements OrderFulFillService {
 
         //2. 效验订单是否支付
         OrderStatusEnum orderStatusEnum =  OrderStatusEnum.getByCode(orderInfoDO.getOrderStatus());
-        if (OrderStatusEnum.PAID.equals(orderStatusEnum)){
+        if (!OrderStatusEnum.PAID.equals(orderStatusEnum)){
             log.info("order  has  not  bean paid ,cannot fulfill,orderId={}",orderId);
             return;
         }

@@ -19,7 +19,7 @@ public interface TmsSagaService {
      * @author Long
      * @date: 2022/5/17 15:56
      */ 
-    Boolean senOut(ReceiveFulFillRequest request);
+    Boolean sendOut(ReceiveFulFillRequest request);
 
     /**
      * @description: 取消 发货
@@ -28,5 +28,5 @@ public interface TmsSagaService {
      * @author Long
      * @date: 2022/5/17 15:56
      */
-    Boolean canOutCompensate(ReceiveFulFillRequest request);
+    Boolean sendOutCompensate(ReceiveFulFillRequest request);
 }

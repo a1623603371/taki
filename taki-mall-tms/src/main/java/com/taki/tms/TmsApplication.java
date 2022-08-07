@@ -11,7 +11,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  * @Date 2022/5/17 15:40
  * @Version 1.0
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.taki.common.config","com.taki.tms.*"})
 @EnableDiscoveryClient
 public class TmsApplication {
 

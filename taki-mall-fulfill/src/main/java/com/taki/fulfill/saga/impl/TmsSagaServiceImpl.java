@@ -28,10 +28,10 @@ public class TmsSagaServiceImpl implements TmsSagaService {
 
     @Autowired
     private TmsRemote tmsRemote;
-
+    @Autowired
     private OrderFulfillDao orderFulfillDao;
     @Override
-    public Boolean senOut(ReceiveFulFillRequest request) {
+    public Boolean sendOut(ReceiveFulFillRequest request) {
         log.info("发货，request={}", JSONObject.toJSONString(request));
 
         //1.调用tms进行发货
@@ -70,7 +70,7 @@ public class TmsSagaServiceImpl implements TmsSagaService {
     }
 
     @Override
-    public Boolean canOutCompensate(ReceiveFulFillRequest request) {
+    public Boolean sendOutCompensate(ReceiveFulFillRequest request) {
         log.info("补偿发货，request={}",JSONObject.toJSONString(request));
 
         Boolean result = tmsRemote.cancelSendOut(request.getOrderId());

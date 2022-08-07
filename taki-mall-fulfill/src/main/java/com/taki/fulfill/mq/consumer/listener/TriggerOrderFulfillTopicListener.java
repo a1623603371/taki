@@ -40,9 +40,6 @@ public class TriggerOrderFulfillTopicListener implements MessageListenerConcurre
                 fulfillService.receiveOrderFulFill(request);
             });
 
-
-
-
             return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
         }catch (Exception e){
             log.error("接受订单履约 error",e);
