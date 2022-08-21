@@ -5,6 +5,7 @@ import com.taki.common.utli.MdcUtil;
 import com.taki.common.utli.SnowFlake;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,4 +51,6 @@ public class GlobalWebMvcInterceptor implements HandlerInterceptor {
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         MdcUtil.clear();
     }
+
+
 }

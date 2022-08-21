@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Slf4j
 @RestControllerAdvice()
-public class GlobalResponseBodyAdvice<T> implements ResponseBodyAdvice<Object> {
+public class GlobalResponseBodyAdvice<T> implements ResponseBodyAdvice<Object>   {
     /**
      * @description: 是否开启结果响应拦截
      * @param: methodParameter 方法参数
@@ -38,6 +38,7 @@ public class GlobalResponseBodyAdvice<T> implements ResponseBodyAdvice<Object> {
      */
     @Override
     public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> aClass) {
+
         Class<?> declaringClass = aClass.getDeclaringClass();
         if (null == declaringClass || declaringClass.equals(ApiResourceController.class)  ){
             return false;
@@ -54,6 +55,8 @@ public class GlobalResponseBodyAdvice<T> implements ResponseBodyAdvice<Object> {
 //
 //        return true;
     }
+
+
     /**
      * @description:  拦截响应
      * @param: o
