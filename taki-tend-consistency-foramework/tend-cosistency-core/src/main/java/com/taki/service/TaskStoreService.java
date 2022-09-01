@@ -94,7 +94,7 @@ public interface TaskStoreService {
      * @author Long
      * @date: 2022/8/31 21:47
      */ 
-    Boolean submitTaskInstance(ConsistencyTaskInstance consistencyTaskInstance);
+    void submitTaskInstance(ConsistencyTaskInstance consistencyTaskInstance);
 
 
 }

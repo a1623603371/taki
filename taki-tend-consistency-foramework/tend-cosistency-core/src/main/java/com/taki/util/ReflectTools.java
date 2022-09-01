@@ -1,10 +1,19 @@
 package com.taki.util;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.asm.Type;
+import org.springframework.cglib.core.ClassInfo;
+import org.springframework.cglib.core.ReflectUtils;
 
+import javax.management.monitor.StringMonitor;
+import java.security.Signature;
 import java.util.HashMap;
+import java.util.StringJoiner;
 
 /**
  * @ClassName ReflectTools
@@ -121,6 +130,116 @@ public class ReflectTools {
 
         return args;
 
+    }
+    
+    /*** 
+     * @description:  获取入参类名称数组
+     * @param signature aop切片切入的方法签名对象
+     * @return 签名类字符（多个逗号分割）
+     * @author Long
+     * @date: 2022/9/1 21:29
+     */ 
+    public static String getArgsClassNames(Signature signature){
+        MethodSignature methodSignature = (MethodSignature) signature;
+        Class<?>[] parameterTypes = methodSignature.getParameterTypes();
+        StringBuilder parameterStrTypes = new StringBuilder();
+        for (int i = 0; i < parameterTypes.length; i++) {
+            parameterStrTypes.append(parameterTypes[i].getName());
+            if (parameterTypes.length != (i + 1)){
+                parameterStrTypes.append(",");
+
+            }
+        }
+        return parameterStrTypes.toString();
+    }
+
+    /***
+     * @description: 获取被拦截方法得全限定名名称，格式，类路径 #方法名（参数1的类型，参数2的类型，...参数N的类型）
+     * @param point 切点
+     * @param  argsClazz 入参的Class对象
+     * @return 被拦截的全限定名
+     * @author Long
+     * @date: 2022/9/1 21:36
+     */
+    public static String getTargetMethodFullyQualifiedName(JoinPoint  point,Class<?>[] argsClazz){
+        StringJoiner methodSignNameJoiner = new StringJoiner("","","");
+        methodSignNameJoiner.add(point.getTarget().getClass().getName())
+                            .add("#")
+                            .add(point.getSignature().getName());
+        methodSignNameJoiner.add("(");
+
+        for (int i = 0; i < argsClazz.length ; i++) {
+            String className = argsClazz[i].getName();
+            methodSignNameJoiner.add(className);
+            if (argsClazz.length != (i + 1)){
+                methodSignNameJoiner.add(",");
+            }
+        }
+        methodSignNameJoiner.add(")");
+        return  methodSignNameJoiner.toString();
+    }
+
+    /*** 
+     * @description: 获取各个参数的Class对象数组
+     * @param args 目标方法参数
+     * @return  参数类对象数组
+     * @author Long
+     * @date: 2022/9/1 21:43
+     */ 
+    public static   Class<?>[] getArgsClass(Object[] args){
+
+        Class<?>[] clazz = new Class<?>[args.length];
+
+        for (int i = 0; i < args.length; i++) {
+
+            if (!args[i].getClass().isPrimitive()){
+                //获取的是封装类型而不是基础类型
+                String result  = args[i].getClass().getName();
+                Class<?> typeClazz = PRIMITIVE_MAP.get(result);
+                clazz[i] = ObjectUtil.isEmpty(typeClazz) ? args[i].getClass() : typeClazz;
+            }
+
+        }
+
+        return clazz;
+        
+    }
+
+    /*** 
+     * @description:  获取类的全路径
+     * @param clazz  要获取的类
+     * @return  类路径
+     * @author Long
+     * @date: 2022/9/1 21:50
+     */ 
+    public static String getFullyQualifiedClassName(Class<?> clazz){
+
+        if(ObjectUtil.isEmpty(clazz)){
+            return "";
+        }
+
+        return clazz.getName();
+        
+    }
+
+    /***
+     * @description: 效验目标类是否实现了目标接口
+     * @param targetClass 要检查类
+     * @param  targetInterfaceClassName 目标接口类名称（包全路径）
+     * @return  结果
+     * @author Long
+     * @date: 2022/9/1 21:52
+     */
+    public  static Boolean isRealizeTargetInterface(Class<?> targetClass,String targetInterfaceClassName){
+
+        ClassInfo classInfo = ReflectUtils.getClassInfo(targetClass);
+
+        for (Type anInterface : classInfo.getInterfaces()) {
+                if (anInterface.getClassName().equals(targetInterfaceClassName)){
+                    return true;
+                }
+        }
+        return false;
     }
 
 }

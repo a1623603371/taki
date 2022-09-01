@@ -3,19 +3,27 @@ package com.taki.service.impl;
 import cn.hutool.extra.spring.SpringUtil;
 import com.taki.config.TendConsistencyConfiguration;
 import com.taki.custom.TaskTimeRangeQuery;
+import com.taki.enums.ConsistencyTaskStatusEnum;
 import com.taki.enums.PerformanceEnum;
+import com.taki.enums.ThreadWayEnum;
 import com.taki.exception.ConsistencyException;
 import com.taki.manager.TaskEngineExecutor;
 import com.taki.mapper.TaskStoreMapper;
 import com.taki.model.ConsistencyTaskInstance;
 import com.taki.service.TaskStoreService;
+import com.taki.util.ReflectTools;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StringUtils;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -100,7 +108,7 @@ public class TaskStoreServiceImpl implements TaskStoreService {
     @Override
     public List<ConsistencyTaskInstance> listByUnFinishTask() {
 
-        Date startTime,endTime;
+        LocalDateTime startTime,endTime;
 
         Long limitTaskCount;
 
@@ -110,9 +118,16 @@ public class TaskStoreServiceImpl implements TaskStoreService {
                 // 获取spring容器所有对应TaskTimeRangeQuery接口实现类
                 Map<String, TaskTimeRangeQuery> beansOfTypeMap = SpringUtil.getBeansOfType(TaskTimeRangeQuery.class);
                 TaskTimeRangeQuery taskTimeRangeQuery = getTaskTimeLineQuery(beansOfTypeMap);
+                startTime = taskTimeRangeQuery.getStartTime();
+                endTime = taskTimeRangeQuery.getEndTime();
+                limitTaskCount = taskTimeRangeQuery.limitTaskCount();
 
-
-
+                return taskStoreMapper.listByUnFinishTask(startTime.toInstant(ZoneOffset.ofHours(8)).toEpochMilli(),
+                        endTime.toInstant(ZoneOffset.ofHours(8)).toEpochMilli(),limitTaskCount);
+            }else {
+                startTime = TaskTimeRangeQuery.getStartTimeByStatic();
+                endTime = TaskTimeRangeQuery.getEndTimeByStatic();
+                limitTaskCount = TaskTimeRangeQuery.limitTaskCountByStatic();
             }
 
 
@@ -123,7 +138,8 @@ public class TaskStoreServiceImpl implements TaskStoreService {
 
 
 
-        return null;
+        return taskStoreMapper.listByUnFinishTask(startTime.toInstant(ZoneOffset.ofHours(1)).toEpochMilli(),
+                endTime.toInstant(ZoneOffset.ofHours(8)).toEpochMilli(),limitTaskCount);
     }
     
     /*** 
@@ -140,34 +156,50 @@ public class TaskStoreServiceImpl implements TaskStoreService {
             return  SpringUtil.getBean(beanNamesForType[0]);
         }
 
-       // Class<?> clazz = ReflectToo
-        return null;
+        Class<?> clazz = ReflectTools.getClassByName(tendConsistencyConfiguration.getTaskScheduleTimeRangeClassName());
+
+        return (TaskTimeRangeQuery) SpringUtil.getBean(clazz);
 
 
     }
 
+    @Transactional(rollbackFor = Exception.class , propagation = Propagation.REQUIRES_NEW)
     @Override
     public Boolean turnOnTask(ConsistencyTaskInstance consistencyTaskInstance) {
-        return null;
+        consistencyTaskInstance.setExecuteTime(System.currentTimeMillis()); // 这里是本次任务实际运行的时间，去做一个重置
+        consistencyTaskInstance.setTaskStatus(ConsistencyTaskStatusEnum.START.getCode());
+        return taskStoreMapper.turnOnTask(consistencyTaskInstance);
     }
 
     @Override
     public Boolean markSuccess(ConsistencyTaskInstance consistencyTaskInstance) {
-        return null;
+        return taskStoreMapper.markSuccess(consistencyTaskInstance);
     }
 
     @Override
     public Boolean markFail(ConsistencyTaskInstance consistencyTaskInstance) {
-        return null;
+        return taskStoreMapper.markFail(consistencyTaskInstance);
     }
 
     @Override
     public Boolean markFallbackFail(ConsistencyTaskInstance consistencyTaskInstance) {
-        return null;
+        return taskStoreMapper.markFallbackFail(consistencyTaskInstance);
     }
 
     @Override
-    public Boolean submitTaskInstance(ConsistencyTaskInstance consistencyTaskInstance) {
-        return null;
+    public void submitTaskInstance(ConsistencyTaskInstance consistencyTaskInstance) {
+        if (ThreadWayEnum.SYNC.getCode().equals(consistencyTaskInstance.getThreadWay())){
+            // 选择事务模型并执行任务
+            taskEngineExecutor.executeTaskInstance(consistencyTaskInstance);
+        }else if(ThreadWayEnum.ASYNC.getCode().equals(consistencyTaskInstance.getThreadWay())){
+
+            consistencyTaskPool.submit(()->{
+
+                taskEngineExecutor.executeTaskInstance(consistencyTaskInstance);
+
+                    return consistencyTaskInstance;
+
+            });
+        }
     }
 }

@@ -60,12 +60,12 @@ public class ConsistencyTaskInstance {
     /**
      * 初始化延迟时间
      */
-    private Integer delayTime;
+    private Long delayTime;
 
     /**
      * 执行时间
      */
-    private Integer executeTime;
+    private Long executeTime;
 
     /**
      * 错误信息
