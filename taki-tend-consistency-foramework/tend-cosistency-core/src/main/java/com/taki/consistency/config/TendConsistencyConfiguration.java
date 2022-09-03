@@ -1,4 +1,4 @@
-package com.taki.config;
+package com.taki.consistency.config;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

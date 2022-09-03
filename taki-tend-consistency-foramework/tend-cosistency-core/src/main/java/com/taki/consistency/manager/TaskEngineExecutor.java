@@ -1,6 +1,6 @@
-package com.taki.manager;
+package com.taki.consistency.manager;
 
-import com.taki.model.ConsistencyTaskInstance;
+import com.taki.consistency.model.ConsistencyTaskInstance;
 
 /**
  * @ClassName TaskEngineExecutor

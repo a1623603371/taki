@@ -1,4 +1,4 @@
-package com.taki.util;
+package com.taki.consistency.util;
 
 /**
  * @ClassName ThreadLocalUtils

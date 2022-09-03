@@ -1,4 +1,4 @@
-package com.taki.exception;
+package com.taki.consistency.exception;
 
 /**
  * @ClassName ConsistencyException

@@ -1,4 +1,4 @@
-package com.taki.model;
+package com.taki.consistency.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -61,6 +61,11 @@ public class ConsistencyTaskInstance {
      * 初始化延迟时间
      */
     private Long delayTime;
+
+    /**
+     * 执行次数
+     */
+    private int executeTimes;
 
     /**
      * 执行时间

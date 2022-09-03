@@ -1,6 +1,6 @@
-package com.taki.service;
+package com.taki.consistency.service;
 
-import com.taki.model.ConsistencyTaskInstance;
+import com.taki.consistency.model.ConsistencyTaskInstance;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ public interface TaskStoreService {
      * @date: 2022/8/31 21:41
      */
 
-    ConsistencyTaskInstance getTaskByIdAndShardKey(Long id,String shardKey);
+    ConsistencyTaskInstance getTaskByIdAndShardKey(Long id,Long shardKey);
 
 
     /*** 

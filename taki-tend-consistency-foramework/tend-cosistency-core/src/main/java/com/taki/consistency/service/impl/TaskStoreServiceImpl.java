@@ -1,17 +1,17 @@
-package com.taki.service.impl;
+package com.taki.consistency.service.impl;
 
 import cn.hutool.extra.spring.SpringUtil;
-import com.taki.config.TendConsistencyConfiguration;
-import com.taki.custom.TaskTimeRangeQuery;
-import com.taki.enums.ConsistencyTaskStatusEnum;
-import com.taki.enums.PerformanceEnum;
-import com.taki.enums.ThreadWayEnum;
-import com.taki.exception.ConsistencyException;
-import com.taki.manager.TaskEngineExecutor;
-import com.taki.mapper.TaskStoreMapper;
-import com.taki.model.ConsistencyTaskInstance;
-import com.taki.service.TaskStoreService;
-import com.taki.util.ReflectTools;
+import com.taki.consistency.config.TendConsistencyConfiguration;
+import com.taki.consistency.custom.query.TaskTimeRangeQuery;
+import com.taki.consistency.enums.ConsistencyTaskStatusEnum;
+import com.taki.consistency.enums.PerformanceEnum;
+import com.taki.consistency.enums.ThreadWayEnum;
+import com.taki.consistency.exception.ConsistencyException;
+import com.taki.consistency.manager.TaskEngineExecutor;
+import com.taki.consistency.mapper.TaskStoreMapper;
+import com.taki.consistency.model.ConsistencyTaskInstance;
+import com.taki.consistency.service.TaskStoreService;
+import com.taki.consistency.util.ReflectTools;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,10 +21,8 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StringUtils;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletionService;
@@ -101,7 +99,7 @@ public class TaskStoreServiceImpl implements TaskStoreService {
     }
 
     @Override
-    public ConsistencyTaskInstance getTaskByIdAndShardKey(Long id, String shardKey) {
+    public ConsistencyTaskInstance getTaskByIdAndShardKey(Long id, Long shardKey) {
         return taskStoreMapper.getTaskByIdAndShardKey(id,shardKey);
     }
 

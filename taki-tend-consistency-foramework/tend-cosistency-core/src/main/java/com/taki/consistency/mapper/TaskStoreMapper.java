@@ -1,6 +1,6 @@
-package com.taki.mapper;
+package com.taki.consistency.mapper;
 
-import com.taki.model.ConsistencyTaskInstance;
+import com.taki.consistency.model.ConsistencyTaskInstance;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
@@ -110,7 +110,7 @@ public interface TaskStoreMapper {
             @Result(column = "create_time",property = "createTime"),
             @Result(column = "update_time",property = "updateTime")
     })
-    ConsistencyTaskInstance getTaskByIdAndShardKey(@Param("id") Long id, @Param("shardKey") String shardKey);
+    ConsistencyTaskInstance getTaskByIdAndShardKey(@Param("id") Long id, @Param("shardKey") Long shardKey);
 
 
 

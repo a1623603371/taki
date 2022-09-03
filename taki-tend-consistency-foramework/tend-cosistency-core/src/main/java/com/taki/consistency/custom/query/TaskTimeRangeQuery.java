@@ -1,4 +1,4 @@
-package com.taki.custom;
+package com.taki.consistency.custom.query;
 
 import java.time.LocalDateTime;
 

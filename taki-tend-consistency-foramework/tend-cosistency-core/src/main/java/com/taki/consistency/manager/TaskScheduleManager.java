@@ -1,11 +1,11 @@
-package com.taki.manager;
+package com.taki.consistency.manager;
 
 import cn.hutool.extra.spring.SpringUtil;
-import com.taki.exception.ConsistencyException;
-import com.taki.model.ConsistencyTaskInstance;
-import com.taki.service.TaskStoreService;
-import com.taki.util.ReflectTools;
-import com.taki.util.ThreadLocalUtils;
+import com.taki.consistency.model.ConsistencyTaskInstance;
+import com.taki.consistency.util.ReflectTools;
+import com.taki.consistency.exception.ConsistencyException;
+import com.taki.consistency.service.TaskStoreService;
+import com.taki.consistency.util.ThreadLocalUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

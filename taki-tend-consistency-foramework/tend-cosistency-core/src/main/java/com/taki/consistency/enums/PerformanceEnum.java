@@ -1,4 +1,4 @@
-package com.taki.enums;
+package com.taki.consistency.enums;
 
 /**
  * @ClassName PerformanceEnum
