@@ -14,6 +14,7 @@ import com.taki.consistency.util.ReflectTools;
 import com.taki.consistency.util.ThreadLocalUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -67,7 +68,8 @@ public class ConsistencyAspect {
      * @return  java.lang.Object
      * @author Long
      * @date: 2022/9/4 19:55
-     */ 
+     */
+    @Around("@annotation(consistencyTask)")
     public Object markConsistencyTask(ProceedingJoinPoint point, ConsistencyTask consistencyTask) throws Throwable {
 
         log.info("access method:{}is called on {} args {}",point.getSignature().getName(),point.getThis(),point.getArgs());
