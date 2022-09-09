@@ -130,14 +130,16 @@ public class TaskStoreServiceImpl implements TaskStoreService {
 
 
         }catch (Exception e){
-            log.error("[一致性任务框架]调用业务服务实现具体的的告警通知类时，发生异常",e);
+            log.error("[一致性任务框架]调用业务服务实现具体的的告警通知类时，发生异常 毫秒",e);
             throw new ConsistencyException(e);
         }
 
+        Long startMilli = startTime.toInstant(ZoneOffset.ofHours(1)).toEpochMilli();
 
+        Long endMilli = endTime.toInstant(ZoneOffset.ofHours(8)).toEpochMilli();
 
-        return taskStoreMapper.listByUnFinishTask(startTime.toInstant(ZoneOffset.ofHours(1)).toEpochMilli(),
-                endTime.toInstant(ZoneOffset.ofHours(8)).toEpochMilli(),limitTaskCount);
+        return taskStoreMapper.listByUnFinishTask(startMilli,
+                endMilli,limitTaskCount);
     }
     
     /*** 

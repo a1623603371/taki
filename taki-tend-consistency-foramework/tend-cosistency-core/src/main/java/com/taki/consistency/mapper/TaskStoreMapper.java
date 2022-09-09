@@ -32,7 +32,7 @@ public interface TaskStoreMapper {
             + "parameter_types,"
             + "method_name,"
             + "method_sign_name,"
-            + "exeucete_interval_sec,"
+            + "execute_interval_sec,"
             + "delay_time,"
             + "task_parameter,"
             + "performance_way,"
@@ -41,7 +41,7 @@ public interface TaskStoreMapper {
             + "alert_expression,"
             + "alert_action_bean_name,"
             + "fallback_class_name,"
-            + "fallback_err_msg,"
+            + "fallback_error_msg,"
             + "shard_key,"
             + "create_time,"
             + "update_time)"
@@ -53,19 +53,19 @@ public interface TaskStoreMapper {
             + "#{parameterTypes},"
             + "#{methodName},"
             + "#{methodSignName},"
-            + "#{exeuceteIntervalSec},"
+            + "#{executeIntervalSec},"
             + "#{delayTime},"
             + "#{taskParameter},"
             + "#{performanceWay},"
             + "#{threadWay},"
             + "#{errorMsg},"
-            + "#{alertExoression},"
+            + "#{alertExpression},"
             + "#{alertActionBeanName},"
             + "#{fallbackClassName},"
             + "#{fallbackErrorMsg},"
-            + "shardKey,"
-            + "createTime," +
-            "updateTime)")
+            + "#{shardKey},"
+            + "#{createTime}," +
+            "#{updateTime})")
     @Options(keyColumn = "id",keyProperty = "id",useGeneratedKeys = true)
     Boolean initTask(ConsistencyTaskInstance consistencyTaskInstance);
 
@@ -81,8 +81,8 @@ public interface TaskStoreMapper {
     @Select("SELECT " +
             "id,task_id,task_status,execute_times,execute_time,parameter_types,method_name,method_sign_name," +
             "execute_interval_sec,delay_time,task_parameter,performance_way," +
-            "thread_way,err_msg,alert_expression," +
-            "alert_action_bean_name,fallback_class_name,fallack_error_msg,shard_key,create_time,update_time " +
+            "thread_way,error_msg,alert_expression," +
+            "alert_action_bean_name,fallback_class_name,fallback_error_msg,shard_key,create_time,update_time " +
             "FROM taki_tend_consistency_task " +
             "WHERE id = #{id} AND shard_key = #{shardKey}")
     @Results({
@@ -130,11 +130,11 @@ public interface TaskStoreMapper {
     @Select("SELECT " +
             "id,task_id,task_status,execute_times,execute_time,parameter_types,method_name,method_sign_name," +
             "execute_interval_sec,delay_time,task_parameter,performance_way," +
-            "thread_way,err_msg,alert_expression," +
-            "alert_action_bean_name,fallback_class_name,fallack_error_msg,shard_key,create_time,update_time " +
+            "thread_way,error_msg,alert_expression," +
+            "alert_action_bean_name,fallback_class_name,fallback_error_msg,shard_key,create_time,update_time " +
             "FROM taki_tend_consistency_task " +
-            "WHERE task_status <= 2 AND execute_time >= #{startTime} AND execute_time <= #{endTime}" +
-            "ORDER  BY  execute_time DESC " +
+            "WHERE task_status <= 2 AND execute_time >= #{startTime} AND execute_time <= #{endTime} " +
+            "ORDER BY execute_time DESC " +
             "LIMIT #{limitTaskCount}")
     @Results({
             @Result(column = "id",property = "id",id = true),
@@ -174,7 +174,7 @@ public interface TaskStoreMapper {
     @Update("UPDATE " +
             "taki_tend_consistency_task " +
             "SET " +
-            "task_status = #{taskStatus},execute_times=#{executeTimes},execute_time=#{executeTime} " +
+            "task_status = #{taskStatus},execute_times=execute_times + 1,execute_time=#{executeTime} " +
             "WHERE id=#{id} AND task_status != 1 and shard_key =#{shardKey}")
     Boolean turnOnTask(ConsistencyTaskInstance consistencyTaskInstance);
 
@@ -186,7 +186,7 @@ public interface TaskStoreMapper {
      * @author Long
      * @date: 2022/8/31 21:07
      */ 
-    @Delete("DELETE FROM taki_tend_consistency_task WHERE id = #{id} AND  shard_key = #{ShardKey}")
+    @Update("UPDATE taki_tend_consistency_task SET task_status = 3 WHERE id = #{id} AND  shard_key = #{shardKey}")
     Boolean markSuccess(ConsistencyTaskInstance consistencyTaskInstance);
 
 
@@ -197,7 +197,7 @@ public interface TaskStoreMapper {
      * @author Long
      * @date: 2022/8/31 21:20
      */
-    @Update("UPDATE task_tend_consistency_task SET task_status = 2,error_msg = #{errorMsg},execute_time = #{executeTime}")
+    @Update("UPDATE taki_tend_consistency_task SET task_status = 2,error_msg = #{errorMsg},execute_time = #{executeTime} WHERE id=#{id} and shard_key=#{shardKey}")
     Boolean markFail(ConsistencyTaskInstance consistencyTaskInstance);
 
 
@@ -208,7 +208,7 @@ public interface TaskStoreMapper {
      * @author Long
      * @date: 2022/8/31 21:21
      */ 
-    @Update("UPDATE task_tend_consistency_task SET fallback_error_msg = #{fallbackErrorMsg} WHERE id = #{id} AND shard_key = #{ShardKey}  " )
+    @Update("UPDATE taki_tend_consistency_task SET fallback_error_msg = #{fallbackErrorMsg} WHERE id = #{id} AND shard_key = #{shardKey}  " )
     Boolean markFallbackFail(ConsistencyTaskInstance consistencyTaskInstance);
 
 

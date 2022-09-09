@@ -126,7 +126,8 @@ public class ConsistencyAspect {
                 .parameterTypes(parameterTypes) //调用方法入参的类型名称
                 .methodSignName(fullyQualifiedName) //方法签名
                 .taskParameter(JSONUtil.toJsonStr(point.getArgs())) // 调用方法入参的对象数组，json串的转化
-                .performanceWay(task.threadWay().getCode()) //注解里配置的直接执行，同步还是异步，sync还是async，async 会用我们自己初始化的线程池
+                .performanceWay(task.performanceWay().getCode()) // 执行模型
+                .threadWay(task.threadWay().getCode())//注解里配置的直接执行，同步还是异步，sync还是async，async 会用我们自己初始化的线程池
                 .executeIntervalSec(task.executeIntervalSec()) //每次任务执行间隔时间
                 .delayTime(task.delayTime())// 任务执行延迟 时间
                 .executeTimes(0) // 任务执行次数

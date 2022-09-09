@@ -5,6 +5,7 @@ import com.taki.consistency.model.ConsistencyTaskInstance;
 import com.taki.consistency.util.ReflectTools;
 import com.taki.consistency.exception.ConsistencyException;
 import com.taki.consistency.service.TaskStoreService;
+import com.taki.consistency.util.SpringUtils;
 import com.taki.consistency.util.ThreadLocalUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,7 +125,7 @@ public class TaskScheduleManager {
             return;
         }
         //通过你的类class类型，从spring容器里获取这个class类型bean
-        Object bean = SpringUtil.getBean(clazz);
+        Object bean = SpringUtils.getBean(clazz);
         if(ObjectUtils.isEmpty(bean)){
             return;
         }

@@ -102,7 +102,12 @@ public class TaskEngineExecutorImpl implements TaskEngineExecutor{
             //如果说出现一个失败，下一次必然会是进行重试，下一次是什么时候可以进行重试
             //在这里需要给他去计算一个一次进行重试的execute time
             consistencyTaskInstance.setExecuteTime(getNextExecuteTime(consistencyTaskInstance)); // 这个下一次执行时间，非常关键
+
             Boolean failResult = taskStoreService.markFail(consistencyTaskInstance);
+
+            if (failResult){
+                System.out.println(failResult);
+            }
 
             log.info("[一致性任务框架] 标记执行失败的结果为【{}】下次调度时间为【{} - {}】",failResult,consistencyTaskInstance.getExecuteTime(),getFormatTime(consistencyTaskInstance.getExecuteTime()));
 
@@ -215,7 +220,7 @@ public class TaskEngineExecutorImpl implements TaskEngineExecutor{
 
         try {
             // 执行降级逻辑的方法
-            fallbackMethod.invoke(fallbackClassBean,paramTypes);
+            fallbackMethod.invoke(fallbackClassBean,paramValues);
 
             // 标记 执行成功 这里移除任务
             Boolean successResult = taskStoreService.markSuccess(consistencyTaskInstance);
@@ -225,6 +230,7 @@ public class TaskEngineExecutorImpl implements TaskEngineExecutor{
             //开启redis 只要降级成功了，mark success 失败了 也必须要去redis 里写标记
             log.info("[一致性任务框架] 降级逻辑执行成功 标记为执行成功的结果为【{}】",successResult);
         }catch (Exception e){
+            log.error("[一致性任务框架] 降级逻辑执行失败异常：{}",e);
         // 解析并对表达式结果进行效验，并执行相关的告警通知逻辑
          //在执行完降级逻辑后,再发送消息，因为如果降级成功了，也就不用发送告警通过了，如果降级失败，在发送告警通知
             parseExpressionAndDoAlert(consistencyTaskInstance);

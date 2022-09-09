@@ -115,7 +115,8 @@ public class SpringUtils implements BeanFactoryPostProcessor, ApplicationContext
      * @author Long
      * @date: 2022/9/3 16:52
      */
-    public static <T> T getBean(Class<T> clazz) { return  getBeanFactory().getBean(clazz);}
+    public static <T> T getBean(Class<T> clazz) {
+        return  getBeanFactory().getBean(clazz);}
 
     /***
      * @description: 通过name，以及Clazz返回指定的Bean

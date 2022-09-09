@@ -18,12 +18,12 @@ public class SendMessageFallbackHandler {
 
     /*** 
      * @description:
-     * @param orderInfoDTO
+     * @param orderInfo
      * @return  void
      * @author Long
      * @date: 2022/9/8 21:25
      */ 
- public void send(OrderInfoDTO orderInfoDTO){
+ public void send(OrderInfoDTO orderInfo){
 
      log.info("触发send方法的降级逻辑");
  }
@@ -32,7 +32,7 @@ public class SendMessageFallbackHandler {
 public void sendRightNowAsyncMessage(OrderInfoDTO orderInfo){
 
      log.info("[立即执行异步任务测试] 降级逻辑 执行 sendRightNowAsyncMessage(OrderInfoDTO)方法 {}", JSONUtil.toJsonStr(orderInfo));
-    System.out.println(1/0); //模拟降级失败
+   // System.out.println(1/0); //模拟降级失败
 }
 
 }

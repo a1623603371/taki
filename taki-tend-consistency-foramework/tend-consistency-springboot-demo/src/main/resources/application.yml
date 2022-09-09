@@ -5,3 +5,7 @@ spring:
     active: onedatasource
 server:
   port: 9001
+
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
