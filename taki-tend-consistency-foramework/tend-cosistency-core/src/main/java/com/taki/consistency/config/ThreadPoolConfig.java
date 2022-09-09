@@ -41,7 +41,8 @@ public class ThreadPoolConfig {
      * @return  java.util.concurrent.CompletionService<com.taki.consistency.model.ConsistencyTaskInstance>
      * @author Long
      * @date: 2022/9/4 14:04
-     */ 
+     */
+    @Bean
     public CompletionService<ConsistencyTaskInstance> consistencyTaskPool(){
         LinkedBlockingQueue<Runnable> asyncConsistencyTaskThreadPoolQueue =
                 new LinkedBlockingQueue<>(tendConsistencyConfiguration.getThreadPoolQueueSize());

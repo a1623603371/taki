@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -55,8 +56,9 @@ public class TendConsistencyAutoConfiguration {
      * @return  com.taki.consistency.config.TendConsistencyConfiguration
      * @author Long
      * @date: 2022/9/4 14:20
-     */ 
-    public TendConsistencyConfiguration tendConsistencyConfigurationService() {
+     */
+    @Bean
+    public TendConsistencyConfiguration tendConsistencyConfiguration() {
         //对配置进行检查
         doConfigCheck(consistencyParallelTaskConfigProperties,shardModeConfigProperties);
 
@@ -64,9 +66,10 @@ public class TendConsistencyAutoConfiguration {
         return TendConsistencyConfiguration.builder()
                 .threadCorePoolSize(DefaultValueUtils.getOrDefault(consistencyParallelTaskConfigProperties.getThreadCorePoolSize(),5))
                 .threadMaxPoolSize(DefaultValueUtils.getOrDefault(consistencyParallelTaskConfigProperties.getThreadMaxPoolSize(),5))
-                .threadMaxPoolSize(DefaultValueUtils.getOrDefault(consistencyParallelTaskConfigProperties.threadCorePoolSize,100))
-                .threadPoolKeepAliveTime(DefaultValueUtils.getOrDefault(consistencyParallelTaskConfigProperties.threadPoolKeepAliveTime,60L))
-                .threadPoolKeepAliveUnit(DefaultValueUtils.getOrDefault(consistencyParallelTaskConfigProperties.threadPoolKeepAliveTimeUnit,"SECONDS"))
+                .threadPoolQueueSize(DefaultValueUtils.getOrDefault(consistencyParallelTaskConfigProperties.getThreadPoolQueueSize(),100))
+                .threadPoolKeepAliveTime(DefaultValueUtils.getOrDefault(consistencyParallelTaskConfigProperties.getThreadPoolKeepAliveTime(),60L))
+                .threadPoolKeepAliveUnit(DefaultValueUtils.getOrDefault(consistencyParallelTaskConfigProperties.getThreadPoolKeepAliveTimeUnit(),"SECONDS"))
+                .failCountThreshold(DefaultValueUtils.getOrDefault(consistencyFallbackConfigProperties.getFailCountThreshold(),2))
                 .taskSharded(DefaultValueUtils.getOrDefault(shardModeConfigProperties.taskShared,false))
                 .shardingKeyGeneratorClassName(DefaultValueUtils.getOrDefault(shardModeConfigProperties.getShardingKeyGeneratorClassName(),"")).build();
     }

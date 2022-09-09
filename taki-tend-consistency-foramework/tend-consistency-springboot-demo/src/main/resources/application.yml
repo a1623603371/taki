@@ -1,0 +1,7 @@
+
+spring:
+  profiles:
+    #开启单库模式运行模式 使用 onedatasource 如果希望有多个任务库 请激活分库模式演示实例 mutidatasource
+    active: onedatasource
+server:
+  port: 9001

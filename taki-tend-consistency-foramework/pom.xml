@@ -10,6 +10,7 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>tend-cosistency-core</module>
+        <module>tend-consistency-springboot-demo</module>
     </modules>
 
     <properties>
