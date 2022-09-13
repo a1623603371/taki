@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.taki.common.utli.ObjectUtil;
 import com.taki.common.utli.RandomUtil;
+import com.taki.wms.converter.WmsConverter;
 import com.taki.wms.dao.DeliverOrderDao;
 import com.taki.wms.dao.DeliveryOrderItemDao;
 import com.taki.wms.domain.dto.PickDTO;
@@ -41,6 +42,10 @@ public class WmsServiceImpl implements WmsService {
     private DeliveryOrderItemDao deliveryOrderItemDao;
 
 
+    @Autowired
+    private WmsConverter wmsConverter;
+
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public PickDTO pickGoods(PickGoodsRequest request) {
@@ -75,15 +80,11 @@ public class WmsServiceImpl implements WmsService {
         // 1.生成出库单Id
         String deliveryOrderId = genDeliveryOrderId();
         //2.生成出库单
-        DeliveryOrderDO deliverOrder = request.clone(DeliveryOrderDO.class);
+        DeliveryOrderDO deliverOrder = wmsConverter.convertDeliveryOrder(request);
         deliverOrder.setDeliveryOrderId(deliveryOrderId);
 
         // 3.生成出库单条目
-        List<DeliveryOrderItemDO> deliveryOrderItems = ObjectUtil.convertList(request.getOrderItemRequests(),DeliveryOrderItemDO.class);
-        deliveryOrderItems.forEach(deliveryOrderItemDO -> {
-            deliveryOrderItemDO.setDeliveryOrderId(deliveryOrderId);
-        });
-
+        List<DeliveryOrderItemDO> deliveryOrderItems = wmsConverter.converterDeliveryOrderItemDO(request.getOrderItemRequests());
         // 4. sku调度出库
         // 这里仅仅只是模拟，假设有一个无限货物的仓库货柜(id = 1)
         for(DeliveryOrderItemDO item : deliveryOrderItems) {

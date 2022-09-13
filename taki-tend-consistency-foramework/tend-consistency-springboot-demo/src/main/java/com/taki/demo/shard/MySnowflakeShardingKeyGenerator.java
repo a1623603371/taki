@@ -6,12 +6,10 @@ import com.taki.consistency.custom.shard.TimeService;
 import com.taki.consistency.util.TimeUtils;
 import lombok.Setter;
 import lombok.SneakyThrows;
-import org.springframework.stereotype.Component;
-
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
+
 
 /**
  * @ClassName MySnowflakeShardingkeyGenerator

@@ -18,7 +18,7 @@ import java.util.List;
  */
 @Data
 @Builder
-public class SendOutRequest extends AbstractObject implements Serializable {
+public class SendOutRequest  implements Serializable {
 
 
     private static final long serialVersionUID = -5678840852843396286L;

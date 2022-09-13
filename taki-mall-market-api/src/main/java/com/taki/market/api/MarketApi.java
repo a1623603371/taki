@@ -57,7 +57,7 @@ public interface MarketApi {
 
     /** 
      * @description: 取消订单 释放已使用用户优惠券
-     * @param calculateOrderAmountRequest 取消订单 释放已使用用户优惠券 请求
+     * @param cancelOrderReleaseUserCouponRequest 取消订单 释放已使用用户优惠券 请求
      * @return  com.taki.common.utlis.ResponseData<java.lang.Boolean>
      * @author Long
      * @date: 2022/2/18 14:08

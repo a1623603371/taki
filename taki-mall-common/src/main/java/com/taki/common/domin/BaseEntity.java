@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
  * @Version 1.0
  */
 @Data
-public class BaseEntity extends AbstractObject {
+public class BaseEntity  {
     /**
      * 主见
      */

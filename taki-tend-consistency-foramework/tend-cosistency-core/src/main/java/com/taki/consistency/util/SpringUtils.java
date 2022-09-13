@@ -3,6 +3,7 @@ package com.taki.consistency.util;
 import cn.hutool.core.exceptions.UtilException;
 import cn.hutool.core.lang.TypeReference;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.ObjectUtil;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
@@ -270,13 +271,16 @@ public class SpringUtils implements BeanFactoryPostProcessor, ApplicationContext
 
     /*** 
      * @description:  发布事件
-     * @param applicationContext the event to publish
+     * @param event the event to publish
      * @return  void
      * @author Long
      * @date: 2022/9/3 17:25
      */ 
-    public static void publishEvent(ApplicationContext  applicationContext){
-        
+    public static void publishEvent(ApplicationContext  event){
+
+        if(ObjectUtil.isNotEmpty(applicationContext)){
+            applicationContext.publishEvent(event);
+        }
     }
     
 }

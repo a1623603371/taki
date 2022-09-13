@@ -1,6 +1,7 @@
 package com.taki.tms.service.impl;
 
 import com.taki.common.utli.RandomUtil;
+import com.taki.tms.converter.TmsConverter;
 import com.taki.tms.dao.LogisticOrderDao;
 import com.taki.tms.domain.dto.PlaceLogisticOrderDTO;
 import com.taki.tms.domain.dto.SendOutDTO;
@@ -29,6 +30,9 @@ public class LogisticOrderServiceImpl implements LogisticOrderService {
     @Autowired
     private LogisticOrderDao logisticOrderDao;
 
+    @Autowired
+    private TmsConverter tmsConverter;
+
     @Override
     public SendOutDTO sendOut(SendOutRequest request) {
 
@@ -44,7 +48,7 @@ public class LogisticOrderServiceImpl implements LogisticOrderService {
         PlaceLogisticOrderDTO result = thirdPartyLogisticApi(request);
 
         //2 生成物流单
-        LogisticOrderDO logisticOrder = request.clone(LogisticOrderDO.class);
+        LogisticOrderDO logisticOrder =  tmsConverter.converterLogisticOrderDO(request);
 
         logisticOrder.setLogisticCode(result.getLogisticCode());
         logisticOrder.setContent(result.getContent());
