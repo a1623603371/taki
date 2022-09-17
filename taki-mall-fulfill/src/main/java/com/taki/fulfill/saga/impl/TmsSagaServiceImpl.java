@@ -2,9 +2,10 @@ package com.taki.fulfill.saga.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.taki.common.utli.ObjectUtil;
+import com.taki.fulfill.converter.FulfillConverter;
 import com.taki.fulfill.dao.OrderFulfillDao;
 import com.taki.fulfill.domain.entity.OrderFulfillDO;
-import com.taki.fulfill.domain.request.ReceiveFulFillRequest;
+import com.taki.fulfill.domain.request.ReceiveFulfillRequest;
 import com.taki.fulfill.remote.TmsRemote;
 import com.taki.fulfill.saga.TmsSagaService;
 import com.taki.tms.domain.dto.SendOutDTO;
@@ -30,8 +31,12 @@ public class TmsSagaServiceImpl implements TmsSagaService {
     private TmsRemote tmsRemote;
     @Autowired
     private OrderFulfillDao orderFulfillDao;
+
+
+    @Autowired
+    private FulfillConverter fulfillConverter;
     @Override
-    public Boolean sendOut(ReceiveFulFillRequest request) {
+    public Boolean sendOut(ReceiveFulfillRequest request) {
         log.info("发货，request={}", JSONObject.toJSONString(request));
 
         //1.调用tms进行发货
@@ -58,10 +63,10 @@ public class TmsSagaServiceImpl implements TmsSagaService {
      * @author Long
      * @date: 2022/5/17 16:03
      */
-    private SendOutRequest buildSendOutRequest(ReceiveFulFillRequest request) {
-        SendOutRequest sendOutRequest = request.clone(SendOutRequest.class);
+    private SendOutRequest buildSendOutRequest(ReceiveFulfillRequest request) {
+        SendOutRequest sendOutRequest = fulfillConverter.convertReceiveFulfillRequest(request);
 
-        List<SendOutRequest.OrderItemRequest> orderItemRequests  = ObjectUtil.convertList(request.getReceiveOrderItems(),SendOutRequest.OrderItemRequest.class);
+        List<SendOutRequest.OrderItemRequest> orderItemRequests = fulfillConverter.convertSendOutOrderItemRequest(request.getReceiveOrderItems());
 
         sendOutRequest.setOrderItems(orderItemRequests);
 
@@ -70,7 +75,7 @@ public class TmsSagaServiceImpl implements TmsSagaService {
     }
 
     @Override
-    public Boolean sendOutCompensate(ReceiveFulFillRequest request) {
+    public Boolean sendOutCompensate(ReceiveFulfillRequest request) {
         log.info("补偿发货，request={}",JSONObject.toJSONString(request));
 
         Boolean result = tmsRemote.cancelSendOut(request.getOrderId());

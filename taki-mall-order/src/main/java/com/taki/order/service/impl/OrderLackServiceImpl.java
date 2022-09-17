@@ -9,6 +9,7 @@ import com.taki.common.message.ActualRefundMessage;
 import com.taki.common.mq.MQMessage;
 import com.taki.common.utli.ExJsonUtil;
 import com.taki.common.utli.ParamCheckUtil;
+import com.taki.order.converter.OrderConverter;
 import com.taki.order.dao.*;
 import com.taki.order.domain.dto.*;
 import com.taki.order.domain.entity.*;
@@ -79,6 +80,9 @@ public class OrderLackServiceImpl implements OrderLackService {
     @Autowired
     private ProductRemote productRemote;
 
+    @Autowired
+    private OrderConverter orderConverter;
+
     @Override
     public CheckLackDTO checkRequest(LackRequest lackRequest) {
 
@@ -144,7 +148,7 @@ public class OrderLackServiceImpl implements OrderLackService {
             throw new OrderBizException(OrderErrorCodeEnum.LACK_NUM_IS_GE_SKU_ORDER_ITEM_SIZE);
         }
         //5.构造 参数
-        return  new LackItemDTO(lackItemDO.clone(OrderItemDTO.class),lackNum,productSkuDTO);
+        return  new LackItemDTO(lackItemDO,lackNum,productSkuDTO);
 
 
     }
@@ -336,7 +340,7 @@ public class OrderLackServiceImpl implements OrderLackService {
     private AfterSaleItemDO buildLackAfterSaleItem(OrderInfoDO orderInfo, AfterSaleInfoDO afterSaleInfo, LackItemDTO lackItem) {
         Integer lackNum = lackItem.getLackNum();
         ProductSkuDTO productSku = lackItem.getProductSkuDTO();
-        OrderItemDTO orderItem = lackItem.getOrderItem();
+        OrderItemDO orderItem = lackItem.getOrderItem();
 
         AfterSaleItemDO afterSaleItemDO = new AfterSaleItemDO();
         afterSaleItemDO.setAfterSaleId(afterSaleItemDO.getAfterSaleId());

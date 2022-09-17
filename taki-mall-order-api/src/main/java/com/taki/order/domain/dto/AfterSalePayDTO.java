@@ -14,7 +14,7 @@ import java.util.Date;
  * @Version 1.0
  */
 @Data
-public class AfterSalePayDTO extends AbstractObject implements Serializable {
+public class AfterSalePayDTO  implements Serializable {
     /**
      * 售后单号
      */

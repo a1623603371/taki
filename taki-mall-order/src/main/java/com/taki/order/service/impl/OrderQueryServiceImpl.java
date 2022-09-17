@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.taki.common.page.PagingInfo;
 import com.taki.common.utli.ExJsonUtil;
 import com.taki.common.utli.ParamCheckUtil;
-import com.taki.order.bulider.OrderDetailBuilder;
+import com.taki.order.converter.OrderConverter;
 import com.taki.order.dao.*;
 import com.taki.order.domain.dto.*;
 import com.taki.order.domain.entity.*;
@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @ClassName OrderQueryServiceImpl
@@ -60,6 +61,9 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
     @Autowired
     private AfterSaleQueryService afterSaleQueryService;
+
+    @Autowired
+    private OrderConverter orderConverter;
 
     @Override
     public void checkQueryParam(OrderQuery query) {
@@ -134,12 +138,7 @@ public class OrderQueryServiceImpl implements OrderQueryService {
         // 版本一 多表连接 查询 （效率低）
 
         // 组装业务查询数据规则
-        OrderListQueryDTO orderListQuery = OrderListQueryDTO.Builder
-                .Builder().copy(orderQuery)
-                // 不展示无效订单
-                .removeInValidStatus()
-                .setPage(orderQuery)
-                .build();
+        OrderListQueryDTO orderListQuery = orderConverter.orderListQuery2DTO(orderQuery);
         // 2查询
         Page<OrderListDTO> page =  orderInfoDao.listByPage(orderListQuery);
 
@@ -186,16 +185,16 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
 
         //10.构造返参
-        return new OrderDetailBuilder()
-                .orderInfo(orderInfo)
-                .orderItems(orderItems)
-                .orderAmountDetails(orderAmountDetails)
-                .orderDeliveryDetail(orderDeliveryDetail)
-                .orderPaymentDetail(orderPaymentDetails)
-                .orderAmounts(orderAmounts)
-                .orderOperateLogs(orderOperateLogs)
-                .orderSnapshots(orderSnapshots)
-                .lackItems(lackItems).build();
+        return OrderDetailDTO.builder()
+                .orderInfo(orderConverter.orderInfoDO2DTO(orderInfo))
+                .orderItems(orderConverter.orderItemDO2DTO(orderItems) )
+                .orderAmountDetails(orderConverter.orderAmountDetailDO2DTO(orderAmountDetails))
+                .orderDeliveryDetail(orderConverter.orderDeliveryDetailDO2DTO(orderDeliveryDetail))
+                .orderPaymentDetails(orderConverter.orderPaymentDetailDO2DTO(orderPaymentDetails))
+                .orderAmounts(orderAmounts.stream().collect(Collectors.toMap(OrderAmountDO::getAmountType,OrderAmountDO::getAmount,(v1,v2)->v1)) )
+                .orderOperateLogs(orderConverter.orderOperateLogsDO2DTO(orderOperateLogs))
+                .orderSnapshots(orderConverter.orderSnapshotsDO2DTO(orderSnapshots))
+                .orderLackItems(lackItems).build();
     }
 
     private boolean isLack(OrderInfoDO orderInfo) {

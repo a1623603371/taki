@@ -13,7 +13,7 @@ import java.io.Serializable;
  * @Version 1.0
  */
 @Data
-public class OrderOperateLogDTO extends AbstractObject implements Serializable {
+public class OrderOperateLogDTO  implements Serializable {
     /**
      * 订单编号
      */

@@ -14,7 +14,7 @@ import java.util.Date;
  * @Version 1.0
  */
 @Data
-public class AfterSaleOrderListDTO extends AbstractObject implements Serializable {
+public class AfterSaleOrderListDTO  implements Serializable {
 
     /**
      * 接入方业务标识

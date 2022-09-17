@@ -16,7 +16,7 @@ import java.math.BigDecimal;
  */
 @NoArgsConstructor
 @Data
-public class AdjustDeliveryAddressRequest extends AbstractObject implements Serializable {
+public class AdjustDeliveryAddressRequest  implements Serializable {
 
 
     private static final long serialVersionUID = -6170218798395466210L;

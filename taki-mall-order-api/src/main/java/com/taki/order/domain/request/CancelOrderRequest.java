@@ -13,7 +13,7 @@ import java.io.Serializable;
  * @Version 1.0
  */
 @Data
-public class CancelOrderRequest extends AbstractObject implements Serializable  {
+public class CancelOrderRequest  implements Serializable  {
 
 
     private static final long serialVersionUID = 2723268840083209556L;

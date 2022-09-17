@@ -1,10 +1,11 @@
 package com.taki.order.domain.query;
 
-import com.taki.common.core.AbstractObject;
-import kotlin.Pair;
+
 import lombok.Data;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Set;
 
@@ -16,7 +17,7 @@ import java.util.Set;
  * @Version 1.0
  */
 @Data
-public class OrderQuery extends AbstractObject implements Serializable {
+public class OrderQuery  implements Serializable {
 
 
     private static final long serialVersionUID = -8544245732406425002L;
@@ -97,7 +98,7 @@ public class OrderQuery extends AbstractObject implements Serializable {
     /**
      * 支付金额 - 查询区间
      */
-    private Pair<Integer,Integer> payAmountInterval;
+    private Pair<BigDecimal,BigDecimal> payAmountInterval;
 
     /**
      * 页码

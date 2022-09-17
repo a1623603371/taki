@@ -9,6 +9,8 @@ import com.taki.common.redis.RedisLock;
 import com.taki.fulfill.domain.evnet.OrderDeliveredWmsEvent;
 import com.taki.fulfill.domain.evnet.OrderEvent;
 import com.taki.fulfill.domain.evnet.OrderOutStockWmsEvent;
+import com.taki.fulfill.domain.evnet.OrderSignedWmsEvent;
+import com.taki.order.converter.WmsShipDtoConverter;
 import com.taki.order.domain.dto.WmsShipDTO;
 import com.taki.order.exception.OrderBizException;
 import com.taki.order.exception.OrderErrorCodeEnum;
@@ -37,6 +39,9 @@ public class OrderWmsShipResultListener extends AbstractMessageListenerConcurren
 
     @Autowired
     private OrderFulFillService orderFulFillService;
+
+    @Autowired
+    private WmsShipDtoConverter wmsShipDtoConverter;
 
     @Override
     protected ConsumeConcurrentlyStatus omMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
@@ -92,14 +97,20 @@ public class OrderWmsShipResultListener extends AbstractMessageListenerConcurren
         if (OrderStatusChangEnum.ORDER_OUT_STOCKED.equals(orderEvent.getOrderStatusChang())){
             //订单已出库单
             OrderOutStockWmsEvent orderOutStockWmsEvent = JSONObject.parseObject(messageContent,OrderOutStockWmsEvent.class);
-            BeanCopierUtils.copyProperties(orderOutStockWmsEvent,wmsShipDTO);
+            wmsShipDTO = wmsShipDtoConverter.convert(orderOutStockWmsEvent);
         }else if (OrderStatusChangEnum.ORDER_DELIVERED.equals(orderEvent.getOrderStatusChang())){
             // 订单已配送信息
             OrderDeliveredWmsEvent orderDeliveredWmsEvent = JSONObject.parseObject(messageContent,OrderDeliveredWmsEvent.class);
-            BeanCopierUtils.copyProperties(orderDeliveredWmsEvent,wmsShipDTO);
-
+            wmsShipDTO = wmsShipDtoConverter.convert(orderDeliveredWmsEvent);
+        }else if (OrderStatusChangEnum.ORDER_SIGNED.equals(orderEvent.getOrderStatusChang())){
+            //订单签收
+            OrderSignedWmsEvent orderSignedWmsEvent = JSONObject.parseObject(messageContent,OrderSignedWmsEvent.class);
+            wmsShipDTO = wmsShipDtoConverter.convert(orderSignedWmsEvent);
         }
 
+        if (wmsShipDTO != null){
+            wmsShipDTO.setStatusChang(orderEvent.getOrderStatusChang());
+        }
         return wmsShipDTO;
     }
 

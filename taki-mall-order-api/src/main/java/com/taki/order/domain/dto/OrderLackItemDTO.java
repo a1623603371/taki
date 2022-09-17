@@ -14,7 +14,7 @@ import java.util.List;
  * @Version 1.0
  */
 @Data
-public class OrderLackItemDTO extends AbstractObject implements Serializable {
+public class OrderLackItemDTO  implements Serializable {
     /**
      * 售后信息
      */

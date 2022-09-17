@@ -15,7 +15,7 @@ import java.util.List;
  * @Version 1.0
  */
 @Data
-public class ReleaseProductStockDTO extends AbstractObject implements Serializable {
+public class ReleaseProductStockDTO  implements Serializable {
 
 
     private static final long serialVersionUID = 4697913125587929762L;
@@ -32,7 +32,7 @@ public class ReleaseProductStockDTO extends AbstractObject implements Serializab
 
 
     @Data
-    public static class OrderItemRequest extends AbstractObject implements Serializable{
+    public static class OrderItemRequest  implements Serializable{
 
 
         private static final long serialVersionUID = -8072385583551384211L;

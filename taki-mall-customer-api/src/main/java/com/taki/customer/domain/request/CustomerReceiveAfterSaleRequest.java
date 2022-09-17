@@ -14,7 +14,7 @@ import java.math.BigDecimal;
  * @Version 1.0
  */
 @Data
-public class CustomerReceiveAfterSaleRequest extends AbstractObject implements Serializable {
+public class CustomerReceiveAfterSaleRequest  implements Serializable {
 
     private static final long serialVersionUID = 8918610925179848880L;
 
@@ -31,7 +31,7 @@ public class CustomerReceiveAfterSaleRequest extends AbstractObject implements S
     /**
      * 售后Id
      */
-    private String afterSaleId;
+    private Long afterSaleId;
 
     /**
      * 售后支付单Id

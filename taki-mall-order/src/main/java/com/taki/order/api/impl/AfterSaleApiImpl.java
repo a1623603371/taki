@@ -383,7 +383,7 @@ public class AfterSaleApiImpl implements AfterSaleApi {
     @Override
     public ResponseData<Long> customerFindAfterSaleRefundInfo(CustomerReceiveAfterSaleRequest customerReceiveAfterSaleRequest) {
 
-        String afterSaleId = customerReceiveAfterSaleRequest.getAfterSaleId();
+        Long afterSaleId = customerReceiveAfterSaleRequest.getAfterSaleId();
 
         AfterSaleRefundDO afterSaleRefundDO = afterSaleRefundDAO.findAfterSaleRefundByfterSaleId(afterSaleId);
 

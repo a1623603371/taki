@@ -1,7 +1,7 @@
 package com.taki.fulfill.mq.consumer.listener;
 
 import com.alibaba.fastjson.JSONObject;
-import com.taki.fulfill.domain.request.ReceiveFulFillRequest;
+import com.taki.fulfill.domain.request.ReceiveFulfillRequest;
 import com.taki.fulfill.service.FulfillService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
@@ -36,7 +36,7 @@ public class TriggerOrderFulfillTopicListener implements MessageListenerConcurre
             list.forEach(messageExt -> {
                 String message = new String(messageExt.getBody());
 
-                ReceiveFulFillRequest request = JSONObject.parseObject(message,ReceiveFulFillRequest.class);
+                ReceiveFulfillRequest request = JSONObject.parseObject(message,ReceiveFulfillRequest.class);
                 fulfillService.receiveOrderFulFill(request);
             });
 

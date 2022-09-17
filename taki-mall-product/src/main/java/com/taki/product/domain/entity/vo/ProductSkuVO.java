@@ -13,11 +13,13 @@ import java.io.Serializable;
  * @Version 1.0
  */
 @Data
-public class ProductSkuVO extends AbstractObject implements Serializable {
+public class ProductSkuVO  implements Serializable {
 
 
     private static final long serialVersionUID = -550000449593044214L;
 
+
+    private Long id;
 
     /**
      * 商品Id
@@ -60,4 +62,6 @@ public class ProductSkuVO extends AbstractObject implements Serializable {
      * 商品采购价格
      */
     private Integer purchasePrice;
+
+
 }

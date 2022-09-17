@@ -1,9 +1,11 @@
 package com.taki.order.domain.dto;
 
-import com.taki.order.domain.query.OrderQuery;
-import lombok.Data;
+
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.util.CollectionUtils;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -17,6 +19,8 @@ import java.util.Set;
  * @Version 1.0
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class OrderListQueryDTO {
     /**
      * 业务线
@@ -93,50 +97,50 @@ public class OrderListQueryDTO {
     /**
      * 内部构造器
      */
-    public static class  Builder {
-
-        private OrderListQueryDTO orderListQuery = null;
-
-        public static Builder Builder() {
-          return new Builder();
-        }
-
-        public  Builder  copy (OrderQuery orderQuery){
-            orderListQuery = orderQuery.clone(OrderListQueryDTO.class);
-            return this;
-        }
-
-        /** 
-         * @description:  不展示无效订单
-         * @param 
-         * @return
-         * @author Long
-         * @date: 2022/3/3 17:13
-         */ 
-        public Builder removeInValidStatus(){
-            if(CollectionUtils.isEmpty(orderListQuery.getOrderStatus())){
-                orderListQuery.setPageNo(orderListQuery.pageNo);
-                orderListQuery.setPageSize(orderListQuery.pageSize);
-            }
-            return this;
-        }
-
-        /**
-         * @description: 设置分页
-         * @param orderQuery 订单查询条件
-         * @return
-         * @author Long
-         * @date: 2022/3/3 17:15
-         */
-        public Builder setPage(OrderQuery orderQuery){
-            orderListQuery.setPageNo(orderListQuery.pageNo);
-            orderListQuery.setPageSize(orderListQuery.pageSize);
-            return this;
-
-        }
-
-        public OrderListQueryDTO build(){
-            return orderListQuery;
-        }
-    }
+//    public static class  Builder {
+//
+//        private OrderListQueryDTO orderListQuery = null;
+//
+//        public static Builder Builder() {
+//          return new Builder();
+//        }
+//
+//        public  Builder  copy (OrderQuery orderQuery){
+//            orderListQuery = orderQuery.clone(OrderListQueryDTO.class);
+//            return this;
+//        }
+//
+//        /**
+//         * @description:  不展示无效订单
+//         * @param
+//         * @return
+//         * @author Long
+//         * @date: 2022/3/3 17:13
+//         */
+//        public Builder removeInValidStatus(){
+//            if(CollectionUtils.isEmpty(orderListQuery.getOrderStatus())){
+//                orderListQuery.setPageNo(orderListQuery.pageNo);
+//                orderListQuery.setPageSize(orderListQuery.pageSize);
+//            }
+//            return this;
+//        }
+//
+//        /**
+//         * @description: 设置分页
+//         * @param orderQuery 订单查询条件
+//         * @return
+//         * @author Long
+//         * @date: 2022/3/3 17:15
+//         */
+//        public Builder setPage(OrderQuery orderQuery){
+//            orderListQuery.setPageNo(orderListQuery.pageNo);
+//            orderListQuery.setPageSize(orderListQuery.pageSize);
+//            return this;
+//
+//        }
+//
+//        public OrderListQueryDTO build(){
+//            return orderListQuery;
+//        }
+//    }
 }

@@ -10,7 +10,8 @@ import com.taki.common.message.PaidOrderSuccessMessage;
 import com.taki.common.mq.AbstractMessageListenerConcurrently;
 import com.taki.common.mq.MQMessage;
 import com.taki.common.redis.RedisLock;
-import com.taki.fulfill.domain.request.ReceiveFulFillRequest;
+
+import com.taki.fulfill.domain.request.ReceiveFulfillRequest;
 import com.taki.order.dao.OrderInfoDao;
 import com.taki.order.domain.entity.OrderInfoDO;
 import com.taki.order.exception.OrderBizException;
@@ -117,7 +118,7 @@ public class PaidOrderSuccessListener extends AbstractMessageListenerConcurrentl
 
         setTriggerOrderFulfillTransactionListener(transactionMQProducer);
 
-        ReceiveFulFillRequest receiveFulFillRequest = orderFulFillService.builderReceiveFulFillRequest(orderInfoDO);
+        ReceiveFulfillRequest receiveFulFillRequest = orderFulFillService.builderReceiveFulFillRequest(orderInfoDO);
 
         Boolean result =  sendTriggerOrderFulfillSuccessMessage(transactionMQProducer,receiveFulFillRequest,orderId,orderInfoDO);
 
@@ -133,7 +134,7 @@ public class PaidOrderSuccessListener extends AbstractMessageListenerConcurrentl
      * @date: 2022/6/9 18:42
      */
     private Boolean sendTriggerOrderFulfillSuccessMessage(TransactionMQProducer transactionMQProducer,
-                                                          ReceiveFulFillRequest receiveFulFillRequest,
+                                                          ReceiveFulfillRequest receiveFulFillRequest,
                                                           String orderId, OrderInfoDO orderInfoDO) throws MQClientException {
 
         String topic = RocketMQConstant.TRIGGER_ORDER_FULFILL_TOPIC;
@@ -178,8 +179,8 @@ public class PaidOrderSuccessListener extends AbstractMessageListenerConcurrentl
             @Override
             public LocalTransactionState checkLocalTransaction(MessageExt messageExt) {
 
-                ReceiveFulFillRequest receiveFulfillRequest = JSON.parseObject(
-                        new String(messageExt.getBody(), StandardCharsets.UTF_8), ReceiveFulFillRequest.class);
+                ReceiveFulfillRequest receiveFulfillRequest = JSON.parseObject(
+                        new String(messageExt.getBody(), StandardCharsets.UTF_8), ReceiveFulfillRequest.class);
                 // 检查 订单是否 “已履约” 状态
                 OrderInfoDO orderInfoDO = orderInfoDao.getByOrderId(receiveFulfillRequest.getOrderId());
 

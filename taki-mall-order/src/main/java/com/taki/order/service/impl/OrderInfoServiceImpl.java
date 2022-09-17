@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.taki.common.constants.RedisLockKeyConstants;
 import com.taki.common.constants.RocketDelayedLevel;
 import com.taki.common.constants.RocketMQConstant;
-import com.taki.common.core.CloneDirection;
 import com.taki.common.enums.AmountTypeEnum;
 import com.taki.common.enums.OrderStatusEnum;
 import com.taki.common.enums.PayTypeEnum;
@@ -16,6 +15,7 @@ import com.taki.common.redis.RedisLock;
 import com.taki.common.utli.*;
 import com.taki.market.domain.dto.CalculateOrderAmountDTO;
 import com.taki.market.request.CalculateOrderAmountRequest;
+import com.taki.order.converter.OrderConverter;
 import com.taki.order.dao.*;
 import com.taki.order.domain.dto.*;
 import com.taki.order.domain.request.*;
@@ -27,7 +27,6 @@ import com.taki.order.remote.*;
 import com.taki.pay.domian.dto.PayOrderDTO;
 import com.taki.pay.domian.rquest.PayOrderRequest;
 import com.taki.pay.domian.rquest.PayRefundRequest;
-import com.taki.product.domian.dto.OrderAmountDetailDTO;
 import com.taki.order.enums.*;
 import com.taki.order.exception.OrderBizException;
 import com.taki.order.exception.OrderErrorCodeEnum;
@@ -117,6 +116,9 @@ public class OrderInfoServiceImpl implements OrderInfoService {
      */
     @Autowired
     private PayRemote payRemote;
+
+    @Autowired
+    private OrderConverter orderConverter;
 
 
     @Override
@@ -209,7 +211,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
             checkPerPayOrderInfo(orderId,payAmount);
 
             //调用 支付系统 进行预支付
-            PayOrderRequest payOrderRequest =  prePayOrderRequest.clone(PayOrderRequest.class);
+            PayOrderRequest payOrderRequest = orderConverter.convertPayOrderRequest(prePayOrderRequest);
 
             PayOrderDTO payOrder = payRemote.payOrder(payOrderRequest);
             //更新订单表 与支付信息表
@@ -867,7 +869,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
      * @date: 2022/1/5 10:20
      */
     private CalculateOrderAmountDTO calculateOrderAmount(CreateOrderRequest createOrderRequest,List<ProductSkuDTO> productSkuList) {
-        CalculateOrderAmountRequest calculateOrderAmountRequest = createOrderRequest.clone(CalculateOrderAmountRequest.class, CloneDirection.FORWARD);
+        CalculateOrderAmountRequest calculateOrderAmountRequest = orderConverter.convertCalculateOrderAmountRequest(createOrderRequest);
 
         // 订单条目补充商品信息
         Map<String,ProductSkuDTO> productSkuDTOMap = productSkuList.stream().collect(Collectors.toMap(ProductSkuDTO::getSkuCode, Function.identity()));
@@ -938,7 +940,7 @@ public class OrderInfoServiceImpl implements OrderInfoService {
      * @date: 2022/1/4 9:37
      */
     private void checkRisk(CreateOrderRequest createOrderRequest) {
-        CheckOrderRiskRequest checkOrderRiskRequest = createOrderRequest.clone(CheckOrderRiskRequest.class);
+        CheckOrderRiskRequest checkOrderRiskRequest = orderConverter.convertRiskRequest(createOrderRequest);
         riskRemote.checkOrderRisk(checkOrderRiskRequest);
 
 

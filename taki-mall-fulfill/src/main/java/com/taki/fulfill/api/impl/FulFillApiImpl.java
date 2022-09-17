@@ -8,7 +8,7 @@ import com.taki.common.utli.ResponseData;
 import com.taki.fulfill.api.FulFillApi;
 import com.taki.fulfill.domain.evnet.*;
 import com.taki.fulfill.domain.request.CancelFulfillRequest;
-import com.taki.fulfill.domain.request.ReceiveFulFillRequest;
+import com.taki.fulfill.domain.request.ReceiveFulfillRequest;
 import com.taki.fulfill.domain.request.TriggerOrderWmsShipEventRequest;
 import com.taki.fulfill.exection.FulfillBizException;
 import com.taki.fulfill.mq.producer.DefaultProducer;
@@ -47,7 +47,7 @@ public class FulFillApiImpl implements FulFillApi {
 
 
     @Override
-    public ResponseData<Boolean> receiveOrderFulFill(ReceiveFulFillRequest request) {
+    public ResponseData<Boolean> receiveOrderFulFill(ReceiveFulfillRequest request) {
         log.info("接受到订单履约请求，request={}", JSONObject.toJSONString(request));
 
         try {

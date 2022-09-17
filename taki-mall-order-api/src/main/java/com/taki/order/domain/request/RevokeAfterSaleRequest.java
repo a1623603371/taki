@@ -13,7 +13,7 @@ import java.io.Serializable;
  * @Version 1.0
  */
 @Data
-public class RevokeAfterSaleRequest extends AbstractObject implements Serializable {
+public class RevokeAfterSaleRequest  implements Serializable {
 
     /**
      * 售后Id

@@ -14,7 +14,7 @@ import java.util.Date;
  * @Version 1.0
  */
 @Data
-public class CancelFulfillRequest extends AbstractObject implements Serializable {
+public class CancelFulfillRequest  implements Serializable {
 
 
     private static final long serialVersionUID = 8462694538369345022L;

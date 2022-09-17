@@ -14,7 +14,7 @@ import java.io.Serializable;
  *
  */
 @Data
-public class OrderSnapshotDTO extends AbstractObject implements Serializable {
+public class OrderSnapshotDTO  implements Serializable {
     /**
      * 订单编号
      */

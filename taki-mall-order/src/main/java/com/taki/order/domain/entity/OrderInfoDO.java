@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -23,6 +24,7 @@ import lombok.experimental.Accessors;
  */
 @Data
 @TableName("order_info")
+@EqualsAndHashCode(callSuper=false)
 public class OrderInfoDO extends BaseEntity implements Serializable{
 
     private static final long serialVersionUID = 1L;

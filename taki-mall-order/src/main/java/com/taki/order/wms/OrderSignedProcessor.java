@@ -2,7 +2,6 @@ package com.taki.order.wms;
 
 import com.taki.common.enums.OrderStatusEnum;
 import com.taki.order.dao.OrderDeliveryDetailDao;
-import com.taki.order.domain.dto.OrderDeliverDetailDTO;
 import com.taki.order.domain.dto.WmsShipDTO;
 import com.taki.order.domain.entity.OrderDeliveryDetailDO;
 import com.taki.order.domain.entity.OrderInfoDO;

@@ -17,7 +17,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AdjustDeliveryAddressDTO extends AbstractObject implements Serializable {
+public class AdjustDeliveryAddressDTO  implements Serializable {
 
 
     private static final long serialVersionUID = 1597034550960264745L;

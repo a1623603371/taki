@@ -17,7 +17,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RemoveOrderDTO extends AbstractObject implements Serializable {
+public class RemoveOrderDTO  implements Serializable {
 
     private static final long serialVersionUID = -4410787285731003017L;
 

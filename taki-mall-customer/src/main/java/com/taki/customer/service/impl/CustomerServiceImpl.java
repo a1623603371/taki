@@ -3,6 +3,7 @@ package com.taki.customer.service.impl;
 import com.taki.common.constants.RedisLockKeyConstants;
 import com.taki.common.redis.RedisLock;
 import com.taki.common.utli.ParamCheckUtil;
+import com.taki.customer.converter.CustomerConverter;
 import com.taki.customer.dao.CustomerReceivesAfterSaleInfoDAO;
 import com.taki.customer.domain.enetity.CustomerReceivesAfterSaleInfoDO;
 import com.taki.customer.domain.request.CustomReviewReturnGoodsRequest;
@@ -34,13 +35,16 @@ public class CustomerServiceImpl implements CustomerService {
     @Autowired
     private AfterSaleRemote afterSaleRemote;
 
+    @Autowired
+    private CustomerConverter customerConverter;
+
 
     @Override
     public Boolean receiveAfterSale(CustomerReceiveAfterSaleRequest customerReceivesAfterSaleRequest) {
         // 1.效验 入参
         checkCustomerReceiveAfterSaleRequest(customerReceivesAfterSaleRequest);
         //2 分布式锁
-        String afterSaleId = customerReceivesAfterSaleRequest.getAfterSaleId();
+        Long afterSaleId = customerReceivesAfterSaleRequest.getAfterSaleId();
         String key = RedisLockKeyConstants.REFUND_KEY + afterSaleId;
 
         boolean lock = redisLock.tryLock(key);
@@ -53,7 +57,7 @@ public class CustomerServiceImpl implements CustomerService {
             Long   afterSaleRefundId = afterSaleRemote.customerFindAfterSaleRefundInfo(customerReceivesAfterSaleRequest);
             customerReceivesAfterSaleRequest.setAfterSaleRefundId(afterSaleRefundId);
 
-            CustomerReceivesAfterSaleInfoDO customerReceivesAfterSaleInfo = customerReceivesAfterSaleRequest.clone(CustomerReceivesAfterSaleInfoDO.class);
+            CustomerReceivesAfterSaleInfoDO customerReceivesAfterSaleInfo = customerConverter.converterCustomerReceivesAfterSaleInfoDO(customerReceivesAfterSaleRequest);
 
            Boolean result =   customerReceivesAfterSaleInfoDAO.save(customerReceivesAfterSaleInfo);
 
@@ -77,7 +81,7 @@ public class CustomerServiceImpl implements CustomerService {
      */
     private void checkCustomerReceiveAfterSaleRequest(CustomerReceiveAfterSaleRequest request) {
 
-        ParamCheckUtil.checkStringNonEmpty(request.getAfterSaleId(), CustomerErrorCodeEnum.AFTER_SALE_ID_IS_NULL);
+        ParamCheckUtil.checkObjectNonNull(request.getAfterSaleId(), CustomerErrorCodeEnum.AFTER_SALE_ID_IS_NULL);
         ParamCheckUtil.checkStringNonEmpty(request.getUserId(),CustomerErrorCodeEnum.USER_ID_IS_NULL);
         ParamCheckUtil.checkStringNonEmpty(request.getOrderId(),CustomerErrorCodeEnum.ORDER_ID_IS_NULL);
         ParamCheckUtil.checkObjectNonNull(request.getAfterSaleType(),CustomerErrorCodeEnum.AFTER_SALE_TYPE_IS_NULL);

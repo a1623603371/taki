@@ -14,7 +14,7 @@ import java.util.Date;
  * @Version 1.0
  */
 @Data
-public class OrderPaymentDetailDTO extends AbstractObject implements Serializable {
+public class OrderPaymentDetailDTO  implements Serializable {
     private static final long serialVersionUID = 4890592762126631890L;
 
     /**

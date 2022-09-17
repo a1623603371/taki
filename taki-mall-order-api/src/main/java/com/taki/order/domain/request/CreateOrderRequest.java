@@ -16,7 +16,7 @@ import java.util.List;
  * @Version 1.0
  */
 @Data
-public class CreateOrderRequest extends AbstractObject implements Serializable {
+public class CreateOrderRequest  implements Serializable {
 
 
     private static final long serialVersionUID = -397550716343729406L;
@@ -166,7 +166,7 @@ public class CreateOrderRequest extends AbstractObject implements Serializable {
      * @Version 1.0
      */
     @Data
-    public static class OrderItemRequest extends AbstractObject implements Serializable {
+    public static class OrderItemRequest  implements Serializable {
 
         private static final long serialVersionUID = -8596245154280361909L;
 
@@ -194,7 +194,7 @@ public class CreateOrderRequest extends AbstractObject implements Serializable {
      * @Version 1.0
      */
     @Data
-    public static class OrderAmountRequest extends AbstractObject implements Serializable {
+    public static class OrderAmountRequest  implements Serializable {
 
 
         private static final long serialVersionUID = -8373432955221462266L;
@@ -218,7 +218,7 @@ public class CreateOrderRequest extends AbstractObject implements Serializable {
      * @Version 1.0
      */
     @Data
-    public static  class PaymentRequest extends AbstractObject implements Serializable {
+    public static  class PaymentRequest  implements Serializable {
 
         private static final long serialVersionUID = -2437895415443353399L;
 

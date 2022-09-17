@@ -2,6 +2,7 @@ package com.taki.product.service.impl;
 
 import com.taki.common.utli.ObjectUtil;
 import com.taki.common.utli.ParamCheckUtil;
+import com.taki.product.converter.ProductConverter;
 import com.taki.product.dao.ProductSkuDao;
 import com.taki.product.domain.entity.ProductSkuDO;
 import com.taki.product.domian.dto.ProductSkuDTO;
@@ -26,6 +27,8 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductSkuDao productSkuDao;
 
+    @Autowired
+    private ProductConverter productConverter;
 
     @Override
     public ProductSkuDTO getProductSkuByCode(String skuCode) {
@@ -37,13 +40,13 @@ public class ProductServiceImpl implements ProductService {
         if (ObjectUtils.isEmpty(productSkuDO)) {
             return null;
         }
-        return productSkuDO.clone(ProductSkuDTO.class);
+        return productConverter.converter(productSkuDO) ;
     }
 
     @Override
     public List<ProductSkuDTO> listProductSkuByCode(List<String> skuCodes) {
         ParamCheckUtil.checkCollectionNonEmpty(skuCodes,ProductErrorCodeEnum.SKU_CODE_IS_NULL);
         List<ProductSkuDO> productSkuDTOList = productSkuDao.listProductSkuByCode(skuCodes);
-        return ObjectUtil.convertList(productSkuDTOList,ProductSkuDTO.class);
+        return productConverter.converter(productSkuDTOList);
     }
 }

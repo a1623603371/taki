@@ -12,12 +12,13 @@ import com.taki.common.exception.ServiceException;
 import com.taki.common.message.ActualRefundMessage;
 import com.taki.common.mq.MQMessage;
 import com.taki.common.redis.RedisLock;
-import com.taki.common.utli.ObjectUtil;
 import com.taki.common.utli.ParamCheckUtil;
 import com.taki.common.utli.RandomUtil;
 import com.taki.common.utli.ResponseData;
 import com.taki.customer.domain.request.CustomerReceiveAfterSaleRequest;
 import com.taki.market.request.ReleaseUserCouponRequest;
+import com.taki.order.converter.AfterSaleConverter;
+import com.taki.order.converter.OrderConverter;
 import com.taki.order.dao.*;
 import com.taki.order.domain.dto.*;
 import com.taki.order.domain.entity.*;
@@ -29,7 +30,7 @@ import com.taki.order.manager.OrderNoManager;
 import com.taki.order.mq.producer.AfterSaleApplySendActualRefundProducer;
 import com.taki.order.mq.producer.CancelOrderSendReleaseAssetsProducer;
 import com.taki.order.remote.PayRemote;
-import com.taki.order.service.AfterSaleManager;
+import com.taki.order.manager.AfterSaleManager;
 import com.taki.order.service.OrderAfterSaleService;
 import com.taki.pay.domian.rquest.PayRefundRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -113,6 +114,12 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
 
     @Autowired
     private AfterSaleManager afterSaleManager;
+
+    @Autowired
+    private OrderConverter orderConverter;
+
+    @Autowired
+    private AfterSaleConverter afterSaleConverter;
 
     @Autowired
     private PayRemote payRemote;
@@ -221,7 +228,7 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
         try {
             //5.生成售后单订单号
             OrderInfoDTO orderInfoDTO = returnGoodsAssembleRequest.getOrderInfoDTO();
-            OrderInfoDO orderInfoDO = orderInfoDTO.clone(OrderInfoDO.class);
+            OrderInfoDO orderInfoDO = orderConverter.orderInfoDTO2DO(orderInfoDTO);
             String afterSaleId = orderNoManager.genOrderId(OrderNoTypeEnum.SALE_ORDER.getCode(), orderInfoDO.getUserId());
 
             returnGoodsAssembleRequest.setAfterSaleId(afterSaleId);
@@ -247,8 +254,8 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
      */ 
     private void sendActualRefundSuccessMessage(TransactionMQProducer transactionMQProducer, ReturnGoodsAssembleRequest returnGoodsAssembleRequest, String afterSaleId) throws MQClientException {
             // 组装发送消息数据
-        CustomerReceiveAfterSaleRequest customerReceiveAfterSaleRequest = returnGoodsAssembleRequest.clone(CustomerReceiveAfterSaleRequest.class);
-        customerReceiveAfterSaleRequest.setAfterSaleId(afterSaleId);
+        CustomerReceiveAfterSaleRequest customerReceiveAfterSaleRequest = orderConverter.convertReturnGoodsAssembleRequest(returnGoodsAssembleRequest);
+        customerReceiveAfterSaleRequest.setAfterSaleId(Long.valueOf(afterSaleId));
 
         Message message = new Message(RocketMQConstant.AFTER_SALE_CUSTOMER_AUDIT_TOPIC,JSONObject.toJSONString(customerReceiveAfterSaleRequest).getBytes(StandardCharsets.UTF_8));
 
@@ -866,7 +873,7 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
      */
     private void insertReturnGoodsAfterSale(ReturnGoodsAssembleRequest returnGoodsAssembleRequest, Integer afterSaleStatus) {
         OrderInfoDTO orderInfoDTO = returnGoodsAssembleRequest.getOrderInfoDTO();
-        OrderInfoDO orderInfoDO = orderInfoDTO.clone(OrderInfoDO.class);
+        OrderInfoDO orderInfoDO = orderConverter.orderInfoDTO2DO(orderInfoDTO);
         Integer afterSaleType = returnGoodsAssembleRequest.getAfterSaleType();
 
         //售后退货过程中 申请退款金额 和 实际退款金额  计算出来 可能不同
@@ -1083,7 +1090,7 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
             returnGoodsAssembleRequest.setApplyRefundAmount(orderItemDO.getOriginAmount());
             returnGoodsAssembleRequest.setLastReturnGoods(true);
         }
-        refundOrderItemDTOS.add(orderItemDO.clone(OrderItemDTO.class));
+        refundOrderItemDTOS.add(orderConverter.orderItemDO2DTO(orderItemDO));
         returnGoodsAssembleRequest.setOrderItems(refundOrderItemDTOS);
 
         return returnGoodsAssembleRequest;
@@ -1126,25 +1133,25 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
      * @date: 2022/4/3 20:29
      */
     private ReturnGoodsAssembleRequest buildReturnGoodsData(ReturnGoodsOrderRequest request) {
-        ReturnGoodsAssembleRequest returnGoodsAssembleRequest = request.clone(ReturnGoodsAssembleRequest.class);
+        ReturnGoodsAssembleRequest returnGoodsAssembleRequest = orderConverter.returnGoodRequest2AssembleRequest(request);
         // 订单Id
         String orderId = request.getOrderId();
 
         //封装数据
         OrderInfoDO orderInfoDO= orderInfoDao.getByOrderId(orderId);
-        OrderInfoDTO orderInfoDTO = orderInfoDO.clone(OrderInfoDTO.class);
+        OrderInfoDTO orderInfoDTO = orderConverter.orderInfoDO2DTO(orderInfoDO);
         returnGoodsAssembleRequest.setOrderInfoDTO(orderInfoDTO);
 
         // 封装 订单条目
         List<OrderItemDO> orderItemDOS = orderItemDao.listByOrderId(orderId);
-        List<OrderItemDTO> orderItemDTOS =ObjectUtil.convertList(orderItemDOS,OrderItemDTO.class);
+        List<OrderItemDTO> orderItemDTOS = orderConverter.orderItemDO2DTO(orderItemDOS);
         returnGoodsAssembleRequest.setOrderItems(orderItemDTOS);
 
         //封装订单 售后条目
 
         List<AfterSaleItemDO> afterSaleItemDOS = afterSaleItemDao.listByOrderId(orderId);
 
-        List<AfterSaleItemDTO> afterSaleItemDTOS = ObjectUtil.convertList(afterSaleItemDOS,AfterSaleItemDTO.class);
+        List<AfterSaleOrderItemDTO> afterSaleOrderListDTOS = afterSaleConverter.afterSaleOrderItemDO2DTO(afterSaleItemDOS);
 
         return returnGoodsAssembleRequest;
     }
@@ -1291,11 +1298,11 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
 
         Integer cancelType = cancelOrderRequest.getCancelType();
 
-        OrderInfoDTO orderInfoDTO =  orderInfo.clone(OrderInfoDTO.class);
+        OrderInfoDTO orderInfoDTO =  orderConverter.orderInfoDO2DTO(orderInfo);
 
         orderInfoDTO.setCancelType(String.valueOf(cancelType));
         List<OrderItemDTO> orderItems = findOrderItems(orderId);
-        CancelOrderAssembleRequest request = cancelOrderRequest.clone(CancelOrderAssembleRequest.class);
+        CancelOrderAssembleRequest request = orderConverter.convertCancelOrderRequest(cancelOrderRequest);
         request.setOrderId(orderId);
         request.setCancelType(cancelType);
         request.setOrderInfo(orderInfoDTO);
@@ -1319,7 +1326,7 @@ public class OrderAfterSaleServiceImpl implements OrderAfterSaleService {
         throw new OrderBizException(OrderErrorCodeEnum.ORDER_ITEM_IS_NULL);
     }
 
-    List<OrderItemDTO> orderItemDTOs = ObjectUtil.convertList(orderItems,OrderItemDTO.class);
+    List<OrderItemDTO> orderItemDTOs = orderConverter.orderItemDO2DTO(orderItems);
 
         return orderItemDTOs;
     }

@@ -34,7 +34,7 @@ public class AfterSaleAmountService {
      * @author Long
      * @date: 2022/3/11 14:14
      */ 
-    public BigDecimal calculateOrderItemLackRealRefundAmount(OrderItemDTO orderItem, Integer lackNum){
+    public BigDecimal calculateOrderItemLackRealRefundAmount(OrderItemDO orderItem, Integer lackNum){
         BigDecimal rate = new BigDecimal(lackNum).divide(new BigDecimal(orderItem.getSaleQuantity()),2,BigDecimal.ROUND_HALF_UP);
         BigDecimal itemRefundAmount = orderItem.getPayAmount().multiply(rate);
         return itemRefundAmount;

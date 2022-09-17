@@ -1,4 +1,4 @@
-package com.taki.order.service;
+package com.taki.order.manager;
 
 import com.taki.order.domain.dto.OrderInfoDTO;
 import com.taki.order.domain.entity.OrderInfoDO;

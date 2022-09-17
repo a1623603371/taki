@@ -6,8 +6,9 @@ import com.taki.common.enums.OrderStatusEnum;
 import com.taki.common.utli.ObjectUtil;
 import com.taki.market.domain.dto.CalculateOrderAmountDTO;
 import com.taki.order.config.OrderProperties;
+import com.taki.order.converter.OrderConverter;
 import com.taki.order.domain.dto.OrderAmountDTO;
-import com.taki.product.domian.dto.OrderAmountDetailDTO;
+import com.taki.order.domain.dto.OrderAmountDetailDTO;
 import com.taki.order.domain.entity.*;
 import com.taki.order.domain.request.CreateOrderRequest;
 import com.taki.order.enums.*;
@@ -59,12 +60,16 @@ public class NewOrderBuilder {
     private FullOrderData fullOrderData;
 
 
-    public NewOrderBuilder(CreateOrderRequest createOrderRequest, List<ProductSkuDTO> productSkuList, CalculateOrderAmountDTO calculateOrderAmount, OrderProperties orderProperties) {
+    private OrderConverter orderConverter;
+
+
+    public NewOrderBuilder(CreateOrderRequest createOrderRequest, List<ProductSkuDTO> productSkuList, CalculateOrderAmountDTO calculateOrderAmount, OrderProperties orderProperties,OrderConverter orderConverter) {
         this.createOrderRequest = createOrderRequest;
         this.productSkuList = productSkuList;
         this.calculateOrderAmount = calculateOrderAmount;
         this.orderProperties = orderProperties;
         this.fullOrderData = new FullOrderData();
+        this.orderConverter = orderConverter;
     }
 
     /** 
@@ -159,7 +164,7 @@ public class NewOrderBuilder {
 
             // 商品项目实际支付金额，默认是originAmount，当是 有优惠 抵扣 的时候需要 分摊
             BigDecimal realAmount = BigDecimal.ZERO;
-            List<OrderAmountDetailDTO> orderAmountDetails = ObjectUtil.convertList(calculateOrderAmount.getOrderAmountDetailDTOList(),OrderAmountDetailDTO.class);
+            List<OrderAmountDetailDTO> orderAmountDetails = orderConverter.convertOrderAmountDetail(calculateOrderAmount.getOrderAmountDetailDTOList());
 
             // 判断 是否存在优惠券抵扣费用
              orderAmountDetails = orderAmountDetails.stream().filter(
@@ -266,7 +271,7 @@ public class NewOrderBuilder {
      * @date: 2022/1/7 11:02
      */ 
     public NewOrderBuilder buildOrderAmount(){
-        List<OrderAmountDTO>  orderAmountDTOList = ObjectUtil.convertList(calculateOrderAmount.getOrderAmountDTOList(),OrderAmountDTO.class);
+        List<OrderAmountDTO>  orderAmountDTOList = orderConverter.convertOrderAmountDTO(calculateOrderAmount.getOrderAmountDTOList());
 
         List<OrderAmountDO> orderAmounts = new ArrayList<>();
 
@@ -290,7 +295,7 @@ public class NewOrderBuilder {
      * @date: 2022/1/7 11:33
      */ 
     public NewOrderBuilder buildOrderAmountDetail(){
-        List<OrderAmountDetailDTO> orderAmountDetailList = ObjectUtil.convertList(calculateOrderAmount.getOrderAmountDetailDTOList(),OrderAmountDetailDTO.class);
+        List<OrderAmountDetailDTO> orderAmountDetailList = orderConverter.convertOrderAmountDetail(calculateOrderAmount.getOrderAmountDetailDTOList());
         List<OrderAmountDetailDO> orderAmountDetails = new ArrayList<>();
 
         orderAmountDetailList.forEach(orderAmountDetailDTO -> {

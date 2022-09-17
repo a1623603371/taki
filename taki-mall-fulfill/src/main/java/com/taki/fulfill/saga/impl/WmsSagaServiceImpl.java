@@ -2,7 +2,8 @@ package com.taki.fulfill.saga.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.taki.common.utli.ObjectUtil;
-import com.taki.fulfill.domain.request.ReceiveFulFillRequest;
+import com.taki.fulfill.converter.FulfillConverter;
+import com.taki.fulfill.domain.request.ReceiveFulfillRequest;
 import com.taki.fulfill.remote.WmsRemote;
 import com.taki.fulfill.saga.WmsSagaService;
 import com.taki.wms.domain.dto.PickDTO;
@@ -28,8 +29,11 @@ public class WmsSagaServiceImpl implements WmsSagaService {
     @Autowired
     private WmsRemote wmsRemote;
 
+    @Autowired
+    private FulfillConverter fulfillConverter;
+
     @Override
-    public Boolean pickGoods(ReceiveFulFillRequest request) {
+    public Boolean pickGoods(ReceiveFulfillRequest request) {
         log.info("拣货，request={}",request);
 
         //调用 wms 系统 发起拣货
@@ -48,11 +52,11 @@ public class WmsSagaServiceImpl implements WmsSagaService {
      * @author Long
      * @date: 2022/5/17 15:46
      */
-    private PickGoodsRequest buildPickGoodsRequest(ReceiveFulFillRequest request) {
-        PickGoodsRequest pickGoodsRequest = request.clone(PickGoodsRequest.class);
+    private PickGoodsRequest buildPickGoodsRequest(ReceiveFulfillRequest request) {
+        PickGoodsRequest pickGoodsRequest = fulfillConverter.convertPickGoodsRequest(request);
 
-        List<PickGoodsRequest.OrderItemRequest> itemRequests = ObjectUtil
-                .convertList(request.getReceiveOrderItems(), PickGoodsRequest.OrderItemRequest.class);
+        List<PickGoodsRequest.OrderItemRequest> itemRequests = fulfillConverter.convertPickOrderItemRequest(request.getReceiveOrderItems());
+
 
         pickGoodsRequest.setOrderItemRequests(itemRequests);
 
@@ -61,7 +65,7 @@ public class WmsSagaServiceImpl implements WmsSagaService {
     }
 
     @Override
-    public Boolean pickGoodsCompensate(ReceiveFulFillRequest request) {
+    public Boolean pickGoodsCompensate(ReceiveFulfillRequest request) {
 
         log.info("补偿拣货 ，request={}", JSONObject.toJSONString(request));
 

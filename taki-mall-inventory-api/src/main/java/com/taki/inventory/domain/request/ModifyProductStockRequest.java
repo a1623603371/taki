@@ -13,7 +13,7 @@ import java.io.Serializable;
  * @Version 1.0
  */
 @Data
-public class ModifyProductStockRequest extends AbstractObject implements Serializable {
+public class ModifyProductStockRequest implements Serializable {
 
     /**
      * 商品SKU 编码

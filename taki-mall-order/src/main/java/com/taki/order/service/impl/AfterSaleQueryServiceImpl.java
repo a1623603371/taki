@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import com.taki.common.enums.AfterSaleTypeDetailEnum;
 import com.taki.common.page.PagingInfo;
 import com.taki.common.utli.ParamCheckUtil;
-import com.taki.order.bulider.AfterSaleOrderDetailBuilder;
+import com.taki.order.converter.AfterSaleConverter;
 import com.taki.order.dao.AfterSaleInfoDao;
 import com.taki.order.dao.AfterSaleItemDao;
 import com.taki.order.dao.AfterSaleLogDAO;
@@ -27,7 +27,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -52,7 +51,8 @@ public class AfterSaleQueryServiceImpl implements AfterSaleQueryService {
     @Autowired
     private AfterSaleLogDAO afterSaleLogDAO;
 
-
+    @Autowired
+    private AfterSaleConverter afterSaleConverter;
     @Autowired
     private AfterSaleRefundDAO afterSaleRefundDAO;
     @Override
@@ -127,8 +127,12 @@ public class AfterSaleQueryServiceImpl implements AfterSaleQueryService {
         // 第一阶段 链表查询
         // 第 2阶段 引入 ES
 
+        if (CollectionUtils.isEmpty(query.getApplySources())){
+            //默认只展示用户主动发起的售后单
+            query.setApplySources(AfterSaleApplySourceEnum.userApply());
+        }
         // 封装 查询数据
-        AfterSaleListQueryDTO queryDTO = AfterSaleListQueryDTO.Builder.builder().copy(query).useApplySource().setPage(query).build();
+        AfterSaleListQueryDTO queryDTO = afterSaleConverter.afterSaleListQueryDTO(query);
 
         // 查询
         Page<AfterSaleOrderListDTO> page = afterSaleInfoDao.listByPage(queryDTO);
@@ -155,11 +159,11 @@ public class AfterSaleQueryServiceImpl implements AfterSaleQueryService {
         // 4、查询日志
         List<AfterSaleLogDO> afterSaleLogs =  afterSaleLogDAO.listByAfterSaleId(Long.valueOf(afterSaleId));
 
-        return  new AfterSaleOrderDetailBuilder()
-                .afterSaleInfo(afterSaleInfo)
-                .afterSaleItems(afterSaleItemDOS)
-                .afterSalePays(afterSaleRefunds)
-                .afterSalePLogs(afterSaleLogs).build();
+        return   AfterSaleOrderDetailDTO.builder()
+                .afterSaleInfo(afterSaleConverter.afterSaleInfoDO2DTO(afterSaleInfo) )
+                .afterSaleItems(afterSaleConverter.afterSaleItemDO2DTO(afterSaleItemDOS))
+                .afterSalePays(afterSaleConverter.afterSalePayDO2DTO(afterSaleRefunds) )
+                .afterSaleLogs(afterSaleConverter.afterSaleLogDO2DTO(afterSaleLogs)).build();
     }
 
     @Override

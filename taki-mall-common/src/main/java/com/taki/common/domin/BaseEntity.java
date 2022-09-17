@@ -27,21 +27,21 @@ public class BaseEntity  {
     /**
      * 创建时间
      */
-    @TableField(value = "gmt_create",fill = FieldFill.INSERT)
-    private LocalDateTime gmtCreate;
+    @TableField(value = "create_time",fill = FieldFill.INSERT)
+    private LocalDateTime createTime;
 
     /**
      * 修改时间
      */
-    @TableField(value = "gmt_modified",fill = FieldFill.INSERT_UPDATE)
-    private LocalDateTime gmtModified;
+    @TableField(value = "update_time",fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updateTime;
 
 
 
     public  static  final  String ID = "id";
 
-    public  static  final  String GMT_CREATE = "gmtCreate";
+    public  static  final  String CREATE_TIME = "create_time";
 
-    public  static final  String GMT_MODIFIED = "gmtModified";
+    public  static final  String UPDATE_TIME = "update_time";
 
 }

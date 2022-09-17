@@ -13,7 +13,7 @@ import java.io.Serializable;
  * @Version 1.0
  */
 @Data
-public class GenOrderIdDTO extends AbstractObject implements Serializable {
+public class GenOrderIdDTO  implements Serializable {
 
 
     private static final long serialVersionUID = 5498943948263831233L;

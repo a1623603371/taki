@@ -1,6 +1,6 @@
 package com.taki.fulfill.service;
 
-import com.taki.fulfill.domain.request.ReceiveFulFillRequest;
+import com.taki.fulfill.domain.request.ReceiveFulfillRequest;
 
 /**
  * @ClassName FulfillService
@@ -16,7 +16,7 @@ public interface FulfillService {
      * 创建 履约单
      * @param receiveFulFillRequest
      */
-    void createFulfillOrder(ReceiveFulFillRequest  receiveFulFillRequest);
+    void createFulfillOrder(ReceiveFulfillRequest receiveFulFillRequest);
 
 
     /**
@@ -31,5 +31,5 @@ public interface FulfillService {
      * @param receiveFulFillRequest
      * @return
      */
-    Boolean receiveOrderFulFill(ReceiveFulFillRequest receiveFulFillRequest);
+    Boolean receiveOrderFulFill(ReceiveFulfillRequest receiveFulFillRequest);
 }

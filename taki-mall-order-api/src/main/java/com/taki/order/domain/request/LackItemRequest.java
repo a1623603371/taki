@@ -14,7 +14,7 @@ import java.util.Objects;
  * @Version 1.0
  */
 @Data
-public class LackItemRequest extends AbstractObject implements Serializable {
+public class LackItemRequest  implements Serializable {
 
 
     private static final long serialVersionUID = -8054914018927686350L;

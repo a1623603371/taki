@@ -18,8 +18,6 @@ import org.springframework.stereotype.Component;
 public class AfterSaleOperateLogFactory {
 
 
-    @Autowired
-    private AfterSaleLogDAO afterSaleLogDAO;
 
 
     /** 

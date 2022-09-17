@@ -15,7 +15,7 @@ import java.util.Date;
  * @Version 1.0
  */
 @Data
-public class CustomerAuditAssembleRequest extends AbstractObject implements Serializable {
+public class CustomerAuditAssembleRequest  implements Serializable {
     /**
      * 售后id
      */

@@ -71,7 +71,7 @@ public class MembershipServiceImpl  implements MembershipService {
     @Override
     public MembershipDTO getUserInfo(Long uid) {
 
-        MembershipDTO membership = membershipDAO.getById(uid).clone(MembershipDTO.class);
+        MembershipDTO membership = null;//membershipDAO.getById(uid).clone(MembershipDTO.class);
         membership.setPassword("");
 
         membership.setPhone("");

@@ -1,6 +1,7 @@
 package com.taki.order.domain.dto;
 
 import com.taki.common.core.AbstractObject;
+import lombok.Builder;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -17,7 +18,8 @@ import java.util.Map;
  * @Version 1.0
  */
 @Data
-public class OrderDetailDTO extends AbstractObject implements Serializable {
+@Builder
+public class OrderDetailDTO  implements Serializable {
 
 
     private static final long serialVersionUID = 5003298129747250976L;
@@ -41,7 +43,7 @@ public class OrderDetailDTO extends AbstractObject implements Serializable {
     /**
      * 订单配送 信息表
      */
-    private OrderDeliverDetailDTO orderDeliverDetail;
+    private OrderDeliveryDetailDTO orderDeliveryDetail;
 
 
     /**

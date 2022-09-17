@@ -15,7 +15,7 @@ import java.io.Serializable;
  * @Version 1.0
  */
 @Data
-public class AuditPassReleaseAssetsRequest extends AbstractObject implements Serializable {
+public class AuditPassReleaseAssetsRequest  implements Serializable {
 
 
     private static final long serialVersionUID = -8581565465136954245L;

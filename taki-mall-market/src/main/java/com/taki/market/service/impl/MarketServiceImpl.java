@@ -3,6 +3,7 @@ package com.taki.market.service.impl;
 import com.taki.common.enums.AmountTypeEnum;
 import com.taki.common.utli.ObjectUtil;
 import com.taki.common.utli.ParamCheckUtil;
+import com.taki.market.converter.MarketConverter;
 import com.taki.market.dao.CouponDao;
 import com.taki.market.dao.FreightTemplateDao;
 import com.taki.market.domain.dto.CalculateOrderAmountDTO;
@@ -42,6 +43,10 @@ public class MarketServiceImpl implements MarketService {
 
     @Autowired
     private FreightTemplateDao freightTemplateDao;
+
+
+    @Autowired
+    private MarketConverter marketConverter;
 
 
     /** 
@@ -100,10 +105,12 @@ public class MarketServiceImpl implements MarketService {
         }
 
         // 原订单费用信息
-        List<CalculateOrderAmountDTO.OrderAmountDTO> orderAmounts = ObjectUtil.convertList(
-                calculateOrderAmountRequest.getOrderAmountRequests(), CalculateOrderAmountDTO.OrderAmountDTO.class, orderAmountDTO -> {
-                    orderAmountDTO.setOrderId(orderId);
-                });
+        List<CalculateOrderAmountDTO.OrderAmountDTO> orderAmounts = marketConverter.converterOrderAmountRequest(calculateOrderAmountRequest.getOrderAmountRequests());
+
+        orderAmounts.forEach(orderAmountDTO -> {
+            orderAmountDTO.setOrderId(orderId);
+        });
+
         // 订单 条目费用 信息
         List<CalculateOrderAmountDTO.OrderAmountDetailDTO> orderAmountDetails = new ArrayList<>();
         List<CalculateOrderAmountRequest.OrderItemRequest> orderItemRequests = calculateOrderAmountRequest.getOrderItemRequests();
@@ -188,7 +195,6 @@ public class MarketServiceImpl implements MarketService {
 
         for (CalculateOrderAmountDTO.OrderAmountDTO orderAmount : orderAmounts) {
             Integer amountType = orderAmount.getAmountType();
-            BigDecimal amount = orderAmount.getAmount();
             if (AmountTypeEnum.ORIGIN_PAY_AMOUNT.getCode().compareTo(amountType) == 0) {
                 orderAmount.setAmount(totalOriginPayAmount);
             }

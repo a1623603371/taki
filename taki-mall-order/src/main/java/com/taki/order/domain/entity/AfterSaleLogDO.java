@@ -3,6 +3,7 @@ package com.taki.order.domain.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.taki.common.domin.BaseEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
@@ -15,6 +16,7 @@ import java.io.Serializable;
  */
 @Data
 @TableName("after_sale_log")
+@EqualsAndHashCode(callSuper=false)
 public class AfterSaleLogDO extends BaseEntity implements Serializable {
 
 

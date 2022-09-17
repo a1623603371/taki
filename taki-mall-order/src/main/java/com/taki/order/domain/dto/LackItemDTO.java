@@ -1,6 +1,7 @@
 package com.taki.order.domain.dto;
 
 import com.taki.common.core.AbstractObject;
+import com.taki.order.domain.entity.OrderItemDO;
 import com.taki.product.domian.dto.ProductSkuDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,12 +19,12 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class LackItemDTO extends AbstractObject implements Serializable {
+public class LackItemDTO  implements Serializable {
 
     /**
      *缺品订单条目
      */
-    private OrderItemDTO orderItem;
+    private OrderItemDO orderItem;
 
     /**
      * 缺品数量

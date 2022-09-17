@@ -17,7 +17,7 @@ import java.util.List;
  * @Version 1.0
  */
 @Data
-public class CancelOrderAssembleRequest extends AbstractObject implements Serializable {
+public class CancelOrderAssembleRequest  implements Serializable {
 
     // 订单信息
     private OrderInfoDTO orderInfo;

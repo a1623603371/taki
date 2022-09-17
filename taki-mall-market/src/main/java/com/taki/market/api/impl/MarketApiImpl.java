@@ -1,6 +1,7 @@
-package com.taki.market.api;
+package com.taki.market.api.impl;
 
 import com.taki.common.utli.ResponseData;
+import com.taki.market.api.MarketApi;
 import com.taki.market.domain.dto.CalculateOrderAmountDTO;
 import com.taki.market.domain.dto.UserCouponDTO;
 import com.taki.market.request.CalculateOrderAmountRequest;

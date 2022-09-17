@@ -13,7 +13,7 @@ import java.io.Serializable;
  * @Version 1.0
  */
 @Data
-public class AfterSaleLogDTO extends AbstractObject implements Serializable {
+public class AfterSaleLogDTO  implements Serializable {
 
     /**
      * 售后 Id

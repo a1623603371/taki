@@ -14,7 +14,7 @@ import java.math.BigDecimal;
  * @Version 1.0
  */
 @Data
-public class OrderItemDTO extends AbstractObject implements Serializable {
+public class OrderItemDTO  implements Serializable {
     /**
      * 订单Id
      */

@@ -3,10 +3,7 @@ package com.taki.order.domain.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.taki.common.core.AbstractObject;
 import com.taki.common.domin.BaseEntity;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -24,6 +21,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper=false)
 public class AfterSaleRefundDO extends BaseEntity implements Serializable {
 
 

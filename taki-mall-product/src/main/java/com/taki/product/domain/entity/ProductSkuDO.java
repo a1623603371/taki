@@ -3,6 +3,7 @@ package com.taki.product.domain.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.taki.common.core.AbstractObject;
+import com.taki.common.domin.BaseEntity;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -17,7 +18,7 @@ import java.math.BigDecimal;
  */
 @Data
 @TableName("product_sku")
-public class ProductSkuDO extends AbstractObject implements Serializable {
+public class ProductSkuDO extends BaseEntity implements Serializable {
 
 
     private static final long serialVersionUID = -550000449593044214L;

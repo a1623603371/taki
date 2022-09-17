@@ -17,7 +17,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class LackDTO extends AbstractObject implements Serializable {
+public class LackDTO  implements Serializable {
 
 
     private static final long serialVersionUID = -2632636752192699174L;

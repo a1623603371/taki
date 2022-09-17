@@ -1,4 +1,4 @@
-package com.taki.order.service.impl;
+package com.taki.order.manager.impl;
 
 import com.taki.common.enums.AfterSaleTypeDetailEnum;
 import com.taki.common.enums.AfterSaleTypeEnum;
@@ -8,6 +8,7 @@ import com.taki.common.utli.RandomUtil;
 import com.taki.common.utli.ResponseData;
 import com.taki.fulfill.api.FulFillApi;
 import com.taki.fulfill.domain.request.CancelFulfillRequest;
+import com.taki.order.converter.OrderConverter;
 import com.taki.order.dao.*;
 import com.taki.order.domain.dto.OrderInfoDTO;
 import com.taki.order.domain.dto.OrderItemDTO;
@@ -16,7 +17,7 @@ import com.taki.order.domain.request.CancelOrderAssembleRequest;
 import com.taki.order.enums.*;
 import com.taki.order.exception.OrderBizException;
 import com.taki.order.exception.OrderErrorCodeEnum;
-import com.taki.order.service.AfterSaleManager;
+import com.taki.order.manager.AfterSaleManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.dubbo.config.annotation.DubboReference;
@@ -63,6 +64,9 @@ public class AfterSaleManagerImpl implements AfterSaleManager {
     @Autowired
     private AfterSaleRefundDAO afterSaleRefundDAO;
 
+
+    @Autowired
+    private OrderConverter orderConverter;
     @Override
     public void cancelOrderFulfillmentAndUpdateOrderStatus(CancelOrderAssembleRequest cancelOrderAssembleRequest) {
         //履约取消
@@ -82,7 +86,7 @@ public class AfterSaleManagerImpl implements AfterSaleManager {
     private void updateOrderStatusAndSaveOperationLog(CancelOrderAssembleRequest cancelOrderAssembleRequest) {
 
         //更新订单表
-        OrderInfoDO orderInfoDO = cancelOrderAssembleRequest.getOrderInfo().clone(OrderInfoDO.class);
+        OrderInfoDO orderInfoDO =  orderConverter.orderInfoDTO2DO(cancelOrderAssembleRequest.getOrderInfo());
         orderInfoDO.setCancelType(cancelOrderAssembleRequest.getCancelType());
         orderInfoDO.setOrderStatus(OrderStatusEnum.CANCELED.getCode());
         orderInfoDO.setCancelTime(LocalDateTime.now());
@@ -130,7 +134,7 @@ public class AfterSaleManagerImpl implements AfterSaleManager {
             return;
         }
 
-        CancelFulfillRequest cancelFulfillRequest = orderInfo.clone(CancelFulfillRequest.class);
+        CancelFulfillRequest cancelFulfillRequest = orderConverter.convertCancelFulfillRequest(orderInfo);
 
         ResponseData result = fulFillApi.cancelFulfill(cancelFulfillRequest);
 

@@ -14,7 +14,7 @@ import java.math.BigDecimal;
  * @Version 1.0
  */
 @Data
-public class OrderAmountDTO extends AbstractObject implements Serializable {
+public class OrderAmountDTO  implements Serializable {
 
 
     private static final long serialVersionUID = -8344623524209815890L;

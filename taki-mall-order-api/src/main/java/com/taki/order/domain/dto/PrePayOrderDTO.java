@@ -14,7 +14,7 @@ import java.util.Map;
  * @Version 1.0
  */
 @Data
-public class PrePayOrderDTO extends AbstractObject implements Serializable {
+public class PrePayOrderDTO  implements Serializable {
 
 
     private static final long serialVersionUID = 5036439332554276163L;

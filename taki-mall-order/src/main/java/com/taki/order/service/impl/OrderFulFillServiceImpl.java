@@ -4,7 +4,7 @@ import com.taki.common.bean.SpringApplicationContext;
 import com.taki.common.enums.AmountTypeEnum;
 import com.taki.common.enums.OrderStatusChangEnum;
 import com.taki.common.enums.OrderStatusEnum;
-import com.taki.fulfill.domain.request.ReceiveFulFillRequest;
+import com.taki.fulfill.domain.request.ReceiveFulfillRequest;
 import com.taki.fulfill.domain.request.ReceiveOrderItemRequest;
 import com.taki.order.dao.*;
 import com.taki.order.domain.dto.WmsShipDTO;
@@ -106,7 +106,7 @@ public class OrderFulFillServiceImpl implements OrderFulFillService {
      * @date: 2022/4/6 16:34
      */ 
     @Override
-    public ReceiveFulFillRequest builderReceiveFulFillRequest(OrderInfoDO orderInfoDO) {
+    public ReceiveFulfillRequest builderReceiveFulFillRequest(OrderInfoDO orderInfoDO) {
         OrderDeliveryDetailDO orderDeliveryDetail = orderDeliveryDetailDao.getByOrderId(orderInfoDO.getOrderId());
 
         List<OrderItemDO> orderItems = orderItemDao.listByOrderId(orderInfoDO.getOrderId());
@@ -114,7 +114,7 @@ public class OrderFulFillServiceImpl implements OrderFulFillService {
         OrderAmountDO deliveryAmount = orderAmountDao.getByIdAndAmountType(orderInfoDO.getOrderId(), AmountTypeEnum.SHIPPING_AMOUNT.getCode());
 
         //构造请求
-        ReceiveFulFillRequest request = ReceiveFulFillRequest.builder()
+        ReceiveFulfillRequest request = ReceiveFulfillRequest.builder()
                 .businessIdentifier(orderInfoDO.getBusinessIdentifier())
                 .orderId(orderInfoDO.getOrderId())
                 .sellerId(orderInfoDO.getSellerId())

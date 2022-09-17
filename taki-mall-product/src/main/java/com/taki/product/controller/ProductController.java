@@ -1,6 +1,7 @@
 package com.taki.product.controller;
 
 import com.taki.common.utli.ResponseData;
+import com.taki.product.converter.ProductConverter;
 import com.taki.product.domain.entity.vo.ProductSkuVO;
 import com.taki.product.domian.dto.ProductSkuDTO;
 import com.taki.product.service.ProductService;
@@ -21,6 +22,9 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private ProductConverter productConverter;
+
 
     /**
      * @description: 根据商品SKU 编码 查询 商品SKU
@@ -34,7 +38,7 @@ public class ProductController {
 
         ProductSkuDTO productSkuDTO = productService.getProductSkuByCode(skuCode);
 
-        return ResponseData.success(productSkuDTO.clone(ProductSkuVO.class));
+        return ResponseData.success(productConverter.converter(productSkuDTO));
     }
 
 

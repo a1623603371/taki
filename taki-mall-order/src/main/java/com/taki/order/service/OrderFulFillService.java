@@ -1,6 +1,7 @@
 package com.taki.order.service;
 
-import com.taki.fulfill.domain.request.ReceiveFulFillRequest;
+
+import com.taki.fulfill.domain.request.ReceiveFulfillRequest;
 import com.taki.order.domain.dto.WmsShipDTO;
 import com.taki.order.domain.entity.OrderInfoDO;
 
@@ -38,5 +39,5 @@ public interface OrderFulFillService {
      * @author Long
      * @date: 2022/5/13 17:31
      */
-    ReceiveFulFillRequest builderReceiveFulFillRequest(OrderInfoDO orderInfoDO);
+    ReceiveFulfillRequest builderReceiveFulFillRequest(OrderInfoDO orderInfoDO);
 }

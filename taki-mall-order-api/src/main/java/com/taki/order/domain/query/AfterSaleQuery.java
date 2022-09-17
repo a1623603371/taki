@@ -16,7 +16,7 @@ import java.util.Set;
  * @Version 1.0
  */
 @Data
-public class AfterSaleQuery  extends AbstractObject implements Serializable {
+public class AfterSaleQuery   implements Serializable {
 
 
     private static final long serialVersionUID = 8963993635518744915L;
@@ -79,7 +79,7 @@ public class AfterSaleQuery  extends AbstractObject implements Serializable {
     /**
      * 退款金额-查询区间
      */
-    private Pair<Integer,Integer> refundAmountInterval;
+    private Pair<Date,Date> refundAmountInterval;
     /**
      * 页码；默认为1；
      */

@@ -14,7 +14,7 @@ import java.util.Date;
  * @Version 1.0
  */
 @Data
-public class AfterSaleInfoDTO extends AbstractObject implements Serializable {
+public class AfterSaleInfoDTO  implements Serializable {
 
     /**
      * 售后id

@@ -14,7 +14,7 @@ import java.math.BigDecimal;
  * @Version 1.0
  */
 @Data
-public class PrePayOrderRequest extends AbstractObject implements Serializable {
+public class PrePayOrderRequest  implements Serializable {
 
 
     private static final long serialVersionUID = 4105893410648718910L;

@@ -16,7 +16,7 @@ import java.util.Date;
  * @Version 1.0
  */
 @Data
-public class OrderInfoDTO extends AbstractObject implements Serializable {
+public class OrderInfoDTO  implements Serializable {
 
     /**
      * 业务线标识线
@@ -60,7 +60,10 @@ public class OrderInfoDTO extends AbstractObject implements Serializable {
     /**
      * 取消时间
      */
-    private Date cancelTime;
+    private LocalDateTime cancelTime;
+
+
+    private LocalDateTime expireTime;
 
     /**
      * 卖家编号
@@ -97,25 +100,12 @@ public class OrderInfoDTO extends AbstractObject implements Serializable {
      */
     private LocalDateTime payTime;
 
-    /**
-     * 订单取消截止时间
-     */
-    private LocalDateTime cancelDeadlineTime;
-
-    /**
-     * 商家备注
-     */
-    private String sellerRemark;
 
     /**
      * 用户备注
      */
     private String userRemark;
 
-    /**
-     * 用户类型
-     */
-    private Integer userType;
 
     /**
      * 订单删除状态 ： 0未删除 2：已删除

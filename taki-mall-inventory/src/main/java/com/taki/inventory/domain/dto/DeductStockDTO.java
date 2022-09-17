@@ -18,7 +18,7 @@ import java.io.Serializable;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DeductStockDTO extends AbstractObject {
+public class DeductStockDTO  {
 
 
     /**

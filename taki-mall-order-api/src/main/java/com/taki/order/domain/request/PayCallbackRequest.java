@@ -14,7 +14,7 @@ import java.math.BigDecimal;
  * @Version 1.0
  */
 @Data
-public class PayCallbackRequest extends AbstractObject implements Serializable {
+public class PayCallbackRequest  implements Serializable {
 
 
     private static final long serialVersionUID = 290296152597375935L;

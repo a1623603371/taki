@@ -5,6 +5,7 @@ import com.taki.common.constants.RocketMQConstant;
 import com.taki.common.message.ActualRefundMessage;
 import com.taki.common.mq.AbstractMessageListenerConcurrently;
 import com.taki.inventory.domain.request.ReleaseProductStockRequest;
+import com.taki.order.converter.OrderConverter;
 import com.taki.order.domain.dto.ReleaseProductStockDTO;
 import com.taki.order.domain.request.AuditPassReleaseAssetsRequest;
 import com.taki.order.mq.producer.DefaultProducer;
@@ -34,7 +35,8 @@ public class AuditPassReleaseAssetsListens extends AbstractMessageListenerConcur
     @Autowired
     private DefaultProducer defaultProducer;
 
-
+    @Autowired
+    private OrderConverter orderConverter;
 
     @Override
     protected ConsumeConcurrentlyStatus omMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext consumeConcurrentlyContext) {
@@ -81,7 +83,7 @@ public class AuditPassReleaseAssetsListens extends AbstractMessageListenerConcur
 
         // 补充条目
         releaseProductStockDTO.getOrderItemRequests().forEach(orderItemRequest -> {
-            ReleaseProductStockRequest.OrderItemRequest myOrderItemRequest = orderItemRequest.clone(ReleaseProductStockRequest.OrderItemRequest.class);
+            ReleaseProductStockRequest.OrderItemRequest myOrderItemRequest = orderConverter.convertOrderItemRequest(orderItemRequest);
             orderItemRequests.add(myOrderItemRequest);
         });
         ReleaseProductStockRequest releaseProductStockRequest = new ReleaseProductStockRequest();

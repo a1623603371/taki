@@ -17,7 +17,7 @@ import java.math.BigDecimal;
  */
 @Data
 @Builder
-public class ReceiveOrderItemRequest extends AbstractObject implements Serializable {
+public class ReceiveOrderItemRequest  implements Serializable {
 
 
     private static final long serialVersionUID = -3155004658227291612L;

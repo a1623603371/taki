@@ -3,10 +3,7 @@ package com.taki.order.domain.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.taki.common.core.AbstractObject;
 import com.taki.common.domin.BaseEntity;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -25,6 +22,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("after_sale_info")
+@EqualsAndHashCode(callSuper=false)
 public class AfterSaleInfoDO extends BaseEntity implements Serializable {
 
 

@@ -18,7 +18,7 @@ import java.util.List;
  * @Version 1.0
  */
 @Data
-public class ReturnGoodsAssembleRequest extends AbstractObject implements Serializable {
+public class ReturnGoodsAssembleRequest  implements Serializable {
 
 
     private static final long serialVersionUID = -4875513362465338968L;

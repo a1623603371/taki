@@ -5,12 +5,13 @@ import com.taki.common.bean.SpringApplicationContext;
 import com.taki.common.constants.RedisLockKeyConstants;
 import com.taki.common.redis.RedisLock;
 import com.taki.common.utli.RandomUtil;
-import com.taki.fulfill.builder.FulfillDataBuilder;
+import com.taki.fulfill.builder.FulfillData;
+import com.taki.fulfill.converter.FulfillConverter;
 import com.taki.fulfill.dao.OrderFulfillDao;
 import com.taki.fulfill.dao.OrderFulfillItemDao;
 import com.taki.fulfill.domain.entity.OrderFulfillDO;
 import com.taki.fulfill.domain.entity.OrderFulfillItemDO;
-import com.taki.fulfill.domain.request.ReceiveFulFillRequest;
+import com.taki.fulfill.domain.request.ReceiveFulfillRequest;
 import com.taki.fulfill.exection.FulfillBizException;
 import com.taki.fulfill.exection.FulfillErrorCodeEnum;
 import com.taki.fulfill.service.FulfillService;
@@ -49,19 +50,34 @@ public class FulFillServiceImpl implements FulfillService {
     @Autowired
     private SpringApplicationContext springApplicationContext;
 
+    @Autowired
+    private FulfillConverter fulfillConverter;
+
 
     @Override
-    public void createFulfillOrder(ReceiveFulFillRequest request) {
+    public void createFulfillOrder(ReceiveFulfillRequest request) {
 
         // 1.生成履约单Id
         String fulfillId = genFulfillId();
 
+        List<OrderFulfillItemDO> orderFulfillItemsDOS = fulfillConverter.convertFulFillRequest(request.getReceiveOrderItems());
+
+        // 设置履约单Id
+        orderFulfillItemsDOS.forEach(orderFulfillItemDO -> {
+            orderFulfillItemDO.setFulfillId(fulfillId);
+        });
+
         // 2 .生成 履约单 和 履约条目
-        FulfillDataBuilder builder = FulfillDataBuilder.builder(request).builderOrderFulfill(fulfillId).buildOrderFulfillItem();
+        FulfillData fulfillData = FulfillData.builder()
+                .receiveFulfillRequest(request)
+                .orderFulfill(fulfillConverter.convertFulFillRequest(request))
+                .orderFulFillItems(orderFulfillItemsDOS)
+                .build();
 
-        OrderFulfillDO orderFulfill = builder.getOrderFulfill();
+        OrderFulfillDO orderFulfill = fulfillData.getOrderFulfill();
+        orderFulfill.setFulfillId(fulfillId);
 
-        List<OrderFulfillItemDO> orderFulfillItems = builder.getOrderFulFillItems();
+        List<OrderFulfillItemDO> orderFulfillItems = fulfillData.getOrderFulFillItems();
 
         //3. 报错履约和履约条目
         orderFulfillDao.save(orderFulfill);
@@ -104,7 +120,7 @@ public class FulFillServiceImpl implements FulfillService {
     }
 
     @Override
-    public Boolean receiveOrderFulFill(ReceiveFulFillRequest request) {
+    public Boolean receiveOrderFulFill(ReceiveFulfillRequest request) {
         log.info("接受订单履约成功，request:{}", JSONObject.toJSONString(request));
 
         String  orderId = request.getOrderId();

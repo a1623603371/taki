@@ -1,6 +1,7 @@
 package com.taki.fulfill.saga;
 
-import com.taki.fulfill.domain.request.ReceiveFulFillRequest;
+
+import com.taki.fulfill.domain.request.ReceiveFulfillRequest;
 
 /**
  * @ClassName WmsSagaService
@@ -17,7 +18,7 @@ public interface WmsSagaService {
      * @param request
      * @return
      */
-    Boolean pickGoods(ReceiveFulFillRequest request);
+    Boolean pickGoods(ReceiveFulfillRequest request);
 
 
     /**
@@ -25,5 +26,5 @@ public interface WmsSagaService {
      * @param request
      * @return
      */
-    Boolean pickGoodsCompensate(ReceiveFulFillRequest request);
+    Boolean pickGoodsCompensate(ReceiveFulfillRequest request);
 }

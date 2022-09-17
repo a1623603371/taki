@@ -2,7 +2,9 @@ package com.taki.order.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.taki.common.core.AbstractObject;
+import com.taki.common.domin.BaseEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -16,7 +18,8 @@ import java.math.BigDecimal;
  */
 @Data
 @TableName("after_sale_item")
-public class AfterSaleItemDO extends AbstractObject implements Serializable {
+@EqualsAndHashCode(callSuper=false)
+public class AfterSaleItemDO extends BaseEntity implements Serializable {
 
 
     private static final long serialVersionUID = 637389812323015444L;

@@ -10,7 +10,8 @@ import com.taki.fulfill.api.FulFillApi;
 import com.taki.fulfill.domain.evnet.OrderDeliveredWmsEvent;
 import com.taki.fulfill.domain.evnet.OrderOutStockWmsEvent;
 import com.taki.fulfill.domain.evnet.OrderSignedWmsEvent;
-import com.taki.fulfill.domain.request.ReceiveFulFillRequest;
+
+import com.taki.fulfill.domain.request.ReceiveFulfillRequest;
 import com.taki.fulfill.domain.request.TriggerOrderWmsShipEventRequest;
 import com.taki.order.dao.OrderInfoDao;
 import com.taki.order.domain.dto.*;
@@ -281,7 +282,7 @@ public class OrderTestController {
 
         OrderInfoDO orderInfo = orderInfoDao.getByOrderId(orderId);
 
-        ReceiveFulFillRequest request = orderFulFillService.builderReceiveFulFillRequest(orderInfo);
+        ReceiveFulfillRequest request = orderFulFillService.builderReceiveFulFillRequest(orderInfo);
 
         request.setWmsException(wmsException);
         request.setTmsException(tmsException);

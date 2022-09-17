@@ -2,7 +2,7 @@ package com.taki.fulfill.api;
 
 import com.taki.common.utli.ResponseData;
 import com.taki.fulfill.domain.request.CancelFulfillRequest;
-import com.taki.fulfill.domain.request.ReceiveFulFillRequest;
+import com.taki.fulfill.domain.request.ReceiveFulfillRequest;
 import com.taki.fulfill.domain.request.TriggerOrderWmsShipEventRequest;
 
 
@@ -23,7 +23,7 @@ public interface FulFillApi {
      * @author Long
      * @date: 2022/3/4 10:51
      */ 
-    ResponseData<Boolean> receiveOrderFulFill(ReceiveFulFillRequest request);
+    ResponseData<Boolean> receiveOrderFulFill(ReceiveFulfillRequest request);
 
 
     /**

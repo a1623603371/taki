@@ -20,6 +20,7 @@ import com.taki.market.request.LockUserCouponRequest;
 import com.taki.order.bulider.FullOrderData;
 import com.taki.order.bulider.NewOrderBuilder;
 import com.taki.order.config.OrderProperties;
+import com.taki.order.converter.OrderConverter;
 import com.taki.order.dao.*;
 import com.taki.order.domain.entity.*;
 import com.taki.order.domain.request.CreateOrderRequest;
@@ -28,6 +29,9 @@ import com.taki.order.enums.SnapshotTypeEnum;
 import com.taki.order.exception.OrderBizException;
 import com.taki.order.manager.OrderManager;
 import com.taki.order.manager.OrderNoManager;
+import com.taki.order.remote.AddressRemote;
+import com.taki.order.remote.InventoryRemote;
+import com.taki.order.remote.MarketRemote;
 import com.taki.order.service.impl.NewOrderDataHolder;
 import com.taki.product.domian.dto.ProductSkuDTO;
 import io.seata.spring.annotation.GlobalTransactional;
@@ -91,21 +95,24 @@ public class OrderMangerImpl implements OrderManager {
 
     @Autowired
     private OrderOperateLogDao orderOperateLogDao;
+
+    @Autowired
+    private OrderConverter orderConverter;
     /**
      * 库存服务
      */
-    @DubboReference(version ="1.0.0" ,retries = 0)
-    private InventoryApi inventoryApi;
+    @Autowired
+    private InventoryRemote inventoryRemote;
 
     /**
      * 营销服务
      */
-    @DubboReference(version = "1.0.0" ,retries = 0)
-    private MarketApi marketApi;
+    @Autowired
+    private MarketRemote marketRemote;
 
 
-    @DubboReference(version = "1.0.0" ,retries = 0)
-    private AddressApi addressApi;
+    @Autowired
+    private AddressRemote addressRemote;
 
     @Override
     @GlobalTransactional(rollbackFor = Exception.class)
@@ -333,20 +340,12 @@ public class OrderMangerImpl implements OrderManager {
     private void deductProductStock(CreateOrderRequest createOrderRequest) {
 
         String orderId = createOrderRequest.getOrderId();
-
-        List<DeductProductStockRequest.OrderItemRequest> orderItemRequests = ObjectUtil.convertList(createOrderRequest.getOrderItemRequests(), DeductProductStockRequest.OrderItemRequest.class);
-
-        DeductProductStockRequest  deductProductStockRequest= createOrderRequest.clone(DeductProductStockRequest.class);
-
+        List<DeductProductStockRequest.OrderItemRequest> orderItemRequests = orderConverter.convertOrderItemRequest(createOrderRequest.getOrderItemRequests());
+        DeductProductStockRequest  deductProductStockRequest =  new DeductProductStockRequest();
+        deductProductStockRequest.setOrderId(orderId);
         deductProductStockRequest.setOrderItemRequests(orderItemRequests);
+       inventoryRemote.deductProductStock(deductProductStockRequest);
 
-        ResponseData<Boolean> responseResult = inventoryApi.deductProductStock(deductProductStockRequest);
-
-        if (!responseResult.getSuccess()) {
-            log.error("锁定商品仓库失败,订单号：{}", orderId);
-
-            throw new OrderBizException(responseResult.getCode(), responseResult.getMessage());
-        }
     }
 
 
@@ -365,14 +364,9 @@ public class OrderMangerImpl implements OrderManager {
             return;
         }
 
-        LockUserCouponRequest lockUserCouponRequest = createOrderRequest.clone(LockUserCouponRequest.class);
+        LockUserCouponRequest lockUserCouponRequest = orderConverter.convertLockUserCouponRequest(createOrderRequest);
 
-        ResponseData<Boolean> responseResult = marketApi.lockUserCoupon(lockUserCouponRequest);
-
-        if (!responseResult.getSuccess()){
-            log.error("锁定优惠券失败,订单号:{},优惠券Id:{},用户Id:{}",lockUserCouponRequest.getOrderId(),lockUserCouponRequest.getCouponId(),lockUserCouponRequest.getUserId());
-            throw new OrderBizException(responseResult.getCode(),responseResult.getMessage());
-        }
+        marketRemote.lockUserCoupon(lockUserCouponRequest);
 
     }
 
@@ -521,7 +515,7 @@ public class OrderMangerImpl implements OrderManager {
         }
 
         // 订单信息 主信息
-        OrderInfoDO newSubOrder = orderInfo.clone(OrderInfoDO.class);
+        OrderInfoDO newSubOrder = orderConverter.copyOrderInfoDTO(orderInfo);
         newSubOrder.setId(null);
         newSubOrder.setOrderId(subOrderId);
         newSubOrder.setParentOrderId(parentOrderId);
@@ -534,7 +528,7 @@ public class OrderMangerImpl implements OrderManager {
         List<OrderItemDO> newSubOrderItems = new ArrayList<>();
 
         subOrderItems.forEach(subOrderItem -> {
-            OrderItemDO orderItemDO = subOrderItem.clone(OrderItemDO.class);
+            OrderItemDO orderItemDO = orderConverter.copyOrderItemDO(subOrderItem);
             orderItemDO.setId(null);
             orderItemDO.setOrderId(subOrderId);
             String subOrderItemId = getSubOrderItemId(orderItemDO.getOrderItemId(), subOrderId);
@@ -544,7 +538,7 @@ public class OrderMangerImpl implements OrderManager {
         subFullOrderData.setOrderItems(newSubOrderItems);
 
         // 订单配送地址信息
-        OrderDeliveryDetailDO newOrderDeliveryDetail = orderDeliveryDetail.clone(OrderDeliveryDetailDO.class);
+        OrderDeliveryDetailDO newOrderDeliveryDetail = orderConverter.copyOrderDeliverDetailDO(orderDeliveryDetail);
         newOrderDeliveryDetail.setId(null);
         newOrderDeliveryDetail.setOrderId(subOrderId);
         subFullOrderData.setOrderDeliveryDetailDO(newOrderDeliveryDetail);
@@ -569,7 +563,7 @@ public class OrderMangerImpl implements OrderManager {
                 continue;
             }
 
-            OrderAmountDetailDO subOrderAmountDetail = orderAmountDetail.clone(OrderAmountDetailDO.class);
+            OrderAmountDetailDO subOrderAmountDetail = orderConverter.copyOrderAmountDetail(orderAmountDetail);
             subOrderAmountDetail.setId(null);
             subOrderAmountDetail.setOrderId(subOrderId);
             String subOrderItemId = getSubOrderItemId(orderItemId, subOrderId);
@@ -604,7 +598,7 @@ public class OrderMangerImpl implements OrderManager {
 
             Integer amountType = orderAmountDO.getAmountType();
 
-            OrderAmountDO subOrderAmountDO = orderAmountDO.clone(OrderAmountDO.class);
+            OrderAmountDO subOrderAmountDO = orderConverter.copyOrderAmountDO(orderAmountDO);
 
             subOrderAmountDO.setId(null);
             subOrderAmountDO.setOrderId(subOrderId);
@@ -632,7 +626,7 @@ public class OrderMangerImpl implements OrderManager {
         List<OrderPaymentDetailDO> subOrderPaymentDetails = new ArrayList<>();
 
         for (OrderPaymentDetailDO orderPaymentDetailDO : orderPaymentDetails) {
-            OrderPaymentDetailDO subOrderPaymentDetailDO = orderPaymentDetailDO.clone(OrderPaymentDetailDO.class);
+            OrderPaymentDetailDO subOrderPaymentDetailDO = orderConverter.copyOrderPaymentDetailDO(orderPaymentDetailDO);
             subOrderPaymentDetailDO.setId(null);
             subOrderPaymentDetailDO.setOrderId(subOrderId);
             subOrderPaymentDetailDO.setPayAmount(subTotalRealPayAmount);
@@ -640,7 +634,7 @@ public class OrderMangerImpl implements OrderManager {
         }
 
         // 订单状态变更
-        OrderOperateLogDO suborderOperateLogDO = operateLog.clone(OrderOperateLogDO.class);
+        OrderOperateLogDO suborderOperateLogDO = orderConverter.copyOrderOperationLogDO(operateLog);
         suborderOperateLogDO.setId(null);
         suborderOperateLogDO.setOrderId(subOrderId);
         subFullOrderData.setOrderOperateLog(suborderOperateLogDO);
@@ -648,7 +642,7 @@ public class OrderMangerImpl implements OrderManager {
         // 订单商品快照
         List<OrderSnapshotDO> subOrderSnapshotList = new ArrayList<>();
         orderSnapshots.forEach(orderSnapshotDO -> {
-            OrderSnapshotDO subOrderSnapshotDO = orderSnapshotDO.clone(OrderSnapshotDO.class);
+            OrderSnapshotDO subOrderSnapshotDO = orderConverter.copyOrderSnapshot(orderSnapshotDO);
             subOrderSnapshotDO.setId(null);
             subOrderSnapshotDO.setOrderId(subOrderId);
             if (SnapshotTypeEnum.ORDER_AMOUNT.equals(orderSnapshotDO.getSnapshotType())){
@@ -688,7 +682,7 @@ public class OrderMangerImpl implements OrderManager {
      */
     private FullOrderData addNewMasterOrder(CreateOrderRequest createOrderRequest, List<ProductSkuDTO> productSkus, CalculateOrderAmountDTO calculateOrderAmount) {
 
-        NewOrderBuilder newOrderBuilder = new NewOrderBuilder(createOrderRequest,productSkus,calculateOrderAmount,orderProperties);
+        NewOrderBuilder newOrderBuilder = new NewOrderBuilder(createOrderRequest,productSkus,calculateOrderAmount,orderProperties,orderConverter);
         FullOrderData fullOrderData = newOrderBuilder.builder()
                 .buildOrderItems()
                 .buildOrderAmount()
@@ -727,34 +721,26 @@ public class OrderMangerImpl implements OrderManager {
         orderSnapshots.forEach(orderSnapshotDO -> {
 
             // 优惠券信息
-            if (orderSnapshotDO.getSnapshotType().equals(SnapshotTypeEnum.ORDER_COUPON.getCode())){
+            if (orderSnapshotDO.getSnapshotType().equals(SnapshotTypeEnum.ORDER_COUPON.getCode())) {
                 String couponId = orderInfo.getCouponId();
                 String userId = orderInfo.getUserId();
                 UserCouponQuery userCouponQuery = new UserCouponQuery();
                 userCouponQuery.setCouponId(couponId);
                 userCouponQuery.setUserId(userId);
 
-                ResponseData<UserCouponDTO> responseResult = marketApi.queryUserCoupon(userCouponQuery);
+                UserCouponDTO userCoupon = marketRemote.queryUserCoupon(userCouponQuery);
 
-                if (responseResult.getSuccess()){
-                    UserCouponDTO userCoupon = responseResult.getData();
-                    if (userCoupon != null){
-                        orderSnapshotDO.setSnapshotJson(JsonUtil.object2Json(userCoupon));
+                if (userCoupon != null) {
+                    orderSnapshotDO.setSnapshotJson(JsonUtil.object2Json(userCoupon));
 
-                    }
-
-                }else {
+                } else {
                     orderSnapshotDO.setSnapshotJson(JsonUtil.object2Json(couponId));
                 }
             }
-
             // 订单费用
-
             if(orderSnapshotDO.getSnapshotType().equals(SnapshotTypeEnum.ORDER_AMOUNT.getCode())){
-
                 orderSnapshotDO.setSnapshotJson(JsonUtil.object2Json(orderAmounts));
             }
-
             // 订单条目
             if (orderSnapshotDO.getSnapshotType().equals(SnapshotTypeEnum.ORDER_ITEM.getCode())){
                 orderSnapshotDO.setSnapshotJson(JsonUtil.object2Json(orderItems));
@@ -783,15 +769,12 @@ public class OrderMangerImpl implements OrderManager {
         addressQuery.setCityCode(cityCode);
         addressQuery.setAreaCode(areaCode);
         addressQuery.setStreetCode(streetCode);
-        ResponseData<AddressDTO> responseResult = addressApi.queryAddress(addressQuery);
+        AddressDTO address =  addressRemote.queryAddress(addressQuery);
 
-        if (!responseResult.getSuccess()  || ObjectUtils.isEmpty(responseResult.getData())){
+        if (ObjectUtils.isEmpty(address)){
             return orderDeliveryDetail.getDetailAddress();
         }
-        AddressDTO address = responseResult.getData();
-
         StringBuilder addressBuilder = new StringBuilder();
-
         if (StringUtils.isNotBlank(address.getProvince())){
             addressBuilder.append(address.getProvince());
         }

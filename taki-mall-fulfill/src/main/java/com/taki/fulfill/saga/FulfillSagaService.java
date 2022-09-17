@@ -1,6 +1,6 @@
 package com.taki.fulfill.saga;
 
-import com.taki.fulfill.domain.request.ReceiveFulFillRequest;
+import com.taki.fulfill.domain.request.ReceiveFulfillRequest;
 
 /**
  * @ClassName FulfillSagaService
@@ -18,7 +18,7 @@ public interface FulfillSagaService {
      * @author Long
      * @date: 2022/5/15 23:12
      */ 
-    Boolean createFulfillOrder(ReceiveFulFillRequest request);
+    Boolean createFulfillOrder(ReceiveFulfillRequest request);
 
 
     /** 
@@ -28,5 +28,5 @@ public interface FulfillSagaService {
      * @author Long
      * @date: 2022/5/15 23:13
      */ 
-    Boolean createFulfillOrderCompensate(ReceiveFulFillRequest request);
+    Boolean createFulfillOrderCompensate(ReceiveFulfillRequest request);
 }

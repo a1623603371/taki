@@ -1,6 +1,6 @@
 package com.taki.fulfill.saga;
 
-import com.taki.fulfill.domain.request.ReceiveFulFillRequest;
+import com.taki.fulfill.domain.request.ReceiveFulfillRequest;
 
 /**
  * @ClassName TmsSageService
@@ -19,7 +19,7 @@ public interface TmsSagaService {
      * @author Long
      * @date: 2022/5/17 15:56
      */ 
-    Boolean sendOut(ReceiveFulFillRequest request);
+    Boolean sendOut(ReceiveFulfillRequest request);
 
     /**
      * @description: 取消 发货
@@ -28,5 +28,5 @@ public interface TmsSagaService {
      * @author Long
      * @date: 2022/5/17 15:56
      */
-    Boolean sendOutCompensate(ReceiveFulFillRequest request);
+    Boolean sendOutCompensate(ReceiveFulfillRequest request);
 }

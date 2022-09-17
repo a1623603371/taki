@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  * @Version 1.0
  */
 @Data
-public class RefundCallbackRequest extends AbstractObject implements Serializable {
+public class RefundCallbackRequest  implements Serializable {
 
 
     private static final long serialVersionUID = -9008011726256609313L;

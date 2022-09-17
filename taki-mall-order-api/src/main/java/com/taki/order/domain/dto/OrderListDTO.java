@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  * @Version 1.0
  */
 @Data
-public class OrderListDTO extends AbstractObject implements Serializable {
+public class OrderListDTO  implements Serializable {
 
 
     private static final long serialVersionUID = 6864863571709495207L;
