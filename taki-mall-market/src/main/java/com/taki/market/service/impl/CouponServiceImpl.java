@@ -1,11 +1,13 @@
 package com.taki.market.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.taki.common.utli.ParamCheckUtil;
-import com.taki.market.dao.CouponConfigDao;
-import com.taki.market.dao.CouponDao;
+import com.taki.market.dao.MarketCouponConfigDAO;
+import com.taki.market.dao.MarketCouponItemDAO;
 import com.taki.market.domain.dto.UserCouponDTO;
-import com.taki.market.domain.entity.CouponConfigDO;
-import com.taki.market.domain.entity.CouponDO;
+import com.taki.market.domain.entity.MarketCouponConfigDO;
+import com.taki.market.domain.entity.MarketCouponItemDO;
 import com.taki.market.enums.CouponStatusEnum;
 import com.taki.market.exception.MarketBizException;
 import com.taki.market.exception.MarketErrorCodeEnum;
@@ -18,7 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 /**
  * @ClassName CouponServiceImpl
@@ -33,11 +37,11 @@ import java.time.LocalDateTime;
 public class CouponServiceImpl implements CouponService {
 
     @Autowired
-    private CouponDao couponDao;
+    private MarketCouponItemDAO marketCouponItemDAO;
 
 
     @Autowired
-    private CouponConfigDao couponConfigDao;
+    private MarketCouponConfigDAO marketCouponConfigDAO;
 
 
 
@@ -48,27 +52,30 @@ public class CouponServiceImpl implements CouponService {
     String couponId = userCouponQuery.getCouponId();
     ParamCheckUtil.checkStringNonEmpty(couponId);
 
-    CouponDO  coupon = couponDao.getUserCoupon(userId,couponId);
+    MarketCouponItemDO marketCouponItem = marketCouponItemDAO.getUserCoupon(userId,couponId);
 
-    if (ObjectUtils.isEmpty(coupon)){
+    if (ObjectUtils.isEmpty(marketCouponItem)){
         throw new MarketBizException(MarketErrorCodeEnum.USER_COUPON_IS_NULL);
     }
-    String couponConfigId = coupon.getCouponConfigId();
+    String couponConfigId = marketCouponItem.getCouponId();
 
     // 判断优惠券活动配置信息是否存在
-    CouponConfigDO  couponConfig = couponConfigDao.getByCouponConfigId(couponConfigId);
+    MarketCouponConfigDO couponConfig = marketCouponConfigDAO.getByCouponConfigId(couponConfigId);
 
     if (ObjectUtils.isEmpty(couponConfig)){
         throw new MarketBizException(MarketErrorCodeEnum.USER_COUPON_CONFIG_IS_NULL);
     }
+
+    String  rule = couponConfig.getCouponRule();
+    Map<String,String> ruleMap = JSON.parseObject(rule,Map.class);
+
     UserCouponDTO userCouponDTO = new UserCouponDTO();
     userCouponDTO.setUserId(userId);
     userCouponDTO.setCouponId(couponId);
-    userCouponDTO.setName(couponConfig.getName());
-    userCouponDTO.setAmount(couponConfig.getAmount());
-    userCouponDTO.setType(couponConfig.getType());
-    userCouponDTO.setCouponConfigId(couponConfigId);
-    userCouponDTO.setConditionAmount(couponConfig.getConditionAmount());
+    userCouponDTO.setCouponName(couponConfig.getCouponName());
+    userCouponDTO.setCouponType(couponConfig.getCouponType());
+    userCouponDTO.setAmount(new BigDecimal(ruleMap.get("amount")));
+    userCouponDTO.setConditionAmount(new BigDecimal(ruleMap.get("conditionAmount")));
     userCouponDTO.setValidStartTime(couponConfig.getValidStartTime());
     userCouponDTO.setValidEndTime(couponConfig.getValidEndTime());
         return  userCouponDTO;
@@ -82,18 +89,18 @@ public class CouponServiceImpl implements CouponService {
         String userId = lockUserCouponRequest.getUserId();
         String couponId = lockUserCouponRequest.getCouponId();
 
-        CouponDO couponDO = couponDao.getUserCoupon(userId,couponId);
-        if (ObjectUtils.isEmpty(couponDO)){
+        MarketCouponItemDO marketCouponItem = marketCouponItemDAO.getUserCoupon(userId,couponId);
+        if (ObjectUtils.isEmpty(marketCouponItem)){
             throw new MarketBizException(MarketErrorCodeEnum.USER_COUPON_IS_NULL);
         }
 
         // 判断优惠券是否已使用
-        if (CouponStatusEnum.USED.getCode().equals(couponDO.getUsed())){
+        if (CouponStatusEnum.USED.getCode().equals(marketCouponItem.getUsed())){
             throw new MarketBizException(MarketErrorCodeEnum.USER_COUPON_IS_USED);
         }
-        couponDO.setUsed(CouponStatusEnum.USED.getCode());
-        couponDO.setUsedTime(LocalDateTime.now());
-        couponDao.updateById(couponDO);
+        marketCouponItem.setUsed(CouponStatusEnum.USED.getCode());
+        marketCouponItem.setUsedTime(LocalDateTime.now());
+        marketCouponItemDAO.updateById(marketCouponItem);
         return true;
     }
 
@@ -113,13 +120,11 @@ public class CouponServiceImpl implements CouponService {
 
     @Override
     public Boolean releaseUserCoupon(ReleaseUserCouponRequest releaseUserCouponRequest) {
-
         String userId = releaseUserCouponRequest.getUserId();
         String couponId = releaseUserCouponRequest.getCouponId();
-        CouponDO couponDO = couponDao.getUserCoupon(userId,couponId);
-        couponDO.setUsed(CouponStatusEnum.UN_USED.getCode());
-        couponDO.setUsedTime(null);
-        couponDao.updateById(couponDO);
-        return true;
+        MarketCouponItemDO marketCouponItem = marketCouponItemDAO.getUserCoupon(userId,couponId);
+        marketCouponItem.setUsed(CouponStatusEnum.UN_USED.getCode());
+        marketCouponItem.setUsedTime(null);
+       return marketCouponItemDAO.updateById(marketCouponItem);
     }
 }

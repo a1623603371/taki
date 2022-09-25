@@ -29,20 +29,16 @@ public class UserCouponDTO extends AbstractObject implements Serializable {
      * 优惠券Id
      */
     private String couponId;
-    /**
-     * 优惠券配置Id
-     */
-    private String couponConfigId;
 
     /**
      *优惠券名称
      */
-    private String name;
+    private String couponName;
 
     /**
      * 优惠券类型 1.现金券 2.满减券
      */
-    private Integer type;
+    private Integer couponType;
 
     /**
      * 金额
@@ -52,7 +48,7 @@ public class UserCouponDTO extends AbstractObject implements Serializable {
     /**
      *优惠券使用限制金额
      */
-    private Integer conditionAmount;
+    private BigDecimal conditionAmount;
 
     /**
      * 有效开始时间

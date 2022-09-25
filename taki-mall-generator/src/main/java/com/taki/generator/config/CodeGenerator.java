@@ -36,25 +36,25 @@ import java.util.List;
  */
 public class CodeGenerator {
 
-    //private static final  String url = "jdbc:mysql://192.168.33.11:3306/taki-mall?useUnicode=true&characterEncoding=utf-8";
+    private static final  String url = "jdbc:mysql://192.168.33.11:3306/taki_eshop_market?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai";
 
 
-    private static final String url2 = "jdbc:mysql://49.232.128.89:3306/sonasonic_sit?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai";
+   // private static final String url2 = "jdbc:mysql://49.232.128.89:3306/sonasonic_sit?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai";
 
-   // private static final  String username = "root";
-    private static final  String username2 = "root";
+    private static final  String username = "root";
 
-  // private static final  String passwrod = "Pzk2020@";
-    private static final  String passwrod2 = "M98_so892@l1UIG";
 
-   // private static final  String database = "taki-mall";
-    private static final  String database2 = "sonasonic_sit";
+   private static final  String passwrod = "Pzk2020@";
+
+
+    private static final  String database = "taki_eshop_market";
+
 
 
     private static  final DataSourceConfig.Builder DATA_SOURCE_CONFIG =
-            new DataSourceConfig.Builder(url2,username2,passwrod2)
+            new DataSourceConfig.Builder(url,username,passwrod)
                     .dbQuery(new MySqlQuery())
-                    .schema(database2)
+                    .schema(database)
                     .typeConvert(
                             new MySqlTypeConvert()
 //                            {
@@ -77,14 +77,10 @@ public class CodeGenerator {
 
 
     private static  String[] tables = new String[]{
-            //"membership",
-          //  "short_message_platform"
-             //   "membership"
-            //"t_rmbs_paytype"
-           // "t_rule_bizpolicy","t_rule_bizpolicy_item","t_rule_bizpolicy_scope","t_rule_bizpolicy_scope_item"
-            //"t_rule_bizrule"
-            //"order_delivery_detail"
-            "t_claim_inqpaymentbank"
+      //   "market_coupon_config",
+            "market_coupon_item",
+           // "market_freight_template",
+            //"market_promotion"
     };
 
 
@@ -96,7 +92,7 @@ public class CodeGenerator {
         FastAutoGenerator.create(DATA_SOURCE_CONFIG)
                 .globalConfig(builder -> {
                     builder.author("long") // 设置作者
-                            .enableSwagger() // 开启 swagger 模式
+                        //    .enableSwagger() // 开启 swagger 模式
                             .fileOverride() // 覆盖已生成文件
                             .outputDir(path); // 指定输出目录
                 })

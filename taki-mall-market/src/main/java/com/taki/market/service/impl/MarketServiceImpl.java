@@ -1,14 +1,16 @@
 package com.taki.market.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.taki.common.enums.AmountTypeEnum;
-import com.taki.common.utli.ObjectUtil;
 import com.taki.common.utli.ParamCheckUtil;
 import com.taki.market.converter.MarketConverter;
-import com.taki.market.dao.CouponDao;
-import com.taki.market.dao.FreightTemplateDao;
+import com.taki.market.dao.MarketCouponConfigDAO;
+import com.taki.market.dao.MarketCouponItemDAO;
+import com.taki.market.dao.MarketFreightTemplateDAO;
 import com.taki.market.domain.dto.CalculateOrderAmountDTO;
-import com.taki.market.domain.entity.CouponDO;
-import com.taki.market.domain.entity.FreightTemplateDO;
+import com.taki.market.domain.entity.MarketCouponConfigDO;
+import com.taki.market.domain.entity.MarketCouponItemDO;
+import com.taki.market.domain.entity.MarketFreightTemplateDO;
 import com.taki.market.exception.MarketBizException;
 import com.taki.market.exception.MarketErrorCodeEnum;
 import com.taki.market.request.CalculateOrderAmountRequest;
@@ -38,11 +40,15 @@ import java.util.stream.Collectors;
 public class MarketServiceImpl implements MarketService {
 
     @Autowired
-    private CouponDao couponDao;
+    private MarketCouponItemDAO marketCouponItemDAO;
 
 
     @Autowired
-    private FreightTemplateDao freightTemplateDao;
+    private MarketCouponConfigDAO marketCouponConfigDAO;
+
+
+    @Autowired
+    private MarketFreightTemplateDAO marketFreightTemplateDAO;
 
 
     @Autowired
@@ -100,8 +106,12 @@ public class MarketServiceImpl implements MarketService {
 
         if (StringUtils.isNotBlank(couponId)) {
             // 锁定优惠券
-            CouponDO couponDO = getCoupAchieve(userId, couponId);
-            discountAmount = couponDO.getAmount();
+            MarketCouponConfigDO coupConfig = getCoupConfig(userId, couponId);
+
+            String  rule = coupConfig.getCouponRule();
+            Map<String,String> ruleMap = JSON.parseObject(rule,Map.class);
+
+            discountAmount =  new BigDecimal(ruleMap.get("amount")); //marketCouponItem.getAmount();
         }
 
         // 原订单费用信息
@@ -229,10 +239,10 @@ public class MarketServiceImpl implements MarketService {
         // 满 多少减 运费
         BigDecimal conditionAmount = BigDecimal.ZERO;
         // 查找 运费模板
-        FreightTemplateDO freightTemplateDO = freightTemplateDao.getByRegionId(regionId);
-        if (ObjectUtils.isNotEmpty(freightTemplateDO)){
-            shippingAmount = freightTemplateDO.getShippingAmount();
-            conditionAmount = freightTemplateDO.getConditionAmount();
+        MarketFreightTemplateDO marketFreightTemplate = marketFreightTemplateDAO.getByRegionId(regionId);
+        if (ObjectUtils.isNotEmpty(marketFreightTemplate)){
+            shippingAmount = marketFreightTemplate.getShippingAmount();
+            conditionAmount = marketFreightTemplate.getConditionAmount();
 
         }
 
@@ -292,14 +302,14 @@ public class MarketServiceImpl implements MarketService {
      * @author Long
      * @date: 2022/2/18 17:52
      */ 
-    private CouponDO getCoupAchieve(String userId, String couponId) {
+    private MarketCouponConfigDO getCoupConfig(String userId, String couponId) {
 
-        CouponDO couponDO = couponDao.getUserCoupon(userId,couponId);
+        MarketCouponItemDO marketCouponItem = marketCouponItemDAO.getUserCoupon(userId,couponId);
 
-        if (ObjectUtils.isEmpty(couponDO)){
+        if (ObjectUtils.isEmpty(marketCouponItem)){
             throw new MarketBizException(MarketErrorCodeEnum.USER_COUPON_IS_NULL);
         }
-        return couponDO;
+        return marketCouponConfigDAO.getByCouponConfigId(marketCouponItem.getCouponId());
 
     }
 
