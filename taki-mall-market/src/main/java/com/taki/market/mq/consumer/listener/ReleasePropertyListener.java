@@ -5,7 +5,7 @@ import com.taki.common.utli.ResponseData;
 import com.taki.market.api.MarketApi;
 import com.taki.market.exception.MarketBizException;
 import com.taki.market.exception.MarketErrorCodeEnum;
-import com.taki.market.request.CancelOrderReleaseUserCouponRequest;
+import com.taki.market.domain.request.CancelOrderReleaseUserCouponRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;

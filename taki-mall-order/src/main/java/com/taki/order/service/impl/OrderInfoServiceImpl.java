@@ -14,7 +14,7 @@ import com.taki.common.message.PayOrderTimeOutDelayMessage;
 import com.taki.common.redis.RedisLock;
 import com.taki.common.utli.*;
 import com.taki.market.domain.dto.CalculateOrderAmountDTO;
-import com.taki.market.request.CalculateOrderAmountRequest;
+import com.taki.market.domain.request.CalculateOrderAmountRequest;
 import com.taki.order.converter.OrderConverter;
 import com.taki.order.dao.*;
 import com.taki.order.domain.dto.*;

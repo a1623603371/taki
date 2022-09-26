@@ -1,7 +1,6 @@
 package com.taki.market.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.taki.common.utli.ParamCheckUtil;
 import com.taki.market.dao.MarketCouponConfigDAO;
 import com.taki.market.dao.MarketCouponItemDAO;
@@ -11,8 +10,8 @@ import com.taki.market.domain.entity.MarketCouponItemDO;
 import com.taki.market.enums.CouponStatusEnum;
 import com.taki.market.exception.MarketBizException;
 import com.taki.market.exception.MarketErrorCodeEnum;
-import com.taki.market.request.LockUserCouponRequest;
-import com.taki.market.request.ReleaseUserCouponRequest;
+import com.taki.market.domain.request.LockUserCouponRequest;
+import com.taki.market.domain.request.ReleaseUserCouponRequest;
 import com.taki.market.domain.query.UserCouponQuery;
 import com.taki.market.service.CouponService;
 import lombok.extern.slf4j.Slf4j;

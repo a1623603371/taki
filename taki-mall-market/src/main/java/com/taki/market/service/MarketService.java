@@ -1,7 +1,7 @@
 package com.taki.market.service;
 
 import com.taki.market.domain.dto.CalculateOrderAmountDTO;
-import com.taki.market.request.CalculateOrderAmountRequest;
+import com.taki.market.domain.request.CalculateOrderAmountRequest;
 
 /**
  * @ClassName MarketService

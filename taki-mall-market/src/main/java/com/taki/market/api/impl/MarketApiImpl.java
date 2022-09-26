@@ -3,12 +3,11 @@ package com.taki.market.api.impl;
 import com.taki.common.utli.ResponseData;
 import com.taki.market.api.MarketApi;
 import com.taki.market.domain.dto.CalculateOrderAmountDTO;
+import com.taki.market.domain.dto.ReceiveCouponDTO;
+import com.taki.market.domain.dto.SendCouponDTO;
 import com.taki.market.domain.dto.UserCouponDTO;
-import com.taki.market.request.CalculateOrderAmountRequest;
-import com.taki.market.request.CancelOrderReleaseUserCouponRequest;
-import com.taki.market.request.LockUserCouponRequest;
+import com.taki.market.domain.request.*;
 import com.taki.market.domain.query.UserCouponQuery;
-import com.taki.market.request.ReleaseUserCouponRequest;
 import com.taki.market.service.CouponService;
 import com.taki.market.service.MarketService;
 import lombok.extern.slf4j.Slf4j;
@@ -85,5 +84,25 @@ public class MarketApiImpl implements MarketApi{
     public ResponseData<Boolean> cancelOrderReleaseCoupon(CancelOrderReleaseUserCouponRequest cancelOrderReleaseUserCouponRequest) {
         log.info("回退优惠券,orderId:{}",cancelOrderReleaseUserCouponRequest.getOrderId());
          return ResponseData.success(true);
+    }
+
+    @Override
+    public ResponseData<ReceiveCouponDTO> receiveCoupon(ReceiveCouponRequest receiveCouponRequest) {
+        return null;
+    }
+
+    @Override
+    public ResponseData<Boolean> receiveCouponAvailable(Long userId) {
+        return null;
+    }
+
+    @Override
+    public ResponseData<SendCouponDTO> sendCoupon(SendCouponRequest sendCouponRequest) {
+        return null;
+    }
+
+    @Override
+    public ResponseData<SendCouponDTO> sendCouponByConditions(SendCouponRequest sendCouponRequest) {
+        return null;
     }
 }

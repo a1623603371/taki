@@ -1,4 +1,4 @@
-package com.taki.market.request;
+package com.taki.market.domain.request;
 
 import com.taki.common.core.AbstractObject;
 import lombok.Data;

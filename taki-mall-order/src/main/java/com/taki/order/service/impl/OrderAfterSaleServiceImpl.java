@@ -16,7 +16,7 @@ import com.taki.common.utli.ParamCheckUtil;
 import com.taki.common.utli.RandomUtil;
 import com.taki.common.utli.ResponseData;
 import com.taki.customer.domain.request.CustomerReceiveAfterSaleRequest;
-import com.taki.market.request.ReleaseUserCouponRequest;
+import com.taki.market.domain.request.ReleaseUserCouponRequest;
 import com.taki.order.converter.AfterSaleConverter;
 import com.taki.order.converter.OrderConverter;
 import com.taki.order.dao.*;

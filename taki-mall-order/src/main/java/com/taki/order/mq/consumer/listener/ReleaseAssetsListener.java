@@ -5,28 +5,23 @@ import com.taki.common.constants.RocketMQConstant;
 import com.taki.common.enums.OrderStatusEnum;
 import com.taki.common.mq.AbstractMessageListenerConcurrently;
 import com.taki.inventory.domain.request.ReleaseProductStockRequest;
-import com.taki.market.request.CancelOrderReleaseUserCouponRequest;
-import com.taki.market.request.ReleaseUserCouponRequest;
+import com.taki.market.domain.request.ReleaseUserCouponRequest;
 import com.taki.order.converter.OrderConverter;
 import com.taki.order.dao.OrderItemDao;
 import com.taki.order.domain.dto.OrderInfoDTO;
-import com.taki.order.domain.entity.OrderInfoDO;
 import com.taki.order.domain.entity.OrderItemDO;
 import com.taki.order.domain.request.CancelOrderAssembleRequest;
-import com.taki.order.domain.request.CancelOrderRequest;
 import com.taki.order.mq.producer.DefaultProducer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
-import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.common.message.MessageExt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @ClassName ReleaseAssetsListener

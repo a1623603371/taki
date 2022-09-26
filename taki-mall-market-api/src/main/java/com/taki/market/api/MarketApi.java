@@ -2,11 +2,10 @@ package com.taki.market.api;
 
 import com.taki.common.utli.ResponseData;
 import com.taki.market.domain.dto.CalculateOrderAmountDTO;
+import com.taki.market.domain.dto.ReceiveCouponDTO;
+import com.taki.market.domain.dto.SendCouponDTO;
 import com.taki.market.domain.dto.UserCouponDTO;
-import com.taki.market.request.CalculateOrderAmountRequest;
-import com.taki.market.request.CancelOrderReleaseUserCouponRequest;
-import com.taki.market.request.LockUserCouponRequest;
-import com.taki.market.request.ReleaseUserCouponRequest;
+import com.taki.market.domain.request.*;
 import com.taki.market.domain.query.UserCouponQuery;
 
 /**
@@ -63,6 +62,45 @@ public interface MarketApi {
      * @date: 2022/2/18 14:08
      */ 
     ResponseData<Boolean>cancelOrderReleaseCoupon(CancelOrderReleaseUserCouponRequest cancelOrderReleaseUserCouponRequest);
+
+
+    /***
+     * @description:  领取优惠券
+     * @param receiveCouponRequest 领取优惠券 请求参数
+     * @return
+     * @author Long
+     * @date: 2022/9/26 21:24
+     */
+    ResponseData<ReceiveCouponDTO> receiveCoupon(ReceiveCouponRequest receiveCouponRequest);
+
+    /***
+     * @description: 领 取当前正在活动中的优惠券
+     * @param userId 用户Id
+     * @return
+     * @author Long
+     * @date: 2022/9/26 21:29
+     */
+    ResponseData<Boolean> receiveCouponAvailable(Long userId);
+
+    /***
+     * @description: 领取优惠券
+     * @param sendCouponRequest 领取优惠券请求
+     * @return
+     * @author Long
+     * @date: 2022/9/26 21:42
+     */
+    ResponseData<SendCouponDTO> sendCoupon(SendCouponRequest sendCouponRequest);
+
+    /***
+     * @description: 根据选择条件发放换回优惠券
+     * 此接口需要调用推送系统按条件推送消息的接口，
+     * 传入选人条件，以及把优惠券+优惠券领取地址封装到一个对象中
+     * @param sendCouponRequest 领取优惠券请求
+     * @return
+     * @author Long
+     * @date: 2022/9/26 21:43
+     */
+    ResponseData<SendCouponDTO> sendCouponByConditions(SendCouponRequest sendCouponRequest);
 
 
 

@@ -195,5 +195,11 @@ public class RocketMQConstant {
      * 缺品处理 producer 分组
      */
     public  static  final  String LACK_ITEM_PRODUCER_GROUP = "lack_item_producer_group";
+
+
+    /**
+     * 默认 推送 的 prooducer 分组
+     */
+    public static final String PUSH_DEFAULT_PRODUCER_GROUP =  "push_default_producer_group";
 }
 

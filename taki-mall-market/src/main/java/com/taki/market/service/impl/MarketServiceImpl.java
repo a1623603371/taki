@@ -13,7 +13,7 @@ import com.taki.market.domain.entity.MarketCouponItemDO;
 import com.taki.market.domain.entity.MarketFreightTemplateDO;
 import com.taki.market.exception.MarketBizException;
 import com.taki.market.exception.MarketErrorCodeEnum;
-import com.taki.market.request.CalculateOrderAmountRequest;
+import com.taki.market.domain.request.CalculateOrderAmountRequest;
 import com.taki.market.service.MarketService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
