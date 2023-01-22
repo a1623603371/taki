@@ -49,7 +49,7 @@ public class MarketPromotionDO extends BaseEntity {
      * 通知类型
      */
     @TableField("inform_type")
-    private String informType;
+    private Integer informType;
 
     /**
      * 促销活动说明备注

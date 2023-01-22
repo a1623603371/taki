@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.taki.common.domin.BaseEntity;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -23,6 +25,7 @@ import lombok.experimental.Accessors;
 @Setter
 @Accessors(chain = true)
 @TableName("market_coupon_item")
+@Builder
 public class MarketCouponItemDO extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
@@ -31,7 +34,7 @@ public class MarketCouponItemDO extends BaseEntity {
      * 优惠券ID
      */
     @TableField("coupon_id")
-    private String couponId;
+    private Long couponId;
 
     /**
      * 优惠券类型：1：现金券，2：满减券

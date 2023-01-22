@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.taki.common.domin.BaseEntity;
 import java.io.Serializable;
+import java.math.BigDecimal;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -29,51 +31,80 @@ public class MembershipDO extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty("主键")
+
     @TableId(value = "uid", type = IdType.AUTO)
     private Long uid;
 
-    @ApiModelProperty("第三方平台用户唯一ID")
+
+
+    @TableField("account_type")
+    private Integer accountType;
+
+
+    @TableField("membership_level")
+    private Integer membershipLevel;
+
+
+    /**
+     * 联系活跃天数
+     */
+    @TableField("active_count")
+    private Integer activeCount;
+
+
+    /**
+     * 总活跃天数
+     */
+    @TableField("total_active_count")
+    private Integer totalActiveCount;
+
+    /**
+     * 订单总金额
+     */
+    @TableField("tatali")
+    private BigDecimal totalAmount;
+
+
+
     @TableField("uuid")
     private String uuid;
 
-    @ApiModelProperty("用户名称")
+
     @TableField("username")
     private String username;
 
-    @ApiModelProperty("用户头像")
+
     @TableField("avatar")
     private String avatar;
 
-    @ApiModelProperty("用户账号")
+
     @TableField("`account`")
     private String account;
 
-    @ApiModelProperty("密码")
+
     @TableField("`password`")
     private String password;
 
-    @ApiModelProperty("状态 0 正常 1 封禁")
     @TableField("`status`")
     private Boolean status;
 
-    @ApiModelProperty("手机号")
+
     @TableField("phone")
     private String phone;
 
-    @ApiModelProperty("邮箱")
+
     @TableField("email")
     private String email;
 
-    @ApiModelProperty("QQ")
+
     @TableField("qq")
     private String qq;
 
-    @ApiModelProperty("微信")
+
     @TableField("wx")
     private String wx;
 
-    @ApiModelProperty("用户来源")
+
     @TableField("`source`")
     private String source;
 

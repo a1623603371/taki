@@ -1,8 +1,10 @@
 package com.taki.market.service;
 
+import com.taki.market.domain.dto.ReceiveCouponDTO;
+import com.taki.market.domain.dto.SaveOrUpdateCouponDTO;
+import com.taki.market.domain.dto.SendCouponDTO;
 import com.taki.market.domain.dto.UserCouponDTO;
-import com.taki.market.domain.request.LockUserCouponRequest;
-import com.taki.market.domain.request.ReleaseUserCouponRequest;
+import com.taki.market.domain.request.*;
 import com.taki.market.domain.query.UserCouponQuery;
 
 /**
@@ -44,5 +46,50 @@ public interface CouponService {
     Boolean releaseUserCoupon(ReleaseUserCouponRequest releaseUserCouponRequest);
 
 
+    /**
+     * @description: 保存/修改 优惠券
+     * @param saveOrUpdateCouponRequest 新增/修改 优惠券
+     * @return  com.taki.market.domain.dto.SaveOrUpdateCouponDTO
+     * @author Long
+     * @date: 2022/10/4 11:22
+     */
+    SaveOrUpdateCouponDTO saveOrUpdateCoupon(SaveOrUpdateCouponRequest saveOrUpdateCouponRequest);
 
+    /*** 
+     * @description:  领取优惠券
+     * @param receiveCouponRequest 领取优惠券
+     * @return  com.taki.market.domain.dto.ReceiveCouponDTO
+     * @author Long
+     * @date: 2022/10/4 21:53
+     */ 
+    ReceiveCouponDTO receiveCoupon(ReceiveCouponRequest receiveCouponRequest);
+
+    /*** 
+     * @description:  领取所有有效优惠券
+     * @param userId
+     * @return  java.lang.Object
+     * @author Long
+     * @date: 2022/10/4 23:23
+     */ 
+    Boolean receiveCouponAvailable(Long userId);
+
+    /***
+     * @description: 领取优惠券
+     * @param sendCouponRequest 领取优惠券请求
+     * @return
+     * @author Long
+     * @date: 2022/9/26 21:42
+     */
+    SendCouponDTO sendCoupon(SendCouponRequest sendCouponRequest);
+
+    /***
+     * @description: 根据选择条件发放换回优惠券
+     * 此接口需要调用推送系统按条件推送消息的接口，
+     * 传入选人条件，以及把优惠券+优惠券领取地址封装到一个对象中
+     * @param sendCouponRequest 领取优惠券请求
+     * @return
+     * @author Long
+     * @date: 2022/9/26 21:43
+     */
+    SendCouponDTO sendCouponByConditions(SendCouponRequest sendCouponRequest);
 }

@@ -7,6 +7,9 @@ import com.taki.market.mapper.MarketCouponConfigMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 /**
  * @ClassName MarketCouponConfigDAO
  * @Description 营销 优惠券配置
@@ -28,8 +31,22 @@ public class MarketCouponConfigDAO extends BaseDAO<MarketCouponConfigMapper, Mar
      * @author Long
      * @date: 2022/9/24 23:00
      */
-    public  MarketCouponConfigDO getByCouponConfigId(String couponConfigId) {
+    public  MarketCouponConfigDO getByCouponConfigId(Long couponConfigId) {
 
         return this.getOne(new QueryWrapper<MarketCouponConfigDO>().eq(MarketCouponConfigDO.ID,couponConfigId));
     }
+
+    /***
+     * @description:  保存 优惠券
+     * @param marketCouponConfigDO 优惠券
+     * @return  java.lang.Boolean
+     * @author Long
+     * @date: 2022/10/4 11:55
+     */
+   public Boolean saveCoupon(MarketCouponConfigDO marketCouponConfigDO){
+        return this.save(marketCouponConfigDO);
+   }
+
+   
+
 }

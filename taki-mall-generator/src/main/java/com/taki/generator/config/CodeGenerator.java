@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class CodeGenerator {
 
-    private static final  String url = "jdbc:mysql://192.168.33.11:3306/taki_eshop_market?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai";
+    private static final  String url = "jdbc:mysql://192.168.33.11:3306/taki-eshop-persona?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai";
 
 
    // private static final String url2 = "jdbc:mysql://49.232.128.89:3306/sonasonic_sit?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai";
@@ -47,7 +47,7 @@ public class CodeGenerator {
    private static final  String passwrod = "Pzk2020@";
 
 
-    private static final  String database = "taki_eshop_market";
+    private static final  String database = "taki-eshop-persona";
 
 
 
@@ -78,9 +78,13 @@ public class CodeGenerator {
 
     private static  String[] tables = new String[]{
       //   "market_coupon_config",
-            "market_coupon_item",
+         //   "market_coupon_item",
            // "market_freight_template",
             //"market_promotion"
+//            "hot_goods_crontab",
+//            "push_message",
+//            "push_message_crontab"
+            "membership_filter"
     };
 
 

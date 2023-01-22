@@ -70,4 +70,14 @@ public class RedisLockKeyConstants {
 
 
     public static final String ADD_PRODUCT_STOCK_KEY = "#ADD_PRODCUT_STOCK_KEY:" ;
+
+
+    /**
+     * 促销优惠券锁key
+     */
+    public final static String PROMOTION_COUPON_LOCK_KEY = "#PROMOTION_COUPON_LOCK_KEY:";
+    /**
+     * 促销 优惠券id 集合锁
+     */
+    public  final static  String PROMOTION_COUPON_ID_LIST_LOCK = "#PROMOTION_COUPON_ID_LIST_LOCK:";
 }

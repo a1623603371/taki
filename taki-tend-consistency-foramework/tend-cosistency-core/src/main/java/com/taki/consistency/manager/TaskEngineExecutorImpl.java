@@ -14,6 +14,7 @@ import com.taki.consistency.util.TimeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -63,6 +64,7 @@ public class TaskEngineExecutorImpl implements TaskEngineExecutor{
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void executeTaskInstance(ConsistencyTaskInstance consistencyTaskInstance) {
 
         try {
@@ -181,6 +183,7 @@ public class TaskEngineExecutorImpl implements TaskEngineExecutor{
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void fallbackExecuteTask(ConsistencyTaskInstance consistencyTaskInstance) {
 
         //如果注解（任务实例信息）中没有提供降级类，则退出，不执行降级

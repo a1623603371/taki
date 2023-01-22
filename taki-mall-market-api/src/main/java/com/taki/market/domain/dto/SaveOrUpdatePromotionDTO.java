@@ -34,5 +34,5 @@ public class SaveOrUpdatePromotionDTO {
     /**
      * 活动创建、修改人
      */
-    private Integer createUser;
+    private Long createUser;
 }

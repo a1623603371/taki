@@ -201,5 +201,118 @@ public class RocketMQConstant {
      * 默认 推送 的 prooducer 分组
      */
     public static final String PUSH_DEFAULT_PRODUCER_GROUP =  "push_default_producer_group";
+
+
+    /**
+     *  平台推送消息topic
+     */
+    public static  final String PLATFORM_MESSAGE_SEND_TOPIC = "platform_message_send_topic";
+
+    /**
+     * 促销活动创建事件topic
+     */
+    public static final String SALES_PROMOTION_CREATED_EVENT_TOPIC = "sale_promotion_created_event_topic";
+
+    /**
+     * 促销活动创建事件Topic
+     */
+    public static final  String USER_LOGINED_EVENT_TOPIC = "user_logined_event_topic";
+
+    /**
+     * 平台推送消息消费者分组
+     */
+    public static  final  String PLATFORM_MESSAGE_SEND_CONSUMER_GROUP = "platform_message_send_consumer_group";
+
+    /**
+     * 平台群体推送优惠券用户捅消息
+     */
+    public static final  String PLATFORM_COUPON_SEND_USER_BUCKET_TOPIC = "platform_coupon_send_user_bucket_topic";
+
+    /**
+     * 平台群体发送优惠券用户桶消息消费者分组
+     */
+    public static  final  String  PLATFORM_COUPON_SEND_USER_BUCKET_CONSUMER_GROUP = "platform_coupon_send_user_bucket_consumer_group";
+
+    /**
+     * 给部分发送优惠券用户桶的消息
+     */
+    public static  final  String PLATFORM_CONDITION_COUPON_SEND_TOPIC = "platform_condition_coupon_send_user_bucket_topic";
+
+    /**
+     * 给部分发送优惠券用户桶消费者 分组
+     */
+    public static final  String PLATFORM_CONDITION_COUPON_SEND_CONSUMER_GROUP = "platform_condition_coupon_send_user_bucket_consumer_group";
+
+
+    /**
+     * 给部分人发送优惠券用户桶消息
+     */
+    public static final  String PLATFORM_CONDITION_COUPON_SEND_USER_BUCKET_TOPIC = "platform_condition_coupon_send_user_bucket_topic";
+
+    /**
+     *给部分人 发送优惠券用户桶消费者分组
+     */
+    public static  final String PLATFORM_CONDITION_COUPON_SEND_USER_BUCKET_CONSUMER_GROUP = "platform_condition_coupon_send_user_bucket_consumer_group";
+
+    /**
+     * 平台群体发送优惠券消息
+     */
+    public  static final  String PLATFORM_COUPON_SEND_TOPIC = "platform_coupon_send_topic";
+
+    /**
+     * 平台群体发送优惠券消费者分组
+     */
+    public static final String PLATFORM_COUPON_SEND_CONSUMER_GROUP = "platform_coupon_send_consumer_group";
+
+    /**
+     * 促销活动创建事件消费组
+     */
+    public  static final  String SALES_PROMOTION_CREATED_EVENT_CONSUMER_GROUP = "sales_promotion_created_event_consumer_group";
+
+
+    /**
+     * 促销活动创建事件消费组
+     */
+    public static final  String USER_LOGINED_EVENT_CONSUMER_GROUP = "user_loginend_event_consumer_group";
+
+    /**
+     * 平台群体发送促销活动用户桶消息
+     */
+    public static final String PLATFORM_PROMOTION_SEND_USER_BUCKET_TOPIC = "platform_promotion_send_user_bucket_topic";
+
+    /**
+     * 平台群体发送促销活动消息用户桶消息消费者分组
+     */
+    public  static  final  String PLATFORM_PROMOTION_SEND_USER_BUCKET_CONSUMER_GROUP = "platform_promotion_send_user_bucket_consumer_group";
+
+    /**
+     * 平台群体发送促销活动消息
+     */
+    public static  final  String PLATFORM_PROMOTION_SEND_TOPIC = "platform_promotion_send_topic";
+
+    /**
+     * 平台群体发送促销活动消息消费者分组
+     */
+    public  static  final  String PLATFORM_PROMOTION_SEND_CONSUMER_GROUP = "platform_promotion_send_consumer_group";
+
+    /**
+     * 发送群体发热门商品消息
+     */
+    public static final String PLATFORM_HOT_PRODUCT_SEND_TOPIC = "platform_hot_product_send_topic";
+
+    /**
+     * 平台群体发送热门商品消息消费者分组
+     */
+    public  static final String PLATFORM_HOT_PRODUCT_SEND_CONSUMER_GROUP = "platform_hot_product_consumer_group";
+
+    /**
+     * 平台群体发送热门商品消息
+     */
+    public static final  String PLATFORM_HOT_PRODUCT_USER_BUCKET_SEND_TOPIC = "platform_hot_product_user_bucket_send_topic";
+
+    /**
+     * 平台群体发送热门商品消息消费者分组
+     */
+    public static final String PLATFORM_HOT_PRODUCT_USER_BUCKET_SEND_CONSUMER_GROUP = "platform_hot_product_user_bucket_send_consumer_group";
 }
 

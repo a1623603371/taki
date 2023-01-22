@@ -2,12 +2,10 @@ package com.taki.market.api.impl;
 
 import com.taki.common.utli.ResponseData;
 import com.taki.market.api.MarketApi;
-import com.taki.market.domain.dto.CalculateOrderAmountDTO;
-import com.taki.market.domain.dto.ReceiveCouponDTO;
-import com.taki.market.domain.dto.SendCouponDTO;
-import com.taki.market.domain.dto.UserCouponDTO;
+import com.taki.market.domain.dto.*;
 import com.taki.market.domain.request.*;
 import com.taki.market.domain.query.UserCouponQuery;
+import com.taki.market.exception.MarketBizException;
 import com.taki.market.service.CouponService;
 import com.taki.market.service.MarketService;
 import lombok.extern.slf4j.Slf4j;
@@ -87,22 +85,92 @@ public class MarketApiImpl implements MarketApi{
     }
 
     @Override
+    public ResponseData<SaveOrUpdateCouponDTO> saveOrUpdateCoupon(SaveOrUpdateCouponRequest saveOrUpdateCouponRequest) {
+
+        try {
+
+
+            return ResponseData.success(couponService.saveOrUpdateCoupon(saveOrUpdateCouponRequest));
+        }catch (MarketBizException e){
+
+            log.error("biz error",e);
+            return ResponseData.error(e.getErrorCode(),e.getErrorMessage());
+
+        }catch (Exception e){
+            log.error("system error",e);
+
+            return ResponseData.error(e.getMessage());
+        }
+
+
+    }
+
+    @Override
     public ResponseData<ReceiveCouponDTO> receiveCoupon(ReceiveCouponRequest receiveCouponRequest) {
-        return null;
+        try {
+
+
+            return ResponseData.success(couponService.receiveCoupon(receiveCouponRequest));
+        }catch (MarketBizException e){
+
+            log.error("biz error",e);
+            return ResponseData.error(e.getErrorCode(),e.getErrorMessage());
+
+        }catch (Exception e){
+            log.error("system error",e);
+
+            return ResponseData.error(e.getMessage());
+        }
+
     }
 
     @Override
     public ResponseData<Boolean> receiveCouponAvailable(Long userId) {
-        return null;
+
+        try {
+            return ResponseData.success(couponService.receiveCouponAvailable(userId));
+        }catch (MarketBizException e){
+
+            log.error("biz error",e);
+            return ResponseData.error(e.getErrorCode(),e.getErrorMessage());
+
+        }catch (Exception e){
+            log.error("system error",e);
+
+            return ResponseData.error(e.getMessage());
+        }
+
     }
 
     @Override
     public ResponseData<SendCouponDTO> sendCoupon(SendCouponRequest sendCouponRequest) {
-        return null;
+        try {
+            return ResponseData.success(couponService.sendCoupon(sendCouponRequest));
+        }catch (MarketBizException e){
+
+            log.error("biz error",e);
+            return ResponseData.error(e.getErrorCode(),e.getErrorMessage());
+
+        }catch (Exception e){
+            log.error("system error",e);
+
+            return ResponseData.error(e.getMessage());
+        }
     }
 
     @Override
     public ResponseData<SendCouponDTO> sendCouponByConditions(SendCouponRequest sendCouponRequest) {
-        return null;
+        try {
+            return ResponseData.success(couponService.sendCouponByConditions(sendCouponRequest));
+        }catch (MarketBizException e){
+
+            log.error("biz error",e);
+            return ResponseData.error(e.getErrorCode(),e.getErrorMessage());
+
+        }catch (Exception e){
+            log.error("system error",e);
+
+            return ResponseData.error(e.getMessage());
+        }
     }
 }

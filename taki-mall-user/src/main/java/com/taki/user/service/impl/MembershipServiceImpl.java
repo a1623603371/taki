@@ -6,18 +6,26 @@ import com.taki.common.exception.ErrorCodeEnum;
 import com.taki.common.exception.ServiceException;
 import com.taki.common.redis.RedisCache;
 import com.taki.common.utli.IdGenerator;
+import com.taki.common.utli.ResponseData;
+import com.taki.user.converter.MembershipConverter;
 import com.taki.user.dao.MembershipDAO;
+import com.taki.user.dao.MembershipFilterDAO;
+import com.taki.user.domain.dto.MemberFilterDTO;
 import com.taki.user.domain.dto.MembershipDTO;
 import com.taki.user.domain.entity.MembershipDO;
+import com.taki.user.domain.entity.MembershipFilterDO;
 import com.taki.user.domain.request.ChangePasswordRequest;
 import com.taki.user.domain.request.RegisterRequest;
 import com.taki.user.enums.RegisterEnum;
+import com.taki.user.mapper.MembershipFilterMapper;
 import com.taki.user.service.MembershipService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -38,8 +46,15 @@ public class MembershipServiceImpl  implements MembershipService {
 
 
     @Autowired
+    private MembershipFilterDAO membershipFilterDAO;
+
+
+    @Autowired
     private RedisCache redisCache;
 
+
+    @Autowired
+    private MembershipConverter membershipConverter;
 
 
     @Override
@@ -84,6 +99,36 @@ public class MembershipServiceImpl  implements MembershipService {
     public void changePassword(ChangePasswordRequest request) {
 
 
+
+
+    }
+
+
+    @Override
+    public List<MembershipDTO> listMembership() {
+        return  membershipConverter.listEntityToDTO(membershipDAO.listMembership());
+    }
+
+    @Override
+    public Long queryMaxUserId() {
+        return membershipDAO.queryMaxUserId();
+    }
+
+    @Override
+    public List<MembershipDTO> queryMembershipByIdRange(Long startUserId, Long endUserId) {
+        return membershipConverter.listEntityToDTO(membershipDAO.queryMembershipByIdRange(startUserId,endUserId));
+    }
+
+    @Override
+    public List<MembershipDTO> listMembershipByCondition(MemberFilterDTO memberFilterDTO) {
+
+
+        List<MembershipFilterDO> membershipFilters = membershipFilterDAO.listMembershipByCondition(memberFilterDTO);
+
+        return     membershipFilters.stream().map(membershipFilterDO -> {
+                Long accountId = membershipFilterDO.getAccountId();
+                return membershipConverter.entityToDTO(membershipDAO.getById(accountId));
+            }).collect(Collectors.toList());
 
 
     }

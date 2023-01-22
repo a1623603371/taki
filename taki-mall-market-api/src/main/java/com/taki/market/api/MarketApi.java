@@ -1,10 +1,7 @@
 package com.taki.market.api;
 
 import com.taki.common.utli.ResponseData;
-import com.taki.market.domain.dto.CalculateOrderAmountDTO;
-import com.taki.market.domain.dto.ReceiveCouponDTO;
-import com.taki.market.domain.dto.SendCouponDTO;
-import com.taki.market.domain.dto.UserCouponDTO;
+import com.taki.market.domain.dto.*;
 import com.taki.market.domain.request.*;
 import com.taki.market.domain.query.UserCouponQuery;
 
@@ -63,6 +60,16 @@ public interface MarketApi {
      */ 
     ResponseData<Boolean>cancelOrderReleaseCoupon(CancelOrderReleaseUserCouponRequest cancelOrderReleaseUserCouponRequest);
 
+
+
+
+    /*** 
+     * @description:  新增/修改优惠券
+     * @param saveOrUpdateCouponRequest
+     * @return
+     * @date: 2022/10/3 23:57
+     */ 
+    ResponseData<SaveOrUpdateCouponDTO> saveOrUpdateCoupon(SaveOrUpdateCouponRequest saveOrUpdateCouponRequest);
 
     /***
      * @description:  领取优惠券

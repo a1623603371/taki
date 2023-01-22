@@ -2,11 +2,17 @@ package com.taki.user.dao;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.taki.common.BaseDAO;
+import com.taki.common.utli.ResponseData;
+import com.taki.user.domain.dto.MemberFilterDTO;
+import com.taki.user.domain.dto.MembershipDTO;
 import com.taki.user.domain.entity.MembershipDO;
 import com.taki.user.mapper.MembershipMapper;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * @ClassName MembershipDAO
@@ -17,6 +23,11 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class MembershipDAO extends BaseDAO<MembershipMapper, MembershipDO> {
+
+
+    @Autowired
+    private MembershipMapper membershipMapper;
+
 
     /**
      * @description: 修改 会员信息
@@ -38,4 +49,43 @@ public class MembershipDAO extends BaseDAO<MembershipMapper, MembershipDO> {
 
 
     };
+
+    /***
+     * @description:  查询用户信息
+     * @param
+     * @return  com.taki.user.domain.entity.MembershipDO
+     * @author Long
+     * @date: 2022/10/3 20:49
+     */
+    public List<MembershipDO> listMembership() {
+
+        return this.list();
+    }
+
+    /***
+     * @description: 查询最大用户Id
+     * @param
+     * @return
+     * @author Long
+     * @date: 2022/10/3 20:52
+     */
+    public Long queryMaxUserId() {
+
+        return  membershipMapper.queryMaxUserId();
+    }
+
+    /***
+     * @description: 根据id范围查询用户
+     * @param startUserId
+     * @param endUserId
+     * @return  java.util.List<com.taki.user.domain.dto.MembershipDTO>
+     * @author Long
+     * @date: 2022/10/3 20:59
+     */
+    public List<MembershipDO> queryMembershipByIdRange(Long startUserId, Long endUserId) {
+
+        return  membershipMapper.queryMembershipByIdRange(startUserId,endUserId);
+    }
+
+
 }

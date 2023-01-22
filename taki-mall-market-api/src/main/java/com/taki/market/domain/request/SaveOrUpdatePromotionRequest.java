@@ -59,6 +59,12 @@ public class SaveOrUpdatePromotionRequest  implements Serializable {
      */
     private PromotionRulesValue rule;
 
+
+    /**
+     * 创建人 / 修改人
+     */
+    private String createUser;
+
     @Data
   public static  class PromotionRulesValue  implements Serializable  {
 

@@ -42,6 +42,11 @@
         <module>taki-mall-tms</module>
         <module>taki-mall-gateway</module>
         <module>taki-mall-address</module>
+        <module>taki-mall-user-api</module>
+        <module>taki-mall-push-api</module>
+        <module>taki-mall-push</module>
+        <module>taki-mall-persona-api</module>
+        <module>taki-mall-persona</module>
     </modules>
 
 

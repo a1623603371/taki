@@ -22,6 +22,16 @@ public class MarketPromotionDAO extends BaseDAO<MarketPromotionMapper, MarketPro
     @Autowired
     private MarketPromotionMapper marketPromotionMapper;
 
+    /*** 
+     * @description: 发布促销活动
+     * @param marketPromotionDO 营销促销实体
+     * @return  java.lang.Boolean
+     * @author Long
+     * @date: 2022/9/29 21:37
+     */ 
+    public Boolean saveOrUpdatePromotion(MarketPromotionDO marketPromotionDO){
+        return  this.save(marketPromotionDO);
+    }
 
 
 }

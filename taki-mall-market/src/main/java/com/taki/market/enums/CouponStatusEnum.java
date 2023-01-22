@@ -16,8 +16,9 @@ import java.util.Map;
  * @Version 1.0
  */
 public enum CouponStatusEnum  {
-        UN_USED(0,"未使用"),
-        USED(1,"已使用");
+        NORMAL(1,"正常"),
+        USED(2,"已使用"),
+        EXPIRED(3,"已过期");
 
 
     CouponStatusEnum(Integer code, String msg) {
