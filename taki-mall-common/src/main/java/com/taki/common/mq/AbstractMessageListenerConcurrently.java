@@ -29,7 +29,7 @@ public abstract class AbstractMessageListenerConcurrently implements MessageList
                 Map<String,String> map = msgs.get(0).getProperties();
                 String traceId = "";
 
-                if (map == null){
+                if (map != null){
                     traceId = map.get(CoreConstants.TRACE_ID);
                 }
 

@@ -1,10 +1,9 @@
 package com.taki.inventory.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.taki.common.BaseDAO;
+import com.taki.common.dao.BaseDAO;
 import com.taki.inventory.domain.entity.ProductStockDO;
 import com.taki.inventory.mapper.ProductStockMapper;
-import org.apache.ibatis.annotations.Param;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;

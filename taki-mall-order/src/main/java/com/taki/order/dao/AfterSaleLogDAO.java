@@ -1,10 +1,8 @@
 package com.taki.order.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.taki.common.BaseDAO;
-import com.taki.order.domain.entity.AfterSaleItemDO;
+import com.taki.common.dao.BaseDAO;
 import com.taki.order.domain.entity.AfterSaleLogDO;
-import com.taki.order.mapper.AfterSaleItemMapper;
 import com.taki.order.mapper.AfterSaleLogMapper;
 import org.springframework.stereotype.Repository;
 

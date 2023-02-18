@@ -1,8 +1,7 @@
 package com.taki.order.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.taki.common.BaseDAO;
-import com.taki.order.domain.entity.OrderPaymentDetailDO;
+import com.taki.common.dao.BaseDAO;
 import com.taki.order.domain.request.AdjustDeliveryAddressRequest;
 import com.taki.order.domain.entity.OrderDeliveryDetailDO;
 import com.taki.order.mapper.OrderDeliveryDetailMapper;

@@ -1,10 +1,8 @@
 package com.taki.market.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.taki.common.BaseDAO;
-import com.taki.market.domain.entity.MarketCouponConfigDO;
+import com.taki.common.dao.BaseDAO;
 import com.taki.market.domain.entity.MarketCouponItemDO;
-import com.taki.market.mapper.MarketCouponConfigMapper;
 import com.taki.market.mapper.MarketCouponItemMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;

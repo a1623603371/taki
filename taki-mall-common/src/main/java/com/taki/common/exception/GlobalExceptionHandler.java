@@ -235,7 +235,6 @@ public class GlobalExceptionHandler {
     public ResponseData<Object> handle(ServiceException ex, HttpServletRequest request){
 
       //  String trace =  ExceptionUtils.getStackTrace(ex);
-
         log.error("业务异常",ex);
       //  log.error(trace);
         ExceptionResult result = ExceptionResult.builder().timestamp(new Date())

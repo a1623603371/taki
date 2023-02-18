@@ -1,10 +1,9 @@
 package com.taki.address.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.taki.address.domain.entity.StreetDO;
 import com.taki.address.mapper.StreetMapper;
-import com.taki.common.BaseDAO;
+import com.taki.common.dao.BaseDAO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 

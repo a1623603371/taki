@@ -14,6 +14,7 @@ spring:
           - data-id: taki-eshop-risk-${spring.profiles.active}.yaml
             group: DEFAULT_GROUP
             refresh: true
+      discovery:
         server-addr: 192.168.33.12:8848
         file-extension: yaml
         username: nacos

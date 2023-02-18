@@ -1,6 +1,6 @@
 package com.taki.push.dao;
 
-import com.taki.common.BaseDAO;
+import com.taki.common.dao.BaseDAO;
 import com.taki.push.domain.entity.HotGoodsCrontabDO;
 import com.taki.push.mapper.HotGoodsCrontabMapper;
 import org.springframework.stereotype.Repository;

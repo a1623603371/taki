@@ -43,5 +43,27 @@ public class RandomUtil {
 //    public static void main(String[] args) {
 //        System.out.println(genRandomNumber(20));
 //    }
+    /*** 
+     * @description: 生成随机数
+     * @param bond
+     * @return  int
+     * @author Long
+     * @date: 2023/2/18 21:01
+     */ 
+    public static  int genRandInt(int  bond){
+        return new Random().nextInt(bond);
+    }
+
+    /*** 
+     * @description:  生成区间范围的随机数
+     * @param min 最小数
+     * @param max 最大数
+     * @return  int
+     * @author Long
+     * @date: 2023/2/18 21:03
+     */ 
+    public static  int genRandInt(int  min,int max){
+        return new Random().nextInt(max - min) + min;
+    }
 
 }

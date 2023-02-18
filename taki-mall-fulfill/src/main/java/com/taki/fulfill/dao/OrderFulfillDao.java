@@ -1,8 +1,7 @@
 package com.taki.fulfill.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.conditions.query.QueryChainWrapper;
-import com.taki.common.BaseDAO;
+import com.taki.common.dao.BaseDAO;
 import com.taki.fulfill.domain.entity.OrderFulfillDO;
 import com.taki.fulfill.mapper.OrderFulfillMapper;
 import org.apache.commons.lang3.StringUtils;

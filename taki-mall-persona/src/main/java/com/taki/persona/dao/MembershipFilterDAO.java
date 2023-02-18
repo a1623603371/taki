@@ -1,6 +1,6 @@
 package com.taki.persona.dao;
 
-import com.taki.common.BaseDAO;
+import com.taki.common.dao.BaseDAO;
 import com.taki.persona.domain.entity.MembershipFilterDO;
 import com.taki.persona.mapper.MembershipFilterMapper;
 import org.springframework.stereotype.Repository;

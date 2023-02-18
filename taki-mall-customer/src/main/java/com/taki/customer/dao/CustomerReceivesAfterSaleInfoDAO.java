@@ -1,6 +1,6 @@
 package com.taki.customer.dao;
 
-import com.taki.common.BaseDAO;
+import com.taki.common.dao.BaseDAO;
 import com.taki.customer.domain.enetity.CustomerReceivesAfterSaleInfoDO;
 import com.taki.customer.mapper.CustomerReceivesAfterSaleInfoMapper;
 import org.springframework.stereotype.Repository;

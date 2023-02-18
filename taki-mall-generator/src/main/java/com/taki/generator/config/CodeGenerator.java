@@ -24,6 +24,7 @@ import com.baomidou.mybatisplus.generator.keywords.MySqlKeyWordsHandler;
 
 
 import java.sql.Connection;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,7 +37,9 @@ import java.util.List;
  */
 public class CodeGenerator {
 
-    private static final  String url = "jdbc:mysql://192.168.33.11:3306/taki-eshop-persona?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai";
+    private static final  String database = "careerplan-cookbook";
+
+    private static final  String url = "jdbc:mysql://192.168.33.11:3306/" + database +"?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai";
 
 
    // private static final String url2 = "jdbc:mysql://49.232.128.89:3306/sonasonic_sit?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai";
@@ -47,7 +50,6 @@ public class CodeGenerator {
    private static final  String passwrod = "Pzk2020@";
 
 
-    private static final  String database = "taki-eshop-persona";
 
 
 
@@ -84,7 +86,7 @@ public class CodeGenerator {
 //            "hot_goods_crontab",
 //            "push_message",
 //            "push_message_crontab"
-            "membership_filter"
+       //     "membership_filter"
     };
 
 
@@ -100,19 +102,20 @@ public class CodeGenerator {
                             .fileOverride() // 覆盖已生成文件
                             .outputDir(path); // 指定输出目录
                 })
-                .packageConfig(builder -> {
+                .packageConfig((scanner,builder) -> {
                     builder.parent("com.taki") // 设置父包名
-                            .moduleName("module")
+                            .moduleName(scanner.apply("请输入模块名？"))
                             .entity("domain.entity")
                             .service("service")
-                            .serviceImpl("service.impl")
+                           // .serviceImpl("service.impl")
+                            .serviceImpl("dao")
                             .mapper("mapper")
-                            .controller("controller") // 设置父包模块名
+                          //  .controller("controller") // 设置父包模块名
                             .pathInfo(Collections.singletonMap(OutputFile.mapperXml, "D://")); // 设置mapperXml生成路径
                 })
 
-                .strategyConfig(builder -> {
-                    builder.addInclude(tables)// 设置需要生成的表名
+                .strategyConfig((scanner,builder) -> {
+                    builder.addInclude(getTables(scanner.apply("请输入表名，多个英文逗号分隔？所有输入 all")))// 设置需要生成的表名
                             .entityBuilder() // 设置 实体类
                             .superClass("com.taki.common.domin.BaseEntity")// 设置实体类父类
                             .enableColumnConstant() // 生成常量
@@ -121,19 +124,22 @@ public class CodeGenerator {
                             .enableRemoveIsPrefix() // 开启  Boolean 类型字段 is 移除
                             .enableTableFieldAnnotation()
                             //.enableActiveRecord()//开启 activeRecord 模型
-                            .idType(IdType.AUTO)
+                           // .idType(IdType.AUTO)
                             .formatFileName("%sDO")
                             .controllerBuilder()
                             .enableHyphenStyle()
                             .enableRestStyle()
-                            .formatFileName("%sController")
+                          //  .formatFileName("%sController")
                             .serviceBuilder()
-                            .superServiceClass(IService.class)
-                            .superServiceImplClass(ServiceImpl.class)
+                        //    .superServiceClass(IService.class)
+                            .superServiceImplClass("com.taki.common.dao.BaseDAO")
                             .formatServiceFileName("%sService")
-                            .formatServiceImplFileName("%sServiceImpl")
+                            .formatServiceImplFileName("%sDAO")
                             .mapperBuilder()
                             .superClass(BaseMapper.class)
+
+
+                            // mapper
                             .enableMapperAnnotation()
                             .enableBaseResultMap()
                             .enableBaseColumnList()
@@ -154,6 +160,11 @@ public class CodeGenerator {
 
 
 
+    }
+
+    // 处理 all 情况
+    protected static List<String> getTables(String tables) {
+        return "all".equals(tables) ? Collections.emptyList() : Arrays.asList(tables.split(","));
     }
 
 

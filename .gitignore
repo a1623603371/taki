@@ -25,3 +25,6 @@ target/
 /.nb-gradle/
 /build/
 /dappapi.iml
+/logs/daily/*.tmp
+/logs/*
+/log/*

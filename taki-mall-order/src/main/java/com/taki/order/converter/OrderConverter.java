@@ -20,7 +20,7 @@ import org.mapstruct.Mapper;
 import java.util.List;
 
 /**
- * @author zhonghuashishan
+ * @author Long
  * @version 1.0
  */
 @Mapper(componentModel = "spring")

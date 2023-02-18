@@ -1,8 +1,7 @@
 package com.taki.inventory.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.taki.common.BaseDAO;
-import com.taki.inventory.domain.entity.ProductStockDO;
+import com.taki.common.dao.BaseDAO;
 import com.taki.inventory.domain.entity.ProductStockLogDO;
 import com.taki.inventory.enums.StockLogStatusEnum;
 import com.taki.inventory.mapper.ProductStockLogMapper;

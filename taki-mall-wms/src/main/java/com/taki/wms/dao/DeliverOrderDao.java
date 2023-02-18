@@ -1,7 +1,7 @@
 package com.taki.wms.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.taki.common.BaseDAO;
+import com.taki.common.dao.BaseDAO;
 import com.taki.wms.domain.entity.DeliveryOrderDO;
 import com.taki.wms.mapper.DeliverOrderMapper;
 import org.springframework.stereotype.Repository;

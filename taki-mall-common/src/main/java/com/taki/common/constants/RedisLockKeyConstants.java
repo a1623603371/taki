@@ -80,4 +80,16 @@ public class RedisLockKeyConstants {
      * 促销 优惠券id 集合锁
      */
     public  final static  String PROMOTION_COUPON_ID_LIST_LOCK = "#PROMOTION_COUPON_ID_LIST_LOCK:";
+
+    // 社区电商 ===========================================================================================
+
+    /***
+     * 修改菜谱作者信息前缀
+     */
+    public static final String USER_UPDATE_LOCK_PREFIX = "#USER_UPDATE_LOCK_PREFIX:" ;
+
+    /**
+     * 修改菜谱前缀
+     */
+    public static final String COOK_UPDATE_LOCK_PREFIX = "#COOK_UPDATE_LOCK_PREFIX:";
 }

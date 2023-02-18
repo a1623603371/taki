@@ -47,6 +47,7 @@
         <module>taki-mall-push</module>
         <module>taki-mall-persona-api</module>
         <module>taki-mall-persona</module>
+        <module>taki-careerplan-eshop</module>
     </modules>
 
 
@@ -78,6 +79,9 @@
         <spring.boot.rocketmq.version>2.1.1</spring.boot.rocketmq.version>
         <skywalking.version>6.5.0</skywalking.version>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
+        <hotkey.version>0.0.4-SNAPSHOT</hotkey.version>
+        <grpc-version>1.30.1</grpc-version>
+        <protostuff.version>1.7.4</protostuff.version>
     </properties>
 
 
@@ -296,6 +300,69 @@
                 <artifactId>mapstruct</artifactId>
                 <version>${mapstruct.version}</version>
             </dependency>
+
+
+
+
+
+            <!-- 京东hotkey，热key探测框架-->
+            <dependency>
+                <groupId>com.jd.platform.hotkey</groupId>
+                <artifactId>hotkey-client</artifactId>
+                <version>${hotkey.version}</version>
+            </dependency>
+
+            <!-- 这里指定gRPC的版本为1.30.1，因为hotkey中的etcd-java中依赖的版本会存在jar包冲突 -->
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-netty</artifactId>
+                <version>${grpc-version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-protobuf</artifactId>
+                <version>${grpc-version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-core</artifactId>
+                <version>${grpc-version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-context</artifactId>
+                <version>${grpc-version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-api</artifactId>
+                <version>${grpc-version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-stub</artifactId>
+                <version>${grpc-version}</version>
+                <scope>compile</scope>
+            </dependency>
+
+            <!-- hotkey需要的依赖 -->
+            <dependency>
+                <groupId>io.protostuff</groupId>
+                <artifactId>protostuff-core</artifactId>
+                <version>${protostuff.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.protostuff</groupId>
+                <artifactId>protostuff-runtime</artifactId>
+                <version>${protostuff.version}</version>
+            </dependency>
+
         </dependencies>
 
 

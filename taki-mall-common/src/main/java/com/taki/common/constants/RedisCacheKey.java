@@ -45,4 +45,10 @@ public class RedisCacheKey {
      * 促销 并发 KEY
      */
     public final static String PROMOTION_CONCURRENCY_KEY = "#PROMOTION_CONCURRENCY_KEY:";
+
+
+    /***
+     *  菜谱作者 信息key
+     */
+    public static final String COOKBOOK_USER_INFO_PREFIX = "#COOKBOOK_USER_INFO_PREFIX:";
 }

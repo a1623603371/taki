@@ -1,7 +1,7 @@
 package com.taki.product.dao;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.taki.common.BaseDAO;
+import com.taki.common.dao.BaseDAO;
 import com.taki.product.domain.entity.ProductSkuDO;
 import com.taki.product.mapper.ProductSkuMapper;
 import org.springframework.stereotype.Repository;

@@ -1,9 +1,7 @@
 package com.taki.market.dao;
 
-import com.taki.common.BaseDAO;
-import com.taki.market.domain.entity.MarketFreightTemplateDO;
+import com.taki.common.dao.BaseDAO;
 import com.taki.market.domain.entity.MarketPromotionDO;
-import com.taki.market.mapper.MarketFreightTemplateMapper;
 import com.taki.market.mapper.MarketPromotionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;

@@ -1,11 +1,8 @@
 package com.taki.push.dao;
 
-import com.taki.common.BaseDAO;
-import com.taki.common.domin.BaseEntity;
+import com.taki.common.dao.BaseDAO;
 import com.taki.push.domain.entity.PushMessageCrontabDO;
-import com.taki.push.domain.entity.PushMessageDO;
 import com.taki.push.mapper.PushMessageCrontabMapper;
-import com.taki.push.mapper.PushMessageMapper;
 import org.springframework.stereotype.Repository;
 
 /**

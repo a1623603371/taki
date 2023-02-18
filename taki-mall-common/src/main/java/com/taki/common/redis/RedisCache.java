@@ -1,12 +1,15 @@
 package com.taki.common.redis;
 
 
+import com.jd.platform.hotkey.client.callback.JdHotKeyStore;
+import com.taki.common.utli.JsonUtil;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.core.script.RedisScript;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @ClassName RedisCache
@@ -42,6 +45,29 @@ public class RedisCache {
         }else {
             valueOperations.set(key,value);
         }
+
+    }
+
+    /*** 
+     * @description: 缓存存储
+     *  间数据存储到内存和 redis 中 ，如果不是热key， 就只存储 redis
+     * @param key
+     * @param value
+     * @param seconds
+     * @return  void
+     * @author Long
+     * @date: 2023/2/18 18:40
+     */ 
+    public void setCache(String key,Object value,int seconds){
+
+        /*
+         * 方法 给 热 key 赋值 value ，如果是热key，该方法才会赋值，非热key，什么都不做
+         * 如果热key，存储在内存中
+         */
+        JdHotKeyStore.smartSet(key,value);
+
+        this.set(key, JsonUtil.object2Json(value),seconds);
+
 
     }
 
@@ -117,5 +143,30 @@ public class RedisCache {
     public <T> T execute(RedisScript<T> script, List<String> keys,String ... args){
 
         return(T) redisTemplate.execute(script,keys,args);
+    }
+    
+    /*** 
+     * @description: 缓存失效时间
+     * @param key 缓存key
+     * @param seconds 时间单位
+     * @return  java.lang.Long
+     * @author Long
+     * @date: 2023/2/18 21:36
+     */ 
+    public Long getExpire(String key, TimeUnit seconds) {
+
+        return redisTemplate.getExpire(key,seconds);
+    }
+
+    /***
+     * @description:  设置缓存时间
+     * @param key 缓存key
+     * @param second 时间单位秒数
+     * @return  void
+     * @author Long
+     * @date: 2023/2/18 21:42
+     */
+    public void expire(String key, long second) {
+        redisTemplate.expire(key,second,TimeUnit.SECONDS);
     }
 }

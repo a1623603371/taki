@@ -3,7 +3,7 @@ package com.taki.address.dao;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.taki.address.domain.entity.AreaDO;
 import com.taki.address.mapper.AreaMapper;
-import com.taki.common.BaseDAO;
+import com.taki.common.dao.BaseDAO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;

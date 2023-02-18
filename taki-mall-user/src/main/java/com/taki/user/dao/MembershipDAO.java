@@ -1,10 +1,6 @@
 package com.taki.user.dao;
 
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.taki.common.BaseDAO;
-import com.taki.common.utli.ResponseData;
-import com.taki.user.domain.dto.MemberFilterDTO;
-import com.taki.user.domain.dto.MembershipDTO;
+import com.taki.common.dao.BaseDAO;
 import com.taki.user.domain.entity.MembershipDO;
 import com.taki.user.mapper.MembershipMapper;
 import org.apache.commons.lang3.ObjectUtils;

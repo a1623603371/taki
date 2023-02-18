@@ -27,28 +27,6 @@ public class RedisLock {
     }
 
 
-
-    /** 
-     * @description:  互斥锁， seconds 秒自动失效
-     * @param key
-     * @param seconds
-     * @return  java.lang.Boolean
-     * @author Long
-     * @date: 2022/6/20 14:52
-     */ 
-    public Boolean tryLock(String key ,Integer  seconds){
-
-        RLock rLock = redissonClient.getLock(key);
-
-        try {
-            return  rLock.tryLock(seconds,TimeUnit.SECONDS);
-        }catch (Exception e){
-            return false;
-        }
-        
-    }
-
-
     /**
      * @description: 获取 分布式锁
      * @param key 键值
@@ -56,10 +34,10 @@ public class RedisLock {
      * @author Long
      * @date: 2021/12/20 11:50
      */
-    public void  lock(String key){
+    public Boolean  lock(String key){
         RLock redisLock = redissonClient.getLock(key);
         redisLock.lock();
-
+        return true;
 
     }
 
@@ -73,6 +51,32 @@ public class RedisLock {
         Boolean  locked =  rLock.tryLock();
         log.info("tryLock:key={},locked={}",key,locked);
             return locked;
+    }
+
+    /**
+     * @description:  互斥锁， seconds 秒自动失效
+     * @param key
+     * @param seconds
+     * @return  java.lang.Boolean
+     * @author Long
+     * @date: 2022/6/20 14:52
+     */
+    public Boolean tryLock(String key ,int  seconds) throws InterruptedException {
+        RLock rLock = redissonClient.getLock(key);
+            return  rLock.tryLock(seconds,TimeUnit.SECONDS);
+    }
+
+    /***
+     * @description: 互斥锁， seconds 秒自动失效
+     * @param key
+     * @param  milliseconds
+     * @return  boolean
+     * @author Long
+     * @date: 2023/2/18 22:06
+     */
+    public boolean tryLock(String key, long milliseconds) throws InterruptedException {
+        RLock rLock = redissonClient.getLock(key);
+        return rLock.tryLock(milliseconds, TimeUnit.MILLISECONDS);
     }
 
     /**

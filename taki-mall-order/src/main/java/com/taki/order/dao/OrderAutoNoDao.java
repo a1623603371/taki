@@ -1,6 +1,6 @@
 package com.taki.order.dao;
 
-import com.taki.common.BaseDAO;
+import com.taki.common.dao.BaseDAO;
 
 import com.taki.order.domain.entity.OrderAutoNoDO;
 import com.taki.order.mapper.OrderAutoNoMapper;
