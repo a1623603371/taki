@@ -1,14 +1,14 @@
 package com.taki.careerplan.cookbook.controller;
 
 import com.taki.careerplan.cookbook.service.CookbookService;
+import com.taki.careerplan.domain.dto.CookbookDTO;
 import com.taki.careerplan.domain.dto.SaveOrUpdateCookbookDTO;
+import com.taki.careerplan.domain.request.CookbookQueryRequest;
 import com.taki.careerplan.domain.request.SaveOrUpdateCookbookRequest;
 import com.taki.common.utli.ResponseData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @ClassName CookbookController
@@ -39,5 +39,22 @@ public class CookbookController {
         return ResponseData.success(cookbookService.saveOrUpdateCookbook(request));
     }
 
+    /***
+     * @description: 查询菜谱信息
+     * @param cookbookId 菜谱Id
+     * @return
+     * @author Long
+     * @date: 2023/2/20 17:35
+     */
+    @GetMapping("/getCookbookInfo/{cookbookId}")
+    public ResponseData<CookbookDTO> getCookbookInfo(@PathVariable("cookbookId") Long cookbookId){
+        log.info("查询菜谱：cookbookId:{}",cookbookId);
+
+
+        CookbookQueryRequest request = CookbookQueryRequest.builder().cookbookId(cookbookId).success(true).build();
+
+        return ResponseData.success(cookbookService.getCookbookInfo(request));
+
+    }
 
 }

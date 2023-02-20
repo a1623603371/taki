@@ -22,6 +22,7 @@ import com.taki.common.utli.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -60,6 +61,7 @@ public class CookbookUserServiceImpl implements CookbookUserService {
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public SaveOrUpdateUserDTO saveOrUpdateUser(SaveOrUpdateUserRequest request) {
         //1.增对操作者设置 分布式锁
     String userUpdateLockKey = RedisLockKeyConstants.USER_UPDATE_LOCK_PREFIX + request.getOperator();
@@ -104,7 +106,12 @@ public class CookbookUserServiceImpl implements CookbookUserService {
         // 从数据库获取 数据
         return getUserInfoDB(userId);
     }
-    
+
+    @Override
+    public CookbookUserDO getById(Long userId) {
+        return this.getById(userId);
+    }
+
     /*** 
      * @description:
      * @param userId

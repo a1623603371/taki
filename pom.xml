@@ -79,6 +79,8 @@
         <spring.boot.rocketmq.version>2.1.1</spring.boot.rocketmq.version>
         <skywalking.version>6.5.0</skywalking.version>
         <mapstruct.version>1.4.2.Final</mapstruct.version>
+        <hp-etcd.version>0.0.16</hp-etcd.version>
+        <caffeine.version>2.8.0</caffeine.version>
         <hotkey.version>0.0.4-SNAPSHOT</hotkey.version>
         <grpc-version>1.30.1</grpc-version>
         <protostuff.version>1.7.4</protostuff.version>
@@ -301,8 +303,19 @@
                 <version>${mapstruct.version}</version>
             </dependency>
 
+            <!-- etcd-->
+            <dependency>
+                <groupId>com.ibm.etcd</groupId>
+                <artifactId>etcd-java</artifactId>
+                <version>${hp-etcd.version}</version>
+            </dependency>
 
-
+            <!-- 本地缓存-->
+            <dependency>
+                <groupId>com.github.ben-manes.caffeine</groupId>
+                <artifactId>caffeine</artifactId>
+                <version>${caffeine.version}</version>
+            </dependency>
 
 
             <!-- 京东hotkey，热key探测框架-->

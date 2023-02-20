@@ -1,4 +1,4 @@
-package com.taki.common.core;
+package com.taki.common.constants;
 
 /**
  * @ClassName CoreConstants
@@ -47,5 +47,10 @@ public class CoreConstants {
      * 默认等待锁时间
      */
     public static  final    Integer DEFAULT_WAIT_SECONDS = 3;
+
+    /**
+     * redis连接失败
+     */
+    public static final String REDIS_CONNECTION_FAILED = "redis_connection_failed";
 
 }

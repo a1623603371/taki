@@ -1,11 +1,10 @@
 package com.taki.common.web;
 
-import com.taki.common.core.CoreConstants;
+import com.taki.common.constants.CoreConstants;
 import com.taki.common.utli.MdcUtil;
 import com.taki.common.utli.SnowFlake;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.HandlerInterceptor;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

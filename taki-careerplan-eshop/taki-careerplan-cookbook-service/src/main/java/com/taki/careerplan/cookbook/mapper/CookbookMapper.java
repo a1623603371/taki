@@ -2,6 +2,7 @@ package com.taki.careerplan.cookbook.mapper;
 
 import com.taki.careerplan.cookbook.domain.entity.CookbookDO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.taki.careerplan.domain.dto.CookbookDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -15,4 +16,5 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface CookbookMapper extends BaseMapper<CookbookDO> {
 
+    CookbookDTO getCookbookInfoById(Long cookbookId);
 }

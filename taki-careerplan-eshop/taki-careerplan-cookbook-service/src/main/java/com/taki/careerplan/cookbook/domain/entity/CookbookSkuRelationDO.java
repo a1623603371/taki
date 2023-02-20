@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.taki.common.domin.BaseEntity;
 import java.io.Serializable;
+
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -20,6 +22,7 @@ import lombok.experimental.Accessors;
 @Setter
 @Accessors(chain = true)
 @TableName("cookbook_sku_relation")
+@Builder
 public class CookbookSkuRelationDO extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
@@ -34,7 +37,7 @@ public class CookbookSkuRelationDO extends BaseEntity {
      * 商品编码
      */
     @TableField("sku_id")
-    private String skuId;
+    private Long skuId;
 
     /**
      * 删除标识 0:有效 1:删除

@@ -1,6 +1,6 @@
 package com.taki.common.utli;
 
-import com.taki.common.core.CoreConstants;
+import com.taki.common.constants.CoreConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;

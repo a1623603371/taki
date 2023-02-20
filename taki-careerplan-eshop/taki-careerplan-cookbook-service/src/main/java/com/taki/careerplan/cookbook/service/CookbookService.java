@@ -1,6 +1,8 @@
 package com.taki.careerplan.cookbook.service;
 
+import com.taki.careerplan.domain.dto.CookbookDTO;
 import com.taki.careerplan.domain.dto.SaveOrUpdateCookbookDTO;
+import com.taki.careerplan.domain.request.CookbookQueryRequest;
 import com.taki.careerplan.domain.request.SaveOrUpdateCookbookRequest;
 
 /**
@@ -21,4 +23,13 @@ public interface CookbookService {
      * @date: 2023/2/18 22:50
      */
     SaveOrUpdateCookbookDTO saveOrUpdateCookbook(SaveOrUpdateCookbookRequest request);
+
+    /***
+     * @description: 根据 菜谱Id 查询 菜谱信息
+     * @param request 菜谱Id
+     * @return  com.taki.careerplan.domain.dto.CookbookDTO
+     * @author Long
+     * @date: 2023/2/20 17:36
+     */
+    CookbookDTO getCookbookInfo(CookbookQueryRequest request);
 }

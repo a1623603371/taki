@@ -207,7 +207,19 @@
             <artifactId>hotkey-client</artifactId>
         </dependency>
 
+        <!-- etcd-->
+        <dependency>
+            <groupId>com.ibm.etcd</groupId>
+            <artifactId>etcd-java</artifactId>
+            <version>${hp-etcd.version}</version>
+        </dependency>
 
+        <!-- 本地缓存-->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>${caffeine.version}</version>
+        </dependency>
     </dependencies>
 
 

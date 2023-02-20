@@ -2,7 +2,7 @@ package com.taki.inventory.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.taki.common.constants.RedisLockKeyConstants;
-import com.taki.common.core.CoreConstants;
+import com.taki.common.constants.CoreConstants;
 import com.taki.common.redis.RedisCache;
 import com.taki.common.redis.RedisLock;
 import com.taki.common.utli.LoggerFormat;

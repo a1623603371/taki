@@ -2,6 +2,7 @@ package com.taki.careerplan.cookbook.converter;
 
 import com.taki.careerplan.cookbook.domain.entity.CookbookDO;
 import com.taki.careerplan.domain.dto.CookbookDTO;
+import com.taki.careerplan.domain.request.SaveOrUpdateCookbookRequest;
 import com.taki.careerplan.domain.request.SaveOrUpdateUserRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -24,7 +25,7 @@ public interface CookBookConverter {
         @Mapping(target = "cookbookDetail",ignore = true),
          @Mapping(target = "foods",ignore = true)
     })
-    CookbookDO convertCookBookDO(SaveOrUpdateUserRequest request);
+    CookbookDO convertCookBookDO(SaveOrUpdateCookbookRequest request);
 
     @Mappings({
             @Mapping(target = "userName",ignore = true),

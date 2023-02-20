@@ -2,7 +2,9 @@ package com.taki.careerplan.cookbook.dao;
 
 import com.taki.careerplan.cookbook.domain.entity.CookbookDO;
 import com.taki.careerplan.cookbook.mapper.CookbookMapper;
+import com.taki.careerplan.domain.dto.CookbookDTO;
 import com.taki.common.dao.BaseDAO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -16,4 +18,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class CookbookDAO extends BaseDAO<CookbookMapper, CookbookDO>  {
 
+
+    @Autowired
+    private CookbookMapper cookbookMapper;
+
+    public CookbookDTO getCookbookInfoById(Long cookbookId) {
+
+        return cookbookMapper.getCookbookInfoById(cookbookId);
+    }
 }

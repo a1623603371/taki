@@ -3,12 +3,14 @@ package com.taki.common.redis;
 
 import com.jd.platform.hotkey.client.callback.JdHotKeyStore;
 import com.taki.common.utli.JsonUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.core.script.RedisScript;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -18,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  * @Date 2021/12/20 11:30
  * @Version 1.0
  */
-
+@Slf4j
 public class RedisCache {
 
     private RedisTemplate redisTemplate;
@@ -81,6 +83,45 @@ public class RedisCache {
     public String get(String key){
         ValueOperations<String,String> valueOperations =   redisTemplate.opsForValue();
         return valueOperations.get(key);
+    }
+    
+    /*** 
+     * @description:  缓存获取 首先 从内存中获取，在从缓存中缓存
+     * @param key
+     * @return  java.lang.Object
+     * @author Long
+     * @date: 2023/2/20 17:48
+     */ 
+    public Object getCache(String key) {
+
+
+        /*
+         * 从内存中获取商品信息
+         * 如果是热key，则存在两种情况，1是返回value，2是返回null。
+         * 返回null是因为尚未给它set真正的value，返回非null说明已经调用过set方法了，本地缓存value有值了。
+         * 如果不是热key，则返回null，并且将key上报到探测集群进行数量探测。
+         */
+        Object hotKeyValue  = JdHotKeyStore.getValue(key);
+
+        if (Objects.nonNull(hotKeyValue)){
+            log.info("从内存中获取信息：key:{},value:{}",key,hotKeyValue);
+            return hotKeyValue;
+        }
+        String value = this.get(key);
+
+        if (Objects.nonNull(value)){
+            log.info("从缓存中获取信息：key:{},value:{}",key,hotKeyValue);
+        }
+        /*
+         * 方法给热key赋值value，如果是热key，该方法才会赋值，非热key，什么也不做
+         * 如果是热key，存储在内存中
+         * 每次从缓存中获取数据后都尝试往热key中放一下
+         * 如果不放，则在成为热key之前，将数据放入缓存中了，但是没放到内存中。
+         * 如果此时变成热key了，但是下次查询内存没查到，查缓存信息，查到了，就直接返回了，内存中就没有数据
+         */
+        JdHotKeyStore.smartSet(key, value);
+        return value;
+
     }
 
     /**
@@ -169,4 +210,30 @@ public class RedisCache {
     public void expire(String key, long second) {
         redisTemplate.expire(key,second,TimeUnit.SECONDS);
     }
+
+
+    /***
+     * @description:  缓存增量
+     * @param userCookbookCountKey
+     * @param
+     * @return  void
+     * @author Long
+     * @date: 2023/2/20 17:28
+     */ 
+    public void increment(String key, int increment) {
+        redisTemplate.opsForValue().increment(key,increment);
+    }
+
+    /***
+     * @description: 缓存减量
+     * @param key
+     * @return  void
+     * @author Long
+     * @date: 2023/2/20 17:30
+     */
+    public void decrement(String key,Integer decrement){
+        redisTemplate.opsForValue().decrement(key,decrement);
+    }
+
+   
 }

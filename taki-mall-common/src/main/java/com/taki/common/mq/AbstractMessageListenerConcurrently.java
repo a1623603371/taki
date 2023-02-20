@@ -1,6 +1,6 @@
 package com.taki.common.mq;
 
-import com.taki.common.core.CoreConstants;
+import com.taki.common.constants.CoreConstants;
 import com.taki.common.utli.MdcUtil;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;

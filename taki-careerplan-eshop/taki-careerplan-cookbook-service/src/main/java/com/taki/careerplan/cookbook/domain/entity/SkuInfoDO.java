@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.taki.common.domin.BaseEntity;
 import java.io.Serializable;
+
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -20,6 +22,7 @@ import lombok.experimental.Accessors;
 @Setter
 @Accessors(chain = true)
 @TableName("sku_info")
+@Builder
 public class SkuInfoDO extends BaseEntity {
 
     private static final long serialVersionUID = 1L;

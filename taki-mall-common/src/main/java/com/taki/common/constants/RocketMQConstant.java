@@ -314,5 +314,9 @@ public class RocketMQConstant {
      * 平台群体发送热门商品消息消费者分组
      */
     public static final String PLATFORM_HOT_PRODUCT_USER_BUCKET_SEND_CONSUMER_GROUP = "platform_hot_product_user_bucket_send_consumer_group";
+
+
+    //********************************* 社区 ****************************************
+    public static final String COOKBOOK_UPDATE_MESSAGE_TOPIC = "cookbook_update_message_topic";
 }
 

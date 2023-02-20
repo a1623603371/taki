@@ -1,5 +1,6 @@
 package com.taki.careerplan.cookbook.service;
 
+import com.taki.careerplan.cookbook.domain.entity.CookbookUserDO;
 import com.taki.careerplan.domain.dto.CookbookUserDTO;
 import com.taki.careerplan.domain.dto.SaveOrUpdateUserDTO;
 import com.taki.careerplan.domain.request.CookbookUserQueryRequest;
@@ -32,4 +33,13 @@ public interface CookbookUserService  {
      * @date: 2023/2/18 21:27
      */
     CookbookUserDTO getUserInfo(CookbookUserQueryRequest request);
+
+    /***
+     * @description: 根据 用户id 查询菜谱用户信息
+     * @param userId 用户Id
+     * @return  com.taki.careerplan.cookbook.domain.entity.CookbookUserDO
+     * @author Long
+     * @date: 2023/2/20 16:34
+     */
+    CookbookUserDO getById(Long userId);
 }

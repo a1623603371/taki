@@ -46,9 +46,20 @@ public class RedisCacheKey {
      */
     public final static String PROMOTION_CONCURRENCY_KEY = "#PROMOTION_CONCURRENCY_KEY:";
 
-
+    //******************************************************* 设置区
     /***
      *  菜谱作者 信息key
      */
     public static final String COOKBOOK_USER_INFO_PREFIX = "#COOKBOOK_USER_INFO_PREFIX:";
+
+    /**
+     * 菜谱信息key 前缀
+     */
+    public static final String COOKBOOK_PREFIX =  "#COOKBOOK_PREFIX:";
+
+    /**
+     * 作者菜谱总数信息 KEY 前缀
+     *
+     */
+    public static final String USER_COOKBOOK_COUNT_PREFIX = "#USER_COOKBOOK_COUNT_PREFIX:" ;
 }

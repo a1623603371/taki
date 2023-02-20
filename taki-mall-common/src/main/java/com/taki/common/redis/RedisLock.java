@@ -50,7 +50,7 @@ public class RedisLock {
         RLock rLock = redissonClient.getLock(key);
         Boolean  locked =  rLock.tryLock();
         log.info("tryLock:key={},locked={}",key,locked);
-            return locked;
+        return locked;
     }
 
     /**
