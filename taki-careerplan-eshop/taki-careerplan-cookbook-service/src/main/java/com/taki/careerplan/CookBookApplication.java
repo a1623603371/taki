@@ -3,7 +3,9 @@ package com.taki.careerplan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.cloud.client.SpringCloudApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.context.ApplicationContext;
 
 /**
  * @ClassName CookBookApplication
@@ -17,7 +19,8 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 public class CookBookApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(CookBookApplication.class,args);
-      //  new SpringApplicationBuilder().sources(CookBookApplication.class).run(args);
+        ApplicationContext context =    SpringApplication.run(CookBookApplication.class,args);
+
+      //  new SpringApplicationBuilder().sources(CookBookApplication.class).context().run(args);
     }
 }

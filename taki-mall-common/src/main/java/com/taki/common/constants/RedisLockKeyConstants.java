@@ -92,4 +92,13 @@ public class RedisLockKeyConstants {
      * 修改菜谱前缀
      */
     public static final String COOK_UPDATE_LOCK_PREFIX = "#COOK_UPDATE_LOCK_PREFIX:";
+
+    /***
+     * @description: 用户菜谱数据 分页 锁
+     * @param null
+     * @return
+     * @author Long
+     * @date: 2023/2/22 21:14
+     */
+    public static final String USER_COOKBOOK_PAGE_LOCK_PREFIX = "#USER_COOKBOOK_PAGE_LOCK_PREFIX:"  ;
 }

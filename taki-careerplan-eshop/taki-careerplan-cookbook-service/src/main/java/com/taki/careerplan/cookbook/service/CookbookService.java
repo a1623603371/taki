@@ -4,6 +4,7 @@ import com.taki.careerplan.domain.dto.CookbookDTO;
 import com.taki.careerplan.domain.dto.SaveOrUpdateCookbookDTO;
 import com.taki.careerplan.domain.request.CookbookQueryRequest;
 import com.taki.careerplan.domain.request.SaveOrUpdateCookbookRequest;
+import com.taki.common.page.PagingInfo;
 
 /**
  * <p>
@@ -32,4 +33,13 @@ public interface CookbookService {
      * @date: 2023/2/20 17:36
      */
     CookbookDTO getCookbookInfo(CookbookQueryRequest request);
+
+    /***
+     * @description:  分页查询 菜谱 集合
+     * @param request 查询菜谱请求数据
+     * @return
+     * @author Long
+     * @date: 2023/2/22 20:47
+     */
+    PagingInfo<CookbookDTO> listCookbookInfo(CookbookQueryRequest request);
 }

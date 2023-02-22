@@ -1,5 +1,6 @@
 package com.taki.careerplan.domain.request;
 
+import com.taki.common.page.BasePage;
 import lombok.Builder;
 import lombok.Data;
 
@@ -12,9 +13,12 @@ import lombok.Data;
  */
 @Data
 @Builder
-public class CookbookQueryRequest {
+public class CookbookQueryRequest extends BasePage {
 
     private Long cookbookId;
+
+
+    private Long userId;
 
     private  Boolean success;
 }

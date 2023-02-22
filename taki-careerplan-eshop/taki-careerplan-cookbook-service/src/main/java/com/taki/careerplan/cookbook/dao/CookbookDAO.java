@@ -7,6 +7,8 @@ import com.taki.common.dao.BaseDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * <p>
  * 菜谱表 服务实现类
@@ -25,5 +27,13 @@ public class CookbookDAO extends BaseDAO<CookbookMapper, CookbookDO>  {
     public CookbookDTO getCookbookInfoById(Long cookbookId) {
 
         return cookbookMapper.getCookbookInfoById(cookbookId);
+    }
+
+
+    public List<CookbookDTO> pageByUserId(Long userId,Long page,Long pageSize){
+
+        return this.baseMapper.pageByUserId(userId,page,pageSize);
+
+
     }
 }

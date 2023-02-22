@@ -5,6 +5,7 @@ import com.taki.careerplan.domain.dto.CookbookDTO;
 import com.taki.careerplan.domain.dto.SaveOrUpdateCookbookDTO;
 import com.taki.careerplan.domain.request.CookbookQueryRequest;
 import com.taki.careerplan.domain.request.SaveOrUpdateCookbookRequest;
+import com.taki.common.page.PagingInfo;
 import com.taki.common.utli.ResponseData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,21 @@ public class CookbookController {
         CookbookQueryRequest request = CookbookQueryRequest.builder().cookbookId(cookbookId).success(true).build();
 
         return ResponseData.success(cookbookService.getCookbookInfo(request));
+
+    }
+    
+    /*** 
+     * @description:  分页查询 菜谱 集合
+     * @param request 查询菜谱请求数据
+     * @return
+     * @author Long
+     * @date: 2023/2/22 20:47
+     */ 
+    @GetMapping("/listCookbookInfo")
+    public  ResponseData<PagingInfo<CookbookDTO>> listCookbookInfo(CookbookQueryRequest  request){
+        log.info("查询菜谱：cookbookId:{}",request.getCookbookId());
+
+        return ResponseData.success(cookbookService.listCookbookInfo(request));
 
     }
 

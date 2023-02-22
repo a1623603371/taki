@@ -2,6 +2,8 @@ package com.taki.careerplan.cookbook.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.jd.platform.hotkey.client.callback.JdHotKeyStore;
 import com.taki.careerplan.cookbook.converter.CookBookConverter;
@@ -28,10 +30,12 @@ import com.taki.common.constants.RedisCacheKey;
 import com.taki.common.constants.RedisLockKeyConstants;
 import com.taki.common.constants.RocketMQConstant;
 import com.taki.common.enums.DeleteStatusEnum;
+import com.taki.common.page.PagingInfo;
 import com.taki.common.redis.RedisCache;
 import com.taki.common.redis.RedisLock;
 import com.taki.common.utli.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +59,11 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class CookbookServiceImpl  implements CookbookService {
+
+    /**
+     * 菜谱分页 锁 超时时间
+     */
+    private static final Long USER_COOKBOOK_LOCK_TIMEOUT = 200L;
 
     /**
      * 商品修改锁
@@ -161,6 +170,141 @@ public class CookbookServiceImpl  implements CookbookService {
         }
 
         return getCookbookFormDB(cookbookId);
+    }
+
+
+    @Override
+    public PagingInfo<CookbookDTO> listCookbookInfo(CookbookQueryRequest request) {
+
+        PagingInfo<CookbookDTO> page = listCookbookInfoFromCache(request);
+
+        if (Objects.nonNull(page)){
+            return page;
+        }
+
+
+        return listCookbookInfoFromDB(request);
+    }
+
+    /***
+     * @description: 从数据库 查询 分页书画家
+     * @param request
+     * @return
+     * @author Long
+     * @date: 2023/2/22 21:12
+     */
+    private PagingInfo<CookbookDTO> listCookbookInfoFromDB(CookbookQueryRequest request) {
+
+        String userCookbookLockKey = RedisLockKeyConstants.USER_COOKBOOK_PAGE_LOCK_PREFIX + request.getUserId();
+
+        Boolean lock = false;
+
+        try {
+            lock = redisLock.tryLock(userCookbookLockKey,USER_COOKBOOK_LOCK_TIMEOUT);
+        } catch (InterruptedException e) {
+           PagingInfo pagingInfo = listCookbookInfoFromCache(request);
+
+           if (Objects.nonNull(pagingInfo)){
+               return pagingInfo;
+           }
+           log.error(e.getMessage(),e);
+        }
+
+        if (!lock){
+            PagingInfo pagingInfo = listCookbookInfoFromCache(request);
+
+            if (Objects.nonNull(pagingInfo)){
+                return pagingInfo;
+            }
+            log.info("缓存为空，从数据库查询数据获取锁失败,userId:{}",request.getUserId());
+
+            throw new CookBookException("查询失败");
+
+        }
+
+        try {
+            PagingInfo<CookbookDTO> pageInfo = listCookbookInfoFromCache(request);
+
+            if (Objects.nonNull(pageInfo)){
+                return pageInfo;
+            }
+
+        log.info("缓存为空，从数据查询数据，request:{}",request);
+
+            LambdaQueryWrapper<CookbookDO> queryWrapper = Wrappers.lambdaQuery();
+            queryWrapper.eq(CookbookDO::getUserId, request.getUserId());
+            Long count = cookbookDAO.count(queryWrapper);
+
+            // 这里是从db里查到的一页数据
+            List<CookbookDTO> cookbookDTOS =
+                    cookbookDAO.pageByUserId(request.getUserId(), request.getPage(), request.getPageSize());
+
+            // 基于redis的list数据结构，rpush，lrange
+            // 把你的用户发布过这一页数据，给怼到list数据结构里去
+            // 此时在list缓存里，仅仅只有第一页的数据而已，惰性分页list缓存构建
+//            redisCache.rPushAll(userCookbookKey, JsonUtil.listObject2ListJson(cookbookDTOS));
+
+            // 第一页的page缓存是没有包含刚才写入最新数据，旧数据
+            // 数据库和缓存不一致了
+            // 2天多之内，有人访问第一个page，缓存，读到的都是旧数据，没包含你最新发布的新数据
+            String userCookbookPageKey = RedisCacheKey.USER_COOKBOOK_PAGE_PREFIX
+                    + request.getUserId() + ":" + request.getPage();
+            redisCache.set(userCookbookPageKey,
+                    JsonUtil.object2Json(cookbookDTOS),
+                    CacheSupport.generateCacheExpireSecond());
+
+            PagingInfo<CookbookDTO> pagingInfo =
+                    PagingInfo.toResponse(cookbookDTOS, (long) count, request.getPage().intValue(), request.getPageSize().intValue());
+
+            return pagingInfo;
+
+        }finally {
+            redisLock.unLock(userCookbookLockKey);
+        }
+
+
+
+    }
+    
+    /*** 
+     * @description: 从缓存中查询 分页数据
+     * @param request
+     * @return  com.taki.common.page.PagingInfo<com.taki.careerplan.domain.dto.CookbookDTO>
+     * @author Long
+     * @date: 2023/2/22 21:10
+     */ 
+    private PagingInfo<CookbookDTO> listCookbookInfoFromCache(CookbookQueryRequest request) {
+
+
+        String userCookbookPageKey = RedisCacheKey.USER_COOKBOOK_PAGE_PREFIX + request.getUserId() + ":" + request.getPage();
+
+        String cookbooksJson = redisCache.get(userCookbookPageKey);
+
+        if (StringUtils.isNotBlank(cookbooksJson) && !Objects.equals("",cookbooksJson)){
+
+            String userCookbookCountKey = RedisCacheKey.USER_COOKBOOK_COUNT_PREFIX + request.getUserId();
+
+            Long size = Long.valueOf(redisCache.get(userCookbookCountKey));
+            List<CookbookDTO> cookbookDTOS = JSON.parseObject(cookbooksJson,List.class);
+
+            Long expire = redisCache.getExpire(userCookbookPageKey,TimeUnit.SECONDS);
+
+            //对于临时缓存两种做法：
+            //1. 临时续期
+            //2.不续期，随机过期时间，过期了直接加锁查库，然后放入缓存
+            //这里采用 第一种 ，如果缓存时间小于 1小时 则重新设置过期时间
+
+            if (expire < CacheSupport.ONE_HOURS_SECONDS){
+                redisCache.expire(userCookbookPageKey,CacheSupport.generateCacheExpireSecond());
+            }
+
+            return  PagingInfo.toResponse(cookbookDTOS,size,request.getPage().intValue(),request.getPageSize().intValue());
+
+        }
+        
+        return null;
+
+
     }
 
     /***
