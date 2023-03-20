@@ -67,4 +67,10 @@ public class RedisCacheKey {
      * 作者菜谱总数信息 分页 KEY 前缀
      */
     public static final String USER_COOKBOOK_PAGE_PREFIX = "#USER_COOKBOOK_PAGE_PREFIX:" ;
+
+
+    /**
+     *商品信息前缀
+     */
+    public static final String GOODS_INFO_PREFIX = "#GOODS_INFO_PREFIX:" ;
 }

@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class RedisCache {
 
+
     private RedisTemplate redisTemplate;
 
     public RedisCache(RedisTemplate<String, Object> redisTemplate) {

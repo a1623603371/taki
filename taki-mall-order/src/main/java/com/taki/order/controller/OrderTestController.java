@@ -1,5 +1,6 @@
 package com.taki.order.controller;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.alibaba.fastjson.JSONObject;
 import com.taki.common.constants.RocketMQConstant;
 import com.taki.common.enums.OrderStatusChangEnum;
@@ -75,6 +76,7 @@ public class OrderTestController {
      */
     @ApiOperation("生成订单Id")
     @PostMapping("/genOrderId")
+    @SentinelResource("OrderTestController:genOrderId")
     public ResponseData<GenOrderIdDTO> genOrderId(@RequestBody GenOrderIdRequest genOrderIdRequest){
 
         return ResponseData.success(orderInfoService.getGenOrderId(genOrderIdRequest)) ;
@@ -89,6 +91,7 @@ public class OrderTestController {
      */
     @ApiOperation("创建订单")
     @PostMapping("/createOrder")
+    @SentinelResource("OrderTestController:createOrder")
     public  ResponseData<CreateOrderDTO> createOrder(@RequestBody CreateOrderRequest createOrderRequest)  {
 
         return ResponseData.success(orderInfoService.createOrder(createOrderRequest));
@@ -103,6 +106,7 @@ public class OrderTestController {
      * @date: 2022/2/16 15:43
      */
     @ApiOperation("预支付")
+    @SentinelResource("OrderTestController:prePayOrder")
     @PostMapping("/prePayOrder")
     public ResponseData<PrePayOrderDTO> prepayOrder(@RequestBody PrePayOrderRequest payOrderRequest) {
 
@@ -118,6 +122,7 @@ public class OrderTestController {
      */
     @ApiOperation("支付回调")
     @PostMapping("/payCallback")
+    @SentinelResource("OrderTestController:payCallback")
     public ResponseData<Boolean> payCallback(@RequestBody PayCallbackRequest payCallbackRequest){
         orderInfoService.payCallback(payCallbackRequest);
         return ResponseData.success(true);

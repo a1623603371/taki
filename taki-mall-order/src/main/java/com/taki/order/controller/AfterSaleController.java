@@ -1,5 +1,6 @@
 package com.taki.order.controller;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.taki.common.page.PagingInfo;
 import com.taki.common.utli.ResponseData;
 import com.taki.order.api.AfterSaleApi;
@@ -48,6 +49,7 @@ public class AfterSaleController {
      * @author Long
      * @date: 2022/4/3 15:22
      */
+
     @ApiOperation("取消订单")
     @PostMapping("/cancelOrder")
     public ResponseData<Boolean> cancelOrder(@RequestBody CancelOrderRequest cancelOrderRequest){

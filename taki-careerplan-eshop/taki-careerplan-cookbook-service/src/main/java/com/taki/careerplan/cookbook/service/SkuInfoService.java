@@ -1,5 +1,8 @@
 package com.taki.careerplan.cookbook.service;
 
+import com.taki.careerplan.domain.dto.SaveOrUpdateSkuDTO;
+import com.taki.careerplan.domain.request.SaveOrUpdateSkuRequest;
+
 import java.util.List;
 
 /**
@@ -20,4 +23,12 @@ public interface SkuInfoService {
      * @date: 2023/2/20 16:12
      */ 
     List<Long> getSkuIdsByTags(List<String> tags);
+    /*** 
+     * @description:  保存 or 修改 商品
+     * @param request
+     * @return  com.taki.careerplan.domain.dto.SaveOrUpdateSkuDTO
+     * @author Long
+     * @date: 2023/2/24 19:14
+     */ 
+    SaveOrUpdateSkuDTO saveOrUpdate(SaveOrUpdateSkuRequest request);
 }

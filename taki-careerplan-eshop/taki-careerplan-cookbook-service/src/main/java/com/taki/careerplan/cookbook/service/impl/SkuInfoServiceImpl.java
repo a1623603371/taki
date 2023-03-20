@@ -2,6 +2,8 @@ package com.taki.careerplan.cookbook.service.impl;
 
 import com.google.common.collect.Lists;
 import com.taki.careerplan.cookbook.service.SkuInfoService;
+import com.taki.careerplan.domain.dto.SaveOrUpdateSkuDTO;
+import com.taki.careerplan.domain.request.SaveOrUpdateSkuRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -43,5 +45,10 @@ public class SkuInfoServiceImpl  implements SkuInfoService {
         });
 
         return skuList;
+    }
+
+    @Override
+    public SaveOrUpdateSkuDTO saveOrUpdate(SaveOrUpdateSkuRequest request) {
+        return null;
     }
 }

@@ -318,5 +318,17 @@ public class RocketMQConstant {
 
     //********************************* 社区 ****************************************
     public static final String COOKBOOK_UPDATE_MESSAGE_TOPIC = "cookbook_update_message_topic";
+
+
+    public static final String COOKBOOK_DEFAULT_CONSUMER_GROUP ="cookbook_default_consumer_group" ;
+
+    /***
+     * biglog 一致性 处理 分组
+     */
+    public static final String BINLOG_DEFAULT_CONSISTENCY_GROUP = "binlog_default_consistency_group" ;
+    /***
+     * biglog 一致性 处理 消息
+     */
+    public static final String BINLOG_DEFAULT_CONSISTENCY_TOPIC = "binlog_default_consistency_topic" ;
 }
 
