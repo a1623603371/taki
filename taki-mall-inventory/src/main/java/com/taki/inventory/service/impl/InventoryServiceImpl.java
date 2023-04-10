@@ -176,6 +176,7 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean deductProductStock(DeductProductStockRequest deductProductStockRequest) {
 
 
@@ -270,6 +271,7 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean addProductStock(AddProductStockRequest addProductStockRequest) {
         log.info("新增商品库存: request:{}", JSONObject.toJSONString(addProductStockRequest));
 
@@ -302,6 +304,7 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Boolean modifyProductStock(ModifyProductStockRequest modifyProductStockRequest) {
 
         log.info("调证商品库存:request :{}",JSONObject.toJSONString(modifyProductStockRequest));

@@ -48,7 +48,9 @@
         <module>taki-mall-persona-api</module>
         <module>taki-mall-persona</module>
         <module>taki-careerplan-eshop</module>
-        <module>taki-careerplan-elasitserach</module>
+        <module>taki-process-engine</module>
+
+
     </modules>
 
 

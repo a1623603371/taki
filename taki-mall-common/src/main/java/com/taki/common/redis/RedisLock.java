@@ -61,9 +61,14 @@ public class RedisLock {
      * @author Long
      * @date: 2022/6/20 14:52
      */
-    public Boolean tryLock(String key ,int  seconds) throws InterruptedException {
+    public Boolean tryLock(String key ,int  seconds)  {
         RLock rLock = redissonClient.getLock(key);
+        try {
             return  rLock.tryLock(seconds,TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     /***

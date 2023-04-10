@@ -52,9 +52,6 @@ public class OrderTestController {
     @Autowired
     private OrderQueryService orderQueryService;
 
-
-
-
     @DubboReference(version = "1.0.0",retries = 0)
     private FulFillApi fulFillApi;
 
