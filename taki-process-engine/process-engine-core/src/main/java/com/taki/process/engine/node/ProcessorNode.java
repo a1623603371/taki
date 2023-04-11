@@ -58,6 +58,13 @@ public class ProcessorNode {
         }
         boolean isSync = InvokeMethod.SYNC.equals(processorNode.invokeMethod);
         boolean isDynamic = processor instanceof DynamicProcessor;
+        if(!isDynamic && hasSyncNextNode && isSync){
+            throw new IllegalArgumentException("每个节点只能有一个同步调用的后继节点");
+        }
+        if (isSync){
+            hasSyncNextNode = true;
+        }
+        nextNodes.put(processorNode.getName(), processorNode);
     }
 
 

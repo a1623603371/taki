@@ -14,5 +14,61 @@ package com.taki.process.engine.process;
 
 public abstract class AbstractProcessor implements Processor {
 
+    private String name;
 
+
+    @Override
+    public void process(ProcessContext processContext) {
+        beforeProcess(processContext);
+        processInternal(processContext);
+        afterProcess(processContext);
+
+    }
+
+
+    /*** 
+     * @description:  流程前操作
+     * @param context 上下文
+     * @return  void
+     * @author Long
+     * @date: 2023/4/11 15:21
+     */ 
+    protected  void beforeProcess(ProcessContext context){
+        
+    }
+
+    /*** 
+     * @description:  流程后操作
+     * @param context 上下文
+     * @return  void
+     * @author Long
+     * @date: 2023/4/11 15:23
+     */ 
+    private void afterProcess(ProcessContext context){
+        
+    }
+
+    /*** 
+     * @description:  流程核心逻辑
+     * @param context
+     * @return  void
+     * @author Long
+     * @date: 2023/4/11 15:22
+     */ 
+    protected  abstract void processInternal(ProcessContext context);
+
+    @Override
+    public void caughtException(ProcessContext context, Throwable throwable) {
+
+    }
+
+    @Override
+    public void setName(String name) {
+
+    }
+
+    @Override
+    public String getName() {
+        return null;
+    }
 }

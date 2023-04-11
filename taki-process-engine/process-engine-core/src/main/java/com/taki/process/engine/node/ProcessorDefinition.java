@@ -30,6 +30,10 @@ public class ProcessorDefinition {
         this.name= name;
     }
 
+    public void setFist(ProcessorNode node){
+        this.fist = node;
+    }
+
 
     public String toStr(){
         StringBuilder sb = new StringBuilder();
